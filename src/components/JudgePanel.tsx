@@ -17,6 +17,8 @@ export function JudgePanel({ judgeId, match, teamA, teamB, onSubmit }: JudgePane
   const [scoreB, setScoreB] = useState<number>(5)
   const [submitted, setSubmitted] = useState(false)
 
+  if (!teamA || !teamB) return null
+
   const handleSubmit = () => {
     setSubmitted(true)
     onSubmit({

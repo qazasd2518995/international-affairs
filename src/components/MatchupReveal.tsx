@@ -115,15 +115,20 @@ export function AllMatchups({ matches, teams }: AllMatchupsProps) {
       </motion.div>
 
       <AnimatePresence>
-        {showMatches && matches.map((match, index) => (
-          <MatchupReveal
-            key={match.id}
-            match={match}
-            teamA={teams[match.teamA]}
-            teamB={teams[match.teamB]}
-            index={index}
-          />
-        ))}
+        {showMatches && matches.map((match, index) => {
+          const teamA = teams[match.teamA]
+          const teamB = teams[match.teamB]
+          if (!teamA || !teamB) return null
+          return (
+            <MatchupReveal
+              key={match.id}
+              match={match}
+              teamA={teamA}
+              teamB={teamB}
+              index={index}
+            />
+          )
+        })}
       </AnimatePresence>
     </div>
   )

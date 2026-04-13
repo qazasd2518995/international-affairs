@@ -25,16 +25,18 @@ export function MatchResult({
 }: MatchResultProps) {
   const [showConfetti, setShowConfetti] = useState(false)
 
+  useEffect(() => {
+    const timer = setTimeout(() => setShowConfetti(true), 800)
+    return () => clearTimeout(timer)
+  }, [])
+
+  if (!teamA || !teamB) return null
+
   const finalScoreA = judgeScoreA * 0.7 + (audiencePercentA / 10) * 0.3
   const finalScoreB = judgeScoreB * 0.7 + (audiencePercentB / 10) * 0.3
   const winner = finalScoreA > finalScoreB ? teamA : teamB
   const winnerIsA = finalScoreA > finalScoreB
   const winnerColor = winnerIsA ? 'team-red' : 'team-blue'
-
-  useEffect(() => {
-    const timer = setTimeout(() => setShowConfetti(true), 800)
-    return () => clearTimeout(timer)
-  }, [])
 
   const pixelColors = ['#39ff14', '#ff00aa', '#ffcc00', '#00fff0', '#ff0040', '#0080ff', '#9d00ff']
 

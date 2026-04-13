@@ -16,6 +16,7 @@ interface DebateStageProps {
 }
 
 export function DebateStage({ match, teamA, teamB, topic, phase, onTimerComplete }: DebateStageProps) {
+  if (!teamA || !teamB) return null
   const getPhaseInfo = () => {
     switch (phase) {
       case 'team-a-opening':

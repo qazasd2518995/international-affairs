@@ -23,6 +23,8 @@ export function AudienceVoting({
   const [selected, setSelected] = useState<string | null>(currentVote || null)
   const [submitted, setSubmitted] = useState(!!currentVote)
 
+  if (!teamA || !teamB) return null
+
   const isCompeting = playerTeamId === teamA.id || playerTeamId === teamB.id
 
   const handleVote = (teamId: string) => {
@@ -147,6 +149,7 @@ interface AudienceVoteResultsProps {
 }
 
 export function AudienceVoteResults({ teamA, teamB, votes }: AudienceVoteResultsProps) {
+  if (!teamA || !teamB) return null
   const votesForA = votes.filter((v) => v.votedFor === teamA.id).length
   const votesForB = votes.filter((v) => v.votedFor === teamB.id).length
   const total = votes.length || 1
