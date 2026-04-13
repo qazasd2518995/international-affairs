@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# agent metadata (local-only skill installations)
+.agents/
+.claude/
+.windsurf/
+skills-lock.json

@@ -1,26 +1,615 @@
 @import "tailwindcss";
 
+/* ============================================
+   MINI DEBATE ARENA - TV SHOW STYLE
+   電視益智節目風格設計系統
+   ============================================ */
+
+/* === 色彩系統 === */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* 舞台背景 - 深邃的午夜藍到黑色 */
+  --stage-dark: #0a0c14;
+  --stage-deep: #0f1219;
+  --stage-mid: #161b26;
+
+  /* 聚光燈金色系 */
+  --spotlight-gold: #ffd700;
+  --spotlight-amber: #ffb347;
+  --spotlight-warm: #ff8c42;
+
+  /* 霓虹強調色 */
+  --neon-cyan: #00f5ff;
+  --neon-magenta: #ff00ff;
+  --neon-green: #39ff14;
+
+  /* 玻璃效果 */
+  --glass-white: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.12);
+
+  /* 文字 */
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --text-muted: rgba(255, 255, 255, 0.4);
+
+  /* 狀態色 */
+  --agree-green: #10b981;
+  --disagree-red: #ef4444;
+  --neutral-blue: #3b82f6;
+
+  /* Team 顏色 */
+  --team-a: #f97316;
+  --team-b: #8b5cf6;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-stage-dark: var(--stage-dark);
+  --color-stage-deep: var(--stage-deep);
+  --color-stage-mid: var(--stage-mid);
+  --color-spotlight-gold: var(--spotlight-gold);
+  --color-spotlight-amber: var(--spotlight-amber);
+  --color-spotlight-warm: var(--spotlight-warm);
+  --color-neon-cyan: var(--neon-cyan);
+  --color-neon-magenta: var(--neon-magenta);
+  --color-neon-green: var(--neon-green);
+  --color-glass-white: var(--glass-white);
+  --color-glass-border: var(--glass-border);
+  --color-agree-green: var(--agree-green);
+  --color-disagree-red: var(--disagree-red);
+  --color-neutral-blue: var(--neutral-blue);
+  --color-team-a: var(--team-a);
+  --color-team-b: var(--team-b);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* === 字體 === */
+@font-face {
+  font-family: 'Bebas Neue';
+  src: url('https://fonts.gstatic.com/s/bebasneue/v14/JTUSjIg69CK48gW7PXoo9WlhyyTh89Y.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* === 基礎樣式 === */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--stage-dark);
+  color: var(--text-primary);
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* === 舞台背景效果 === */
+.stage-background {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    /* 頂部聚光燈 */
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(255, 215, 0, 0.15) 0%, transparent 60%),
+    /* 左側光暈 */
+    radial-gradient(ellipse 40% 60% at -10% 50%, rgba(255, 0, 255, 0.08) 0%, transparent 50%),
+    /* 右側光暈 */
+    radial-gradient(ellipse 40% 60% at 110% 50%, rgba(0, 245, 255, 0.08) 0%, transparent 50%),
+    /* 底部漸層 */
+    linear-gradient(180deg, var(--stage-dark) 0%, var(--stage-deep) 50%, var(--stage-mid) 100%);
+}
+
+/* 舞台網格效果 */
+.stage-grid {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(rgba(255, 215, 0, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 215, 0, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  mask-image: linear-gradient(180deg, transparent 0%, black 30%, black 70%, transparent 100%);
+}
+
+/* === 玻璃卡片 === */
+.glass-card {
+  background: var(--glass-white);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+}
+
+.glass-card-strong {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+}
+
+/* === 霓虹邊框效果 === */
+.neon-border {
+  position: relative;
+}
+
+.neon-border::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(135deg, var(--spotlight-gold), var(--neon-cyan), var(--neon-magenta));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+/* 動態霓虹邊框 */
+.neon-border-animated::before {
+  background: linear-gradient(135deg, var(--spotlight-gold), var(--neon-cyan), var(--neon-magenta), var(--spotlight-gold));
+  background-size: 300% 300%;
+  animation: neon-flow 3s ease infinite;
+}
+
+@keyframes neon-flow {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* === 標題樣式 === */
+.title-display {
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.title-glow {
+  text-shadow:
+    0 0 10px rgba(255, 215, 0, 0.5),
+    0 0 30px rgba(255, 215, 0, 0.3),
+    0 0 60px rgba(255, 215, 0, 0.2);
+}
+
+/* === 按鈕樣式 === */
+.btn-primary {
+  background: linear-gradient(135deg, var(--spotlight-gold) 0%, var(--spotlight-amber) 100%);
+  color: var(--stage-dark);
+  font-weight: 700;
+  padding: 14px 32px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow:
+    0 4px 20px rgba(255, 215, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow:
+    0 8px 30px rgba(255, 215, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.btn-secondary {
+  background: var(--glass-white);
+  color: var(--text-primary);
+  border: 1px solid var(--glass-border);
+  padding: 12px 28px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: var(--spotlight-gold);
+}
+
+/* 投票按鈕 */
+.btn-agree {
+  background: linear-gradient(135deg, var(--agree-green) 0%, #059669 100%);
+  color: white;
+  font-weight: 700;
+  padding: 20px 40px;
+  border-radius: 16px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+}
+
+.btn-agree:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 30px rgba(16, 185, 129, 0.5);
+}
+
+.btn-disagree {
+  background: linear-gradient(135deg, var(--disagree-red) 0%, #dc2626 100%);
+  color: white;
+  font-weight: 700;
+  padding: 20px 40px;
+  border-radius: 16px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3);
+}
+
+.btn-disagree:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 30px rgba(239, 68, 68, 0.5);
+}
+
+.btn-neutral {
+  background: linear-gradient(135deg, var(--neutral-blue) 0%, #2563eb 100%);
+  color: white;
+  font-weight: 700;
+  padding: 16px 32px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+}
+
+/* === 難度星星 === */
+.difficulty-stars {
+  display: flex;
+  gap: 4px;
+}
+
+.star {
+  width: 24px;
+  height: 24px;
+  color: var(--spotlight-gold);
+  filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.6));
+}
+
+.star-empty {
+  opacity: 0.3;
+  filter: none;
+}
+
+/* === 標籤/分類 === */
+.category-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  background: var(--glass-white);
+  border: 1px solid var(--glass-border);
+}
+
+/* === 計時器 === */
+.timer-display {
+  font-family: 'Bebas Neue', monospace;
+  font-size: 72px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  color: var(--text-primary);
+}
+
+.timer-urgent {
+  color: var(--disagree-red);
+  animation: timer-pulse 0.5s ease infinite;
+}
+
+@keyframes timer-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.02); }
+}
+
+/* === 排行榜樣式 === */
+.leaderboard-row {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  background: var(--glass-white);
+  border-radius: 12px;
+  margin-bottom: 8px;
+  transition: all 0.3s ease;
+}
+
+.leaderboard-row:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateX(4px);
+}
+
+.leaderboard-rank {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  width: 50px;
+  text-align: center;
+}
+
+.leaderboard-rank-1 { color: var(--spotlight-gold); }
+.leaderboard-rank-2 { color: #c0c0c0; }
+.leaderboard-rank-3 { color: #cd7f32; }
+
+/* === 揭曉動畫 === */
+.reveal-container {
+  perspective: 1000px;
+}
+
+.reveal-card {
+  transform-style: preserve-3d;
+  animation: card-reveal 1s ease forwards;
+}
+
+@keyframes card-reveal {
+  0% {
+    opacity: 0;
+    transform: rotateY(-90deg) scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: rotateY(10deg) scale(1.05);
+  }
+  100% {
+    transform: rotateY(0deg) scale(1);
+  }
+}
+
+/* 配對揭曉動畫 */
+.matchup-reveal {
+  animation: matchup-slide 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes matchup-slide {
+  0% {
+    opacity: 0;
+    transform: translateY(40px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* VS 動畫 */
+.vs-badge {
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 48px;
+  color: var(--spotlight-gold);
+  text-shadow:
+    0 0 20px rgba(255, 215, 0, 0.8),
+    0 0 40px rgba(255, 215, 0, 0.5);
+  animation: vs-pulse 2s ease infinite;
+}
+
+@keyframes vs-pulse {
+  0%, 100% {
+    transform: scale(1);
+    text-shadow:
+      0 0 20px rgba(255, 215, 0, 0.8),
+      0 0 40px rgba(255, 215, 0, 0.5);
+  }
+  50% {
+    transform: scale(1.1);
+    text-shadow:
+      0 0 30px rgba(255, 215, 0, 1),
+      0 0 60px rgba(255, 215, 0, 0.7);
+  }
+}
+
+/* === 進度條 === */
+.progress-bar {
+  height: 8px;
+  background: var(--glass-white);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--spotlight-gold), var(--spotlight-amber));
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+/* 投票比例條 */
+.vote-bar {
+  display: flex;
+  height: 40px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.vote-bar-agree {
+  background: linear-gradient(90deg, var(--agree-green), #059669);
+  transition: width 0.5s ease;
+}
+
+.vote-bar-disagree {
+  background: linear-gradient(90deg, #dc2626, var(--disagree-red));
+  transition: width 0.5s ease;
+}
+
+.vote-bar-neutral {
+  background: linear-gradient(90deg, var(--neutral-blue), #2563eb);
+  transition: width 0.5s ease;
+}
+
+/* === Team 卡片 === */
+.team-card {
+  padding: 24px;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+}
+
+.team-card-a {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.2) 0%, rgba(249, 115, 22, 0.05) 100%);
+  border: 2px solid rgba(249, 115, 22, 0.4);
+}
+
+.team-card-a:hover {
+  border-color: var(--team-a);
+  box-shadow: 0 0 30px rgba(249, 115, 22, 0.3);
+}
+
+.team-card-b {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(139, 92, 246, 0.05) 100%);
+  border: 2px solid rgba(139, 92, 246, 0.4);
+}
+
+.team-card-b:hover {
+  border-color: var(--team-b);
+  box-shadow: 0 0 30px rgba(139, 92, 246, 0.3);
+}
+
+/* === 輸入框 === */
+.input-field {
+  width: 100%;
+  padding: 16px 20px;
+  background: var(--glass-white);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--spotlight-gold);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+}
+
+.input-field::placeholder {
+  color: var(--text-muted);
+}
+
+/* === 分數顯示 === */
+.score-display {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 96px;
+  background: linear-gradient(180deg, var(--spotlight-gold) 0%, var(--spotlight-amber) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 4px 20px rgba(255, 215, 0, 0.4));
+}
+
+/* === 聚光燈效果 === */
+.spotlight-effect {
+  position: relative;
+}
+
+.spotlight-effect::after {
+  content: '';
+  position: absolute;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200%;
+  height: 300px;
+  background: radial-gradient(ellipse at center, rgba(255, 215, 0, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* === 粒子效果（勝利時） === */
+@keyframes confetti {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.confetti {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  animation: confetti 3s ease-out forwards;
+}
+
+/* === 響應式 === */
+@media (max-width: 768px) {
+  .timer-display {
+    font-size: 48px;
+  }
+
+  .score-display {
+    font-size: 64px;
+  }
+
+  .vs-badge {
+    font-size: 32px;
+  }
+
+  .btn-agree, .btn-disagree {
+    padding: 16px 24px;
+  }
+}
+
+/* === 滾動條 === */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--stage-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--glass-white);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* === 載入動畫 === */
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--glass-border);
+  border-top-color: var(--spotlight-gold);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* === 文字動畫 === */
+.text-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--text-primary) 0%,
+    var(--spotlight-gold) 50%,
+    var(--text-primary) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 3s linear infinite;
+}
+
+@keyframes shimmer {
+  to { background-position: 200% center; }
 }
