@@ -109,6 +109,15 @@ export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & 
     error: null,
   })
 
+  // Sync sessionId prop changes into hook state. The display/judge pages
+  // resolve the session asynchronously (findLatestSessionId), so the prop
+  // may start as undefined and get a real id on the next render. Without
+  // this, the hook would stay locked on the initial undefined value.
+  useEffect(() => {
+    if (!initialSessionId) return
+    setState((prev) => (prev.sessionId === initialSessionId ? prev : { ...prev, sessionId: initialSessionId }))
+  }, [initialSessionId])
+
   // Load initial data
   const loadSession = useCallback(async (sessionId: string) => {
     try {
