@@ -9,7 +9,6 @@ import {
   Logo,
   VoteResults,
   AllMatchups,
-  CountdownTimer,
   SyncedCountdown,
   AudienceVoteResults,
   MatchResult,
@@ -271,11 +270,11 @@ function DisplayContent() {
                 )}
 
                 <div className="flex justify-center mb-8">
-                  <CountdownTimer
+                  <SyncedCountdown
                     duration={30}
+                    startedAt={game.phaseStartedAt}
                     label="Time to Vote"
                     size="md"
-                    autoStart={true}
                   />
                 </div>
 
@@ -319,11 +318,11 @@ function DisplayContent() {
                   PREPARATION TIME
                 </motion.h2>
 
-                <CountdownTimer
+                <SyncedCountdown
                   duration={90}
+                  startedAt={game.phaseStartedAt}
                   label="Teams Preparing"
                   size="lg"
-                  autoStart={true}
                 />
 
                 <motion.p
@@ -484,11 +483,11 @@ function DisplayContent() {
                 </motion.div>
 
                 <div className="flex justify-center mb-8">
-                  <CountdownTimer
+                  <SyncedCountdown
                     duration={20}
+                    startedAt={game.phaseStartedAt}
                     label="Vote Time"
                     size="md"
-                    autoStart={true}
                   />
                 </div>
 

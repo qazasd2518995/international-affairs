@@ -57,6 +57,7 @@ const toMatch = (db: DbMatch): Match => ({
 interface RealtimeGameState {
   sessionId: string | null
   phase: GamePhase
+  phaseStartedAt: number | null
   currentRound: number
   currentTopicId: string | null
   currentMatchId: string | null
@@ -92,6 +93,7 @@ export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & 
   const [state, setState] = useState<RealtimeGameState>({
     sessionId: initialSessionId || null,
     phase: 'lobby',
+    phaseStartedAt: null,
     currentRound: 0,
     currentTopicId: null,
     currentMatchId: null,
@@ -198,6 +200,9 @@ export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & 
         ...prev,
         sessionId,
         phase: session.phase as GamePhase,
+        phaseStartedAt: session.phase_started_at
+          ? new Date(session.phase_started_at).getTime()
+          : null,
         currentRound: session.current_round,
         currentTopicId: session.current_topic_id,
         currentMatchId: session.current_match_id,
@@ -245,6 +250,9 @@ export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & 
             setState((prev) => ({
               ...prev,
               phase: session.phase as GamePhase,
+              phaseStartedAt: session.phase_started_at
+                ? new Date(session.phase_started_at).getTime()
+                : null,
               currentRound: session.current_round,
               currentTopicId: session.current_topic_id,
               currentMatchId: session.current_match_id,
@@ -454,9 +462,14 @@ export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & 
     async (phase: GamePhase) => {
       if (!state.sessionId) return
 
+      const now = new Date().toISOString()
       await supabase
         .from('game_sessions')
-        .update({ phase, updated_at: new Date().toISOString() })
+        .update({
+          phase,
+          phase_started_at: now,
+          updated_at: now,
+        })
         .eq('id', state.sessionId)
     },
     [state.sessionId]

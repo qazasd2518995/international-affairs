@@ -10,7 +10,6 @@ import {
   TopicReveal,
   VoteResults,
   AllMatchups,
-  CountdownTimer,
   SyncedCountdown,
   AudienceVoteResults,
   MatchResult,
@@ -411,8 +410,9 @@ function AdminContent() {
                   </div>
                 )}
 
-                <CountdownTimer
+                <SyncedCountdown
                   duration={30}
+                  startedAt={game.phaseStartedAt}
                   label="Vote Now"
                   size="md"
                   onComplete={handleNextPhase}
@@ -478,8 +478,9 @@ function AdminContent() {
                   Teams are writing their arguments...
                 </p>
 
-                <CountdownTimer
+                <SyncedCountdown
                   duration={90}
+                  startedAt={game.phaseStartedAt}
                   label="Preparation"
                   size="lg"
                   onComplete={handleNextPhase}
@@ -604,8 +605,9 @@ function AdminContent() {
                   AUDIENCE VOTE
                 </h2>
 
-                <CountdownTimer
+                <SyncedCountdown
                   duration={20}
+                  startedAt={game.phaseStartedAt}
                   label="Cast Your Vote"
                   size="md"
                   onComplete={handleNextPhase}

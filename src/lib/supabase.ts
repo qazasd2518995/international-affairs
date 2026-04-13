@@ -15,6 +15,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 export interface DbGameSession {
   id: string
   phase: string
+  phase_started_at: string | null
   current_round: number
   total_rounds: number
   current_topic_id: string | null
