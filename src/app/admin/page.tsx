@@ -11,6 +11,7 @@ import {
   VoteResults,
   AllMatchups,
   SyncedCountdown,
+  SkipButton,
   AudienceVoteResults,
   MatchResult,
   Leaderboard,
@@ -418,6 +419,10 @@ function AdminContent() {
                   onComplete={handleNextPhase}
                 />
 
+                <div className="flex justify-center">
+                  <SkipButton onClick={handleNextPhase} label="Skip to Matchups" variant="skip" />
+                </div>
+
                 <VoteResults votes={game.votes} totalVoters={Object.keys(game.players).length} />
 
                 <div className="text-center">
@@ -485,6 +490,10 @@ function AdminContent() {
                   size="lg"
                   onComplete={handleNextPhase}
                 />
+
+                <div className="flex justify-center">
+                  <SkipButton onClick={handleNextPhase} label="Skip to Debate" variant="skip" />
+                </div>
 
                 <button className="btn-primary" onClick={handleNextPhase}>
                   START DEBATE →
@@ -573,11 +582,12 @@ function AdminContent() {
                   />
                 )}
 
-                <div className="text-center space-x-4">
+                <div className="flex justify-center gap-3">
                   {debateSubPhase !== 'done' ? (
-                    <button className="btn-secondary" onClick={handleDebateSubPhaseNext}>
-                      SKIP TO NEXT →
-                    </button>
+                    <>
+                      <SkipButton onClick={handleDebateSubPhaseNext} label="Skip Current Speaker" variant="skip" />
+                      <SkipButton onClick={handleNextPhase} label="End Debate Now" variant="next" />
+                    </>
                   ) : (
                     <motion.button
                       className="btn-primary"
@@ -612,6 +622,10 @@ function AdminContent() {
                   size="md"
                   onComplete={handleNextPhase}
                 />
+
+                <div className="flex justify-center">
+                  <SkipButton onClick={handleNextPhase} label="Skip to Scoring" variant="skip" />
+                </div>
 
                 <AudienceVoteResults
                   teamA={game.teams[currentMatch.teamA]}
