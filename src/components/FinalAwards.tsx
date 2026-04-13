@@ -8,58 +8,23 @@ interface FinalAwardsProps {
   teams: Team[]
 }
 
-interface Award {
-  title: string
-  symbol: string
-  team: Team
-  description: string
-  color: string
-}
-
 export function FinalAwards({ teams }: FinalAwardsProps) {
-  const [currentAward, setCurrentAward] = useState(-1)
-  const [showAll, setShowAll] = useState(false)
+  const [revealed, setRevealed] = useState(false)
 
   const sortedByScore = [...teams].sort((a, b) => b.totalScore - a.totalScore)
-
-  const awards: Award[] = [
-    {
-      title: 'CHAMPION',
-      symbol: '♛',
-      team: sortedByScore[0],
-      description: 'Highest XP earned',
-      color: 'var(--neon-yellow)',
-    },
-    {
-      title: 'RUNNER UP',
-      symbol: '♞',
-      team: sortedByScore[1],
-      description: 'Second highest',
-      color: 'var(--neon-cyan)',
-    },
-    {
-      title: 'BRAVE SOUL',
-      symbol: '♟',
-      team: sortedByScore[sortedByScore.length - 1],
-      description: 'Fought hard!',
-      color: 'var(--neon-pink)',
-    },
-  ]
+  const champion = sortedByScore[0]
 
   useEffect(() => {
-    if (currentAward < awards.length - 1) {
-      const timer = setTimeout(() => setCurrentAward((prev) => prev + 1), 3000)
-      return () => clearTimeout(timer)
-    } else if (currentAward === awards.length - 1) {
-      const timer = setTimeout(() => setShowAll(true), 2500)
-      return () => clearTimeout(timer)
-    }
-  }, [currentAward, awards.length])
+    const timer = setTimeout(() => setRevealed(true), 3500)
+    return () => clearTimeout(timer)
+  }, [])
+
+  const [showIntro, setShowIntro] = useState(true)
 
   return (
     <div className="w-full max-w-4xl mx-auto">
       <AnimatePresence mode="wait">
-        {currentAward === -1 && (
+        {showIntro ? (
           <motion.div
             key="intro"
             className="text-center"
@@ -69,7 +34,7 @@ export function FinalAwards({ teams }: FinalAwardsProps) {
           >
             <motion.button
               className="pixel-panel pixel-panel-yellow cursor-pointer"
-              onClick={() => setCurrentAward(0)}
+              onClick={() => setShowIntro(false)}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
@@ -82,10 +47,10 @@ export function FinalAwards({ teams }: FinalAwardsProps) {
                   ★
                 </motion.div>
                 <p className="font-pixel text-pixel-2xl neon-glow-yellow mb-4">
-                  AWARDS
+                  CROWN THE CHAMPION
                 </p>
                 <p className="font-terminal text-terminal-lg text-text-dim">
-                  &gt; Press A to continue...
+                  &gt; Who earned the most XP?
                 </p>
                 <p className="press-start mt-4 text-pixel-sm">
                   ► PRESS A ◄
@@ -93,37 +58,69 @@ export function FinalAwards({ teams }: FinalAwardsProps) {
               </div>
             </motion.button>
           </motion.div>
-        )}
-
-        {currentAward >= 0 && !showAll && (
+        ) : !revealed ? (
           <motion.div
-            key={`award-${currentAward}`}
-            className="text-center crt-on"
-            initial={{ opacity: 0, scale: 0.8, rotateY: -90 }}
-            animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-            exit={{ opacity: 0, scale: 0.8, rotateY: 90 }}
+            key="drumroll"
+            className="text-center py-16"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="font-pixel text-[100px] md:text-[160px] neon-glow-yellow leading-none mb-6"
+              animate={{
+                rotate: [0, -10, 10, -10, 10, 0],
+                scale: [1, 1.2, 0.9, 1.2, 0.9, 1],
+              }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
+            >
+              ♛
+            </motion.div>
+            <motion.p
+              className="font-pixel text-pixel-2xl md:text-pixel-3xl neon-glow-pink animate-glitch"
+            >
+              WHO IS...
+            </motion.p>
+            <motion.p
+              className="font-pixel text-pixel-2xl md:text-pixel-3xl neon-glow-yellow mt-4 animate-glitch"
+            >
+              THE CHAMPION?
+            </motion.p>
+            <p className="font-terminal text-terminal-lg text-text-dim mt-6">
+              &gt; Calculating final XP<span className="loading-dots"></span>
+            </p>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="champion"
+            className="crt-on"
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4, ease: 'linear' }}
           >
-            <div className="pixel-panel pixel-panel-yellow">
+            <div className="pixel-panel pixel-panel-yellow text-center">
+              <p className="font-pixel text-pixel-sm text-neon-yellow mb-4">
+                ★ STAGE CLEAR! ★
+              </p>
+
               <motion.div
-                className="font-pixel text-[100px] md:text-[140px] leading-none mb-6"
-                style={{ color: awards[currentAward].color }}
+                className="font-pixel text-[120px] md:text-[180px] neon-glow-yellow leading-none mb-4"
                 animate={{
-                  y: [0, -8, 0],
+                  y: [0, -12, 0],
                   rotate: [0, -5, 5, 0],
                 }}
                 transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
               >
-                {awards[currentAward].symbol}
+                ♛
               </motion.div>
 
               <motion.p
-                className="font-pixel text-pixel-2xl md:text-pixel-3xl neon-glow-yellow mb-4"
+                className="font-pixel text-pixel-2xl md:text-pixel-3xl neon-glow-yellow mb-6"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}
               >
-                {awards[currentAward].title}
+                CHAMPION
               </motion.p>
 
               <motion.div
@@ -132,71 +129,39 @@ export function FinalAwards({ teams }: FinalAwardsProps) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
               >
-                <p className="font-terminal text-terminal-xl md:text-terminal-2xl text-text-white">
-                  {awards[currentAward].team?.name.toUpperCase()}
+                <p className="font-terminal text-terminal-2xl md:text-terminal-3xl text-neon-yellow">
+                  {champion?.name.toUpperCase()}
                 </p>
-                <p className="font-terminal text-terminal-base text-text-dim mt-2">
-                  &gt; {awards[currentAward].description}
+                <p className="font-terminal text-terminal-lg text-text-dim mt-4">
+                  &gt; The greatest debater of all!
                 </p>
               </motion.div>
 
               <motion.div
-                className="font-pixel text-pixel-xl neon-glow-green"
+                className="inline-block pixel-panel-sm pixel-panel"
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.8, ease: 'linear' }}
+              >
+                <p className="font-pixel text-pixel-sm text-neon-cyan mb-2">
+                  FINAL XP
+                </p>
+                <p className="font-pixel text-pixel-4xl neon-glow-green">
+                  {champion?.totalScore.toFixed(1)}
+                </p>
+              </motion.div>
+
+              {/* Confetti-like pixel sparkles around the winner */}
+              <motion.div
+                className="mt-8"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.8 }}
+                transition={{ delay: 1.2 }}
               >
-                XP: {awards[currentAward].team?.totalScore.toFixed(1)}
+                <p className="font-terminal text-terminal-xl text-text-white">
+                  ♪ GG! THANKS FOR PLAYING! ♪
+                </p>
               </motion.div>
-            </div>
-          </motion.div>
-        )}
-
-        {showAll && (
-          <motion.div
-            key="all-awards"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            <motion.div
-              className="text-center mb-6"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <p className="font-pixel text-pixel-3xl md:text-pixel-4xl neon-glow-yellow animate-glitch">
-                THE END
-              </p>
-              <p className="font-terminal text-terminal-xl text-text-dim mt-2">
-                &gt; GG everyone!
-              </p>
-            </motion.div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {awards.map((award, index) => (
-                <motion.div
-                  key={award.title}
-                  className="pixel-panel text-center"
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.2, ease: 'linear' }}
-                >
-                  <div
-                    className="font-pixel text-[60px] leading-none mb-3"
-                    style={{ color: award.color }}
-                  >
-                    {award.symbol}
-                  </div>
-                  <p className="font-pixel text-pixel-sm neon-glow-yellow">
-                    {award.title}
-                  </p>
-                  <p className="font-pixel text-pixel-lg text-text-white mt-2">
-                    {award.team?.name.toUpperCase()}
-                  </p>
-                  <p className="font-pixel text-pixel-xl neon-glow-green mt-2">
-                    {award.team?.totalScore.toFixed(1)}
-                  </p>
-                </motion.div>
-              ))}
             </div>
           </motion.div>
         )}

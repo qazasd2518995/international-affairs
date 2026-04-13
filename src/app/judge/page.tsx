@@ -550,13 +550,13 @@ function JudgeContent() {
               <div className="pixel-panel pixel-panel-yellow text-center">
                 <motion.div
                   className="font-pixel text-[80px] neon-glow-yellow leading-none mb-4"
-                  animate={{ rotate: [0, -5, 5, 0] }}
+                  animate={{ y: [0, -8, 0] }}
                   transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                 >
-                  ★
+                  ♛
                 </motion.div>
                 <p className="font-pixel text-pixel-xl neon-glow-yellow mb-4">
-                  AWARDS
+                  CROWNING CHAMPION
                 </p>
                 <p className="font-terminal text-terminal-base text-text-dim">
                   &gt; Watch the big screen!
