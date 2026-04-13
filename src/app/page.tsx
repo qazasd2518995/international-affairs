@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Target, CheckCircle2, Dices, Swords, Hourglass, Mic, Scale, Trophy } from 'lucide-react'
-import { StageBackground, Logo, LoginForm, VotingPanel, AudienceVoting, ArgumentInput } from '@/components'
+import { StageBackground, Logo, LoginForm, VotingPanel, AudienceVoting, ArgumentInput, SyncedCountdown } from '@/components'
 import { useRealtimeGame } from '@/lib/useRealtimeGame'
 import { TOPICS } from '@/lib/types'
 
@@ -182,13 +182,21 @@ function HomeContent() {
 
             {/* Voting phase */}
             {game.phase === 'voting' && currentTopic && (
-              <VotingPanel
-                topic={currentTopic}
-                playerId={playerId!}
-                teamId={playerTeamId!}
-                onVote={handleVote}
-                currentVote={game.votes.find((v) => v.playerId === playerId)?.stance}
-              />
+              <div className="space-y-4">
+                <SyncedCountdown
+                  duration={30}
+                  startedAt={game.phaseStartedAt}
+                  label="Voting"
+                  size="sm"
+                />
+                <VotingPanel
+                  topic={currentTopic}
+                  playerId={playerId!}
+                  teamId={playerTeamId!}
+                  onVote={handleVote}
+                  currentVote={game.votes.find((v) => v.playerId === playerId)?.stance}
+                />
+              </div>
             )}
 
             {/* Matchup reveal - just watch */}
@@ -212,61 +220,110 @@ function HomeContent() {
 
             {/* Preparation - input arguments if competing */}
             {game.phase === 'preparation' && currentTopic && (
-              isCompeting ? (
-                <ArgumentInput
-                  topic={currentTopic}
-                  stance={playerStance as 'agree' | 'disagree'}
-                  teamName={game.teams[playerTeamId!]?.name || ''}
-                  onSubmit={handleArgumentSubmit}
+              <div className="space-y-4">
+                <SyncedCountdown
+                  duration={90}
+                  startedAt={game.phaseStartedAt}
+                  label="Preparation"
+                  size="sm"
                 />
-              ) : (
-                <motion.div
-                  className="glass-card-strong p-8 text-center"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                >
-                  <div className="flex justify-center mb-4">
-                    <Hourglass size={64} className="text-[var(--spotlight-gold)]" strokeWidth={1.5} />
-                  </div>
-                  <h2 className="text-xl font-bold text-[var(--spotlight-gold)]">
-                    Teams Preparing...
-                  </h2>
-                  <p className="text-[var(--text-secondary)] mt-2">
-                    Watch the debate soon!
-                  </p>
-                </motion.div>
-              )
+                {isCompeting ? (
+                  <ArgumentInput
+                    topic={currentTopic}
+                    stance={playerStance as 'agree' | 'disagree'}
+                    teamName={game.teams[playerTeamId!]?.name || ''}
+                    onSubmit={handleArgumentSubmit}
+                  />
+                ) : (
+                  <motion.div
+                    className="glass-card-strong p-8 text-center"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                  >
+                    <div className="flex justify-center mb-4">
+                      <Hourglass size={64} className="text-[var(--spotlight-gold)]" strokeWidth={1.5} />
+                    </div>
+                    <h2 className="text-xl font-bold text-[var(--spotlight-gold)] mb-3">
+                      Teams Preparing...
+                    </h2>
+                    <p className="text-sm text-[var(--text-muted)] mb-3">Topic:</p>
+                    <p className="text-base text-[var(--text-secondary)]">
+                      {currentTopic.question}
+                    </p>
+                  </motion.div>
+                )}
+              </div>
             )}
 
-            {/* Debate - just watch */}
-            {game.phase === 'debate' && (
-              <motion.div
-                className="glass-card-strong p-8 text-center"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-              >
-                <div className="flex justify-center mb-4">
-                  <Mic size={64} className="text-[var(--spotlight-gold)]" strokeWidth={1.5} />
+            {/* Debate - show who's speaking */}
+            {game.phase === 'debate' && currentMatch && (() => {
+              const subLabels: Record<string, { label: string; team: 'A' | 'B' | 'HOST'; duration: number }> = {
+                'team-a-opening': { label: 'Opening', team: 'A', duration: 20 },
+                'team-b-opening': { label: 'Opening', team: 'B', duration: 20 },
+                'host-challenge': { label: 'Challenge', team: 'HOST', duration: 15 },
+                'team-a-response': { label: 'Response', team: 'A', duration: 15 },
+                'team-b-response': { label: 'Response', team: 'B', duration: 15 },
+                'done': { label: 'Done', team: 'A', duration: 0 },
+              }
+              const subInfo = subLabels[game.debateSubPhase]
+              const activeTeam = subInfo?.team
+              const color = activeTeam === 'A' ? 'var(--team-a)' : activeTeam === 'B' ? 'var(--team-b)' : 'var(--spotlight-gold)'
+
+              return (
+                <div className="space-y-4">
+                  <motion.div
+                    className="glass-card-strong p-6 text-center"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                  >
+                    <div className="flex justify-center mb-3">
+                      <Mic size={48} className="text-[var(--disagree-red)]" strokeWidth={1.5} />
+                    </div>
+                    <p className="text-[var(--text-muted)] text-xs uppercase tracking-wider mb-2">Now Speaking</p>
+                    <motion.p
+                      key={game.debateSubPhase}
+                      className="title-display text-xl"
+                      style={{ color }}
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                    >
+                      {activeTeam === 'HOST'
+                        ? 'HOST CHALLENGE'
+                        : `${game.teams[activeTeam === 'A' ? currentMatch.teamA : currentMatch.teamB]?.name} — ${subInfo?.label}`}
+                    </motion.p>
+                  </motion.div>
+
+                  {game.debateSubPhase !== 'done' && subInfo && (
+                    <SyncedCountdown
+                      key={game.debateSubPhase}
+                      duration={subInfo.duration}
+                      startedAt={game.debateSubPhaseStartedAt}
+                      label={subInfo.label}
+                      size="sm"
+                    />
+                  )}
                 </div>
-                <h2 className="text-xl font-bold text-[var(--spotlight-gold)]">
-                  Debate in Progress!
-                </h2>
-                <p className="text-[var(--text-secondary)] mt-2">
-                  Watch the big screen!
-                </p>
-              </motion.div>
-            )}
+              )
+            })()}
 
             {/* Audience vote */}
             {game.phase === 'audience-vote' && currentMatch && (
-              <AudienceVoting
-                teamA={game.teams[currentMatch.teamA]}
-                teamB={game.teams[currentMatch.teamB]}
-                playerId={playerId!}
-                playerTeamId={playerTeamId!}
-                onVote={handleAudienceVote}
-                currentVote={game.audienceVotes[currentMatch.id]?.find((v) => v.playerId === playerId)?.votedFor}
-              />
+              <div className="space-y-4">
+                <SyncedCountdown
+                  duration={20}
+                  startedAt={game.phaseStartedAt}
+                  label="Vote Now"
+                  size="sm"
+                />
+                <AudienceVoting
+                  teamA={game.teams[currentMatch.teamA]}
+                  teamB={game.teams[currentMatch.teamB]}
+                  playerId={playerId!}
+                  playerTeamId={playerTeamId!}
+                  onVote={handleAudienceVote}
+                  currentVote={game.audienceVotes[currentMatch.id]?.find((v) => v.playerId === playerId)?.votedFor}
+                />
+              </div>
             )}
 
             {/* Scoring - waiting */}
