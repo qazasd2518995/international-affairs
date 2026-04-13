@@ -453,43 +453,104 @@ function AdminContent() {
               </motion.div>
             )}
 
-            {game.phase === 'preparation' && (
-              <motion.div
-                key="prep-content"
-                className="space-y-6 text-center"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
-                <motion.p
-                  className="font-pixel text-pixel-2xl md:text-pixel-3xl neon-glow-yellow"
-                  animate={{ scale: [1, 1.02, 1] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+            {game.phase === 'preparation' && currentMatch && (() => {
+              const teamASubmitted = currentMatch.teamAArguments.length > 0
+              const teamBSubmitted = currentMatch.teamBArguments.length > 0
+              const bothSubmitted = teamASubmitted && teamBSubmitted
+              const teamAName = game.teams[currentMatch.teamA]?.name || 'Team A'
+              const teamBName = game.teams[currentMatch.teamB]?.name || 'Team B'
+
+              const handleForceSkip = () => {
+                if (!bothSubmitted) {
+                  const missing = [
+                    !teamASubmitted && teamAName,
+                    !teamBSubmitted && teamBName,
+                  ].filter(Boolean).join(' and ')
+                  const ok = window.confirm(
+                    `${missing} hasn't submitted arguments yet.\n\n` +
+                    `If you skip now, AI judges won't have commentary for them.\n\n` +
+                    `Skip anyway?`
+                  )
+                  if (!ok) return
+                }
+                handleNextPhase()
+              }
+
+              return (
+                <motion.div
+                  key="prep-content"
+                  className="space-y-6 text-center"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
                 >
-                  ♪ CHARGING MP ♪
-                </motion.p>
+                  <motion.p
+                    className="font-pixel text-pixel-2xl md:text-pixel-3xl neon-glow-yellow"
+                    animate={{ scale: [1, 1.02, 1] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                  >
+                    ♪ CHARGING MP ♪
+                  </motion.p>
 
-                <SyncedCountdown
-                  duration={90}
-                  startedAt={game.phaseStartedAt}
-                  label="PREPARATION"
-                  size="lg"
-                  onComplete={handleNextPhase}
-                />
+                  <SyncedCountdown
+                    duration={90}
+                    startedAt={game.phaseStartedAt}
+                    label="PREPARATION"
+                    size="lg"
+                    onComplete={bothSubmitted ? handleNextPhase : undefined}
+                  />
 
-                <div className="flex justify-center">
-                  <SkipButton onClick={handleNextPhase} label="Skip Prep" variant="skip" />
-                </div>
+                  {/* Submission status */}
+                  <div className="flex justify-center gap-4 flex-wrap">
+                    <motion.div
+                      className={`pixel-panel-sm pixel-panel ${teamASubmitted ? 'pixel-panel-neon' : ''}`}
+                      animate={{ scale: teamASubmitted ? [1, 1.05, 1] : 1 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <p className="font-pixel text-pixel-sm text-team-red">
+                        {teamASubmitted ? '✓' : '...'} {teamAName.toUpperCase()}
+                      </p>
+                      <p className="font-terminal text-terminal-sm text-text-dim mt-1">
+                        {teamASubmitted ? 'Ready!' : 'Writing attacks...'}
+                      </p>
+                    </motion.div>
+                    <motion.div
+                      className={`pixel-panel-sm pixel-panel ${teamBSubmitted ? 'pixel-panel-neon' : ''}`}
+                      animate={{ scale: teamBSubmitted ? [1, 1.05, 1] : 1 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <p className="font-pixel text-pixel-sm text-team-blue">
+                        {teamBSubmitted ? '✓' : '...'} {teamBName.toUpperCase()}
+                      </p>
+                      <p className="font-terminal text-terminal-sm text-text-dim mt-1">
+                        {teamBSubmitted ? 'Ready!' : 'Writing attacks...'}
+                      </p>
+                    </motion.div>
+                  </div>
 
-                <motion.button
-                  className="pixel-btn pixel-btn-red"
-                  onClick={handleNextPhase}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  ► BATTLE START! ◄
-                </motion.button>
-              </motion.div>
-            )}
+                  {!bothSubmitted && (
+                    <p className="font-terminal text-terminal-base text-neon-pink">
+                      &gt; Waiting for both teams to submit before starting debate.
+                    </p>
+                  )}
+
+                  <div className="flex justify-center gap-3 flex-wrap">
+                    <SkipButton onClick={handleForceSkip} label={bothSubmitted ? 'Skip Prep' : 'Force Skip'} variant="skip" />
+                    {bothSubmitted && (
+                      <motion.button
+                        className="pixel-btn pixel-btn-red"
+                        onClick={handleNextPhase}
+                        whileTap={{ scale: 0.95 }}
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                      >
+                        ► BATTLE START! ◄
+                      </motion.button>
+                    )}
+                  </div>
+                </motion.div>
+              )
+            })()}
 
             {game.phase === 'debate' && currentMatch && currentTopic && (
               <motion.div
