@@ -10,6 +10,7 @@ interface FinalAwardsProps {
 
 export function FinalAwards({ teams }: FinalAwardsProps) {
   const [revealed, setRevealed] = useState(false)
+  const [showIntro, setShowIntro] = useState(true)
 
   const sortedByScore = [...teams].sort((a, b) => b.totalScore - a.totalScore)
   const champion = sortedByScore[0]
@@ -19,7 +20,17 @@ export function FinalAwards({ teams }: FinalAwardsProps) {
     return () => clearTimeout(timer)
   }, [])
 
-  const [showIntro, setShowIntro] = useState(true)
+  if (!champion) {
+    return (
+      <div className="w-full max-w-md mx-auto">
+        <div className="pixel-panel text-center">
+          <p className="font-pixel text-pixel-base text-text-dim">
+            LOADING CHAMPION<span className="loading-dots"></span>
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="w-full max-w-4xl mx-auto">

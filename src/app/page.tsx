@@ -27,12 +27,15 @@ function HomeContent() {
   const handleLogin = async (name: string, teamId: string) => {
     if (!sessionId) return
     try {
-      const id = await game.joinSession(sessionId, name, teamId)
+      // LoginForm sends "team-N" (1..6). Teams table uses session-prefixed IDs
+      // to avoid cross-session PK collisions, so expand to full team ID here.
+      const fullTeamId = `${sessionId}:${teamId}`
+      const id = await game.joinSession(sessionId, name, fullTeamId)
       setPlayerId(id)
-      setPlayerTeamId(teamId)
+      setPlayerTeamId(fullTeamId)
       setIsLoggedIn(true)
       localStorage.setItem('mda_player_id', id)
-      localStorage.setItem('mda_team_id', teamId)
+      localStorage.setItem('mda_team_id', fullTeamId)
       localStorage.setItem('mda_session_id', sessionId)
     } catch (err) {
       console.error('Failed to join:', err)
