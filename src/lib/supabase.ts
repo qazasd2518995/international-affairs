@@ -19,6 +19,8 @@ export interface DbGameSession {
   total_rounds: number
   current_topic_id: string | null
   current_match_id: string | null
+  debate_sub_phase: string | null
+  debate_sub_phase_started_at: string | null
   created_at: string
   updated_at: string
 }

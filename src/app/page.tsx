@@ -94,19 +94,6 @@ function HomeContent() {
               Scan the QR code or ask your host for the game link.
             </p>
           </motion.div>
-          <motion.div
-            className="mt-8"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1 }}
-          >
-            <a
-              href="/admin"
-              className="text-[var(--text-muted)] text-sm hover:text-[var(--spotlight-gold)] transition-colors"
-            >
-              Host Control Panel →
-            </a>
-          </motion.div>
         </div>
       </main>
     )

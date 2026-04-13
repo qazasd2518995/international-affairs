@@ -3,13 +3,14 @@
 import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Star, Mic, Vote as VoteIcon, Flame, Zap, Scale } from 'lucide-react'
+import { Star, Vote as VoteIcon, Flame, Zap, Scale } from 'lucide-react'
 import {
   StageBackground,
   Logo,
   VoteResults,
   AllMatchups,
   CountdownTimer,
+  SyncedCountdown,
   AudienceVoteResults,
   MatchResult,
   Leaderboard,
@@ -19,8 +20,17 @@ import {
   QRCodeDisplay,
   PhaseTransition,
 } from '@/components'
-import { useRealtimeGame } from '@/lib/useRealtimeGame'
+import { useRealtimeGame, type DebateSubPhase } from '@/lib/useRealtimeGame'
 import { TOPICS } from '@/lib/types'
+
+const DEBATE_SUB_INFO: Record<DebateSubPhase, { label: string; duration: number; team: 'A' | 'B' | 'HOST' }> = {
+  'team-a-opening': { label: 'OPENING STATEMENT', duration: 20, team: 'A' },
+  'team-b-opening': { label: 'OPENING STATEMENT', duration: 20, team: 'B' },
+  'host-challenge': { label: 'HOST CHALLENGE', duration: 15, team: 'HOST' },
+  'team-a-response': { label: 'RESPONSE', duration: 15, team: 'A' },
+  'team-b-response': { label: 'RESPONSE', duration: 15, team: 'B' },
+  'done': { label: 'DEBATE COMPLETE', duration: 0, team: 'A' },
+}
 
 function DisplayContent() {
   const searchParams = useSearchParams()
@@ -351,88 +361,99 @@ function DisplayContent() {
             )}
 
             {/* Debate */}
-            {game.phase === 'debate' && currentMatch && (
-              <motion.div
-                key="debate"
-                className="w-full text-center"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
+            {game.phase === 'debate' && currentMatch && (() => {
+              const subInfo = DEBATE_SUB_INFO[game.debateSubPhase]
+              const activeTeam = subInfo.team
+              const phaseColor = activeTeam === 'A' ? 'var(--team-a)' : activeTeam === 'B' ? 'var(--team-b)' : 'var(--spotlight-gold)'
+
+              return (
                 <motion.div
-                  className="flex items-center justify-center gap-6 mb-8"
-                  animate={{
-                    scale: [1, 1.05, 1],
-                  }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
+                  key="debate"
+                  className="w-full text-center"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
                 >
-                  <Mic size={56} className="text-[var(--spotlight-gold)]" fill="currentColor" strokeWidth={1.5} />
-                  <h2 className="title-display text-5xl md:text-6xl text-[var(--spotlight-gold)] title-glow">
-                    DEBATE IN PROGRESS
-                  </h2>
-                  <Mic size={56} className="text-[var(--spotlight-gold)]" fill="currentColor" strokeWidth={1.5} />
+                  {/* Sub-phase label */}
+                  <motion.div
+                    key={game.debateSubPhase}
+                    className="mb-6"
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
+                    <p className="text-[var(--text-muted)] uppercase tracking-[0.3em] text-sm mb-2">
+                      Now Speaking
+                    </p>
+                    <motion.h2
+                      className="title-display text-5xl md:text-7xl title-glow"
+                      style={{ color: phaseColor }}
+                      animate={{
+                        textShadow: [
+                          `0 0 20px ${phaseColor}`,
+                          `0 0 60px ${phaseColor}`,
+                          `0 0 20px ${phaseColor}`,
+                        ],
+                      }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                    >
+                      {activeTeam === 'HOST'
+                        ? 'HOST CHALLENGE'
+                        : `${game.teams[activeTeam === 'A' ? currentMatch.teamA : currentMatch.teamB]?.name} — ${subInfo.label}`}
+                    </motion.h2>
+                  </motion.div>
+
+                  {/* Teams row */}
+                  <div className="flex justify-center items-center gap-8 mb-8">
+                    <motion.div
+                      className="team-card team-card-a p-6"
+                      animate={{
+                        scale: activeTeam === 'A' ? [1, 1.05, 1] : 0.9,
+                        opacity: activeTeam === 'A' ? 1 : 0.4,
+                      }}
+                      transition={{ duration: 1.5, repeat: activeTeam === 'A' ? Infinity : 0 }}
+                    >
+                      <div className="flex justify-center mb-2">
+                        <Flame size={40} className="text-[var(--team-a)]" fill="currentColor" />
+                      </div>
+                      <h3 className="title-display text-2xl text-[var(--team-a)]">
+                        {game.teams[currentMatch.teamA]?.name}
+                      </h3>
+                      <span className="text-sm text-[var(--agree-green)]">AGREE</span>
+                    </motion.div>
+
+                    <div className="vs-badge text-5xl">VS</div>
+
+                    <motion.div
+                      className="team-card team-card-b p-6"
+                      animate={{
+                        scale: activeTeam === 'B' ? [1, 1.05, 1] : 0.9,
+                        opacity: activeTeam === 'B' ? 1 : 0.4,
+                      }}
+                      transition={{ duration: 1.5, repeat: activeTeam === 'B' ? Infinity : 0 }}
+                    >
+                      <div className="flex justify-center mb-2">
+                        <Zap size={40} className="text-[var(--team-b)]" fill="currentColor" />
+                      </div>
+                      <h3 className="title-display text-2xl text-[var(--team-b)]">
+                        {game.teams[currentMatch.teamB]?.name}
+                      </h3>
+                      <span className="text-sm text-[var(--disagree-red)]">DISAGREE</span>
+                    </motion.div>
+                  </div>
+
+                  {/* Big synced countdown */}
+                  {game.debateSubPhase !== 'done' && (
+                    <SyncedCountdown
+                      key={game.debateSubPhase}
+                      duration={subInfo.duration}
+                      startedAt={game.debateSubPhaseStartedAt}
+                      label={subInfo.label}
+                      size="lg"
+                    />
+                  )}
                 </motion.div>
-
-                <div className="flex justify-center items-center gap-12">
-                  <motion.div
-                    className="team-card team-card-a p-10"
-                    animate={{
-                      scale: [1, 1.05, 1],
-                      boxShadow: [
-                        '0 0 20px rgba(249, 115, 22, 0.3)',
-                        '0 0 50px rgba(249, 115, 22, 0.6)',
-                        '0 0 20px rgba(249, 115, 22, 0.3)',
-                      ],
-                    }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  >
-                    <div className="flex justify-center mb-2">
-                      <Flame size={56} className="text-[var(--team-a)]" fill="currentColor" />
-                    </div>
-                    <h3 className="title-display text-3xl text-[var(--team-a)]">
-                      {game.teams[currentMatch.teamA]?.name}
-                    </h3>
-                    <span className="inline-block mt-2 px-4 py-2 rounded-full text-sm bg-[var(--agree-green)] bg-opacity-20 text-[var(--agree-green)] font-semibold">
-                      AGREE
-                    </span>
-                  </motion.div>
-
-                  <motion.div
-                    className="vs-badge text-7xl"
-                    animate={{
-                      scale: [1, 1.2, 1],
-                      rotate: [0, 5, -5, 0],
-                    }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                  >
-                    VS
-                  </motion.div>
-
-                  <motion.div
-                    className="team-card team-card-b p-10"
-                    animate={{
-                      scale: [1, 1.05, 1],
-                      boxShadow: [
-                        '0 0 20px rgba(139, 92, 246, 0.3)',
-                        '0 0 50px rgba(139, 92, 246, 0.6)',
-                        '0 0 20px rgba(139, 92, 246, 0.3)',
-                      ],
-                    }}
-                    transition={{ duration: 2, repeat: Infinity, delay: 1 }}
-                  >
-                    <div className="flex justify-center mb-2">
-                      <Zap size={56} className="text-[var(--team-b)]" fill="currentColor" />
-                    </div>
-                    <h3 className="title-display text-3xl text-[var(--team-b)]">
-                      {game.teams[currentMatch.teamB]?.name}
-                    </h3>
-                    <span className="inline-block mt-2 px-4 py-2 rounded-full text-sm bg-[var(--disagree-red)] bg-opacity-20 text-[var(--disagree-red)] font-semibold">
-                      DISAGREE
-                    </span>
-                  </motion.div>
-                </div>
-              </motion.div>
-            )}
+              )
+            })()}
 
             {/* Audience Vote */}
             {game.phase === 'audience-vote' && currentMatch && (

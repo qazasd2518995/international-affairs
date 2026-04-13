@@ -11,6 +11,7 @@ import {
   VoteResults,
   AllMatchups,
   CountdownTimer,
+  SyncedCountdown,
   AudienceVoteResults,
   MatchResult,
   Leaderboard,
@@ -21,11 +22,8 @@ import {
   QRCodeDisplay,
   PhaseTransition,
 } from '@/components'
-import { useRealtimeGame } from '@/lib/useRealtimeGame'
+import { useRealtimeGame, type DebateSubPhase } from '@/lib/useRealtimeGame'
 import { TOPICS, type Topic, type GamePhase, type Match } from '@/lib/types'
-
-// Debate phase sub-stages
-type DebateSubPhase = 'team-a-opening' | 'team-b-opening' | 'host-challenge' | 'team-a-response' | 'team-b-response' | 'done'
 
 const DEBATE_SUB_PHASES: Record<DebateSubPhase, { label: string; duration: number; team: 'A' | 'B' | 'HOST' }> = {
   'team-a-opening': { label: 'Team A Opening', duration: 20, team: 'A' },
@@ -43,10 +41,10 @@ function AdminContent() {
   const [sessionId, setSessionId] = useState<string | null>(sessionIdParam)
   const [usedTopicIds, setUsedTopicIds] = useState<string[]>([])
   const [gameUrl, setGameUrl] = useState<string>('')
-  const [debateSubPhase, setDebateSubPhase] = useState<DebateSubPhase>('team-a-opening')
   const [showPhaseTransition, setShowPhaseTransition] = useState(false)
 
   const game = useRealtimeGame(sessionId || undefined)
+  const debateSubPhase = game.debateSubPhase
 
   const currentTopic = game.currentTopicId ? TOPICS.find((t) => t.id === game.currentTopicId) : null
   const currentMatch = game.currentMatchId ? game.matches.find((m) => m.id === game.currentMatchId) : null
@@ -68,12 +66,22 @@ function AdminContent() {
     }
   }, [game.phase])
 
-  // Reset debate sub-phase when match changes
+  // Reset debate sub-phase and start countdown when entering debate
   useEffect(() => {
-    if (game.phase === 'debate') {
-      setDebateSubPhase('team-a-opening')
+    if (game.phase === 'debate' && game.debateSubPhase !== 'team-a-opening') {
+      // New match - reset to first sub-phase
+      game.updateDebateSubPhase('team-a-opening')
     }
-  }, [game.currentMatchId, game.phase])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [game.currentMatchId])
+
+  // Start debate countdown when phase changes to debate
+  useEffect(() => {
+    if (game.phase === 'debate' && !game.debateSubPhaseStartedAt) {
+      game.updateDebateSubPhase('team-a-opening')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [game.phase])
 
   // Create new session
   const handleCreateSession = async () => {
@@ -158,11 +166,11 @@ function AdminContent() {
     }
   }
 
-  const handleDebateSubPhaseNext = () => {
+  const handleDebateSubPhaseNext = async () => {
     const subPhases: DebateSubPhase[] = ['team-a-opening', 'team-b-opening', 'host-challenge', 'team-a-response', 'team-b-response', 'done']
     const currentIdx = subPhases.indexOf(debateSubPhase)
     if (currentIdx < subPhases.length - 1) {
-      setDebateSubPhase(subPhases[currentIdx + 1])
+      await game.updateDebateSubPhase(subPhases[currentIdx + 1])
     }
   }
 
@@ -196,7 +204,7 @@ function AdminContent() {
     const matchIndex = currentRoundMatches.findIndex((m) => m.id === game.currentMatchId)
     if (matchIndex < currentRoundMatches.length - 1) {
       await game.setCurrentMatch(currentRoundMatches[matchIndex + 1].id)
-      setDebateSubPhase('team-a-opening')
+      await game.updateDebateSubPhase('team-a-opening')
       await game.updatePhase('preparation')
     } else {
       await game.updatePhase('leaderboard')
@@ -554,9 +562,10 @@ function AdminContent() {
 
                 {/* Countdown for current sub-phase */}
                 {debateSubPhase !== 'done' && (
-                  <CountdownTimer
+                  <SyncedCountdown
                     key={debateSubPhase}
                     duration={debateInfo.duration}
+                    startedAt={game.debateSubPhaseStartedAt}
                     label={debateInfo.label}
                     size="md"
                     onComplete={handleDebateSubPhaseNext}
@@ -761,14 +770,6 @@ function AdminContent() {
           </div>
         )}
 
-        {/* Display link */}
-        <div className="fixed bottom-4 left-4 glass-card px-4 py-2">
-          <p className="text-xs text-[var(--text-muted)]">
-            Display: <a href={`/display?session=${sessionId}`} className="text-[var(--neon-cyan)]" target="_blank">/display</a>
-            {' | '}
-            Judge: <a href={`/judge?session=${sessionId}`} className="text-[var(--neon-cyan)]" target="_blank">/judge</a>
-          </p>
-        </div>
       </div>
     </main>
   )

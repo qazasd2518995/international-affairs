@@ -13,6 +13,8 @@ import type {
 } from './supabase'
 import type { GamePhase, Team, Player, Vote, Match, JudgeScore, AudienceVote } from './types'
 
+export type DebateSubPhase = 'team-a-opening' | 'team-b-opening' | 'host-challenge' | 'team-a-response' | 'team-b-response' | 'done'
+
 // Convert DB types to app types
 const toTeam = (db: DbTeam): Team => ({
   id: db.id,
@@ -58,6 +60,8 @@ interface RealtimeGameState {
   currentRound: number
   currentTopicId: string | null
   currentMatchId: string | null
+  debateSubPhase: DebateSubPhase
+  debateSubPhaseStartedAt: number | null
   teams: Record<string, Team>
   players: Record<string, Player>
   votes: Vote[]
@@ -81,6 +85,7 @@ interface RealtimeGameActions {
   submitAudienceVote: (matchId: string, playerId: string, votedFor: string) => Promise<void>
   updateTeamScore: (teamId: string, score: number, matchesPlayed: number) => Promise<void>
   updateMatchResult: (matchId: string, winner: string) => Promise<void>
+  updateDebateSubPhase: (subPhase: DebateSubPhase) => Promise<void>
 }
 
 export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & RealtimeGameActions {
@@ -90,6 +95,8 @@ export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & 
     currentRound: 0,
     currentTopicId: null,
     currentMatchId: null,
+    debateSubPhase: 'team-a-opening',
+    debateSubPhaseStartedAt: null,
     teams: {},
     players: {},
     votes: [],
@@ -194,6 +201,10 @@ export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & 
         currentRound: session.current_round,
         currentTopicId: session.current_topic_id,
         currentMatchId: session.current_match_id,
+        debateSubPhase: (session.debate_sub_phase as DebateSubPhase) || 'team-a-opening',
+        debateSubPhaseStartedAt: session.debate_sub_phase_started_at
+          ? new Date(session.debate_sub_phase_started_at).getTime()
+          : null,
         teams,
         players,
         votes: (votesData || []).map(toVote),
@@ -237,6 +248,10 @@ export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & 
               currentRound: session.current_round,
               currentTopicId: session.current_topic_id,
               currentMatchId: session.current_match_id,
+              debateSubPhase: (session.debate_sub_phase as DebateSubPhase) || 'team-a-opening',
+              debateSubPhaseStartedAt: session.debate_sub_phase_started_at
+                ? new Date(session.debate_sub_phase_started_at).getTime()
+                : null,
             }))
           }
         }
@@ -605,6 +620,19 @@ export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & 
       .eq('id', matchId)
   }, [])
 
+  const updateDebateSubPhase = useCallback(async (subPhase: DebateSubPhase) => {
+    if (!state.sessionId) return
+
+    await supabase
+      .from('game_sessions')
+      .update({
+        debate_sub_phase: subPhase,
+        debate_sub_phase_started_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', state.sessionId)
+  }, [state.sessionId])
+
   return {
     ...state,
     createSession,
@@ -619,5 +647,6 @@ export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & 
     submitAudienceVote,
     updateTeamScore,
     updateMatchResult,
+    updateDebateSubPhase,
   }
 }
