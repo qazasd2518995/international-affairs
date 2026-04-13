@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
-import { Outfit, Bebas_Neue } from "next/font/google";
+import { Press_Start_2P, VT323 } from "next/font/google";
 import "./globals.css";
 
-const outfit = Outfit({
-  variable: "--font-outfit",
+const pressStart = Press_Start_2P({
+  variable: "--font-press-start",
   subsets: ["latin"],
+  weight: "400",
   display: "swap",
 });
 
-const bebasNeue = Bebas_Neue({
-  variable: "--font-bebas",
+const vt323 = VT323({
+  variable: "--font-vt323",
   subsets: ["latin"],
   weight: "400",
   display: "swap",
@@ -17,7 +18,7 @@ const bebasNeue = Bebas_Neue({
 
 export const metadata: Metadata = {
   title: "Mini Debate Arena",
-  description: "Vote. Prepare. Debate. Score.",
+  description: "PRESS START TO DEBATE",
   icons: {
     icon: "/favicon.ico",
   },
@@ -31,9 +32,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${outfit.variable} ${bebasNeue.variable} h-full antialiased`}
+      className={`${pressStart.variable} ${vt323.variable} h-full`}
     >
-      <body className="min-h-full flex flex-col" style={{ fontFamily: "var(--font-outfit), sans-serif" }}>
+      <body className="min-h-full flex flex-col">
         {children}
       </body>
     </html>

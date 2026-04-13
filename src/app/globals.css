@@ -1,615 +1,961 @@
 @import "tailwindcss";
 
 /* ============================================
-   MINI DEBATE ARENA - TV SHOW STYLE
-   電視益智節目風格設計系統
+   MINI DEBATE ARENA - 8-BIT PIXEL ARCADE
    ============================================ */
 
-/* === 色彩系統 === */
+/* === CORE PIXEL PALETTE === */
 :root {
-  /* 舞台背景 - 深邃的午夜藍到黑色 */
-  --stage-dark: #0a0c14;
-  --stage-deep: #0f1219;
-  --stage-mid: #161b26;
+  /* Deep arcade background */
+  --arcade-void: #0a0a2e;
+  --arcade-deep: #12102b;
+  --arcade-night: #1a0033;
+  --arcade-shadow: #0d0d1a;
 
-  /* 聚光燈金色系 */
-  --spotlight-gold: #ffd700;
-  --spotlight-amber: #ffb347;
-  --spotlight-warm: #ff8c42;
-
-  /* 霓虹強調色 */
-  --neon-cyan: #00f5ff;
-  --neon-magenta: #ff00ff;
+  /* Primary neon accents */
   --neon-green: #39ff14;
+  --neon-pink: #ff00aa;
+  --neon-yellow: #ffcc00;
+  --neon-cyan: #00fff0;
+  --neon-red: #ff0040;
+  --neon-blue: #0080ff;
+  --neon-purple: #9d00ff;
 
-  /* 玻璃效果 */
-  --glass-white: rgba(255, 255, 255, 0.08);
-  --glass-border: rgba(255, 255, 255, 0.12);
+  /* Pixel panel */
+  --panel-bg: #0f0f1e;
+  --panel-border: #ffffff;
+  --panel-border-dark: #4a4a6e;
+  --panel-border-light: #ffffff;
+  --panel-shadow: #000000;
 
-  /* 文字 */
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.7);
-  --text-muted: rgba(255, 255, 255, 0.4);
+  /* Text */
+  --text-white: #ffffff;
+  --text-dim: #b8b8d4;
+  --text-muted: #6e6e8f;
+  --text-dark: #0a0a2e;
 
-  /* 狀態色 */
-  --agree-green: #10b981;
-  --disagree-red: #ef4444;
-  --neutral-blue: #3b82f6;
+  /* Team battle colors */
+  --team-red: #ff0040;
+  --team-red-light: #ff6b8a;
+  --team-blue: #0080ff;
+  --team-blue-light: #6ba8ff;
 
-  /* Team 顏色 */
-  --team-a: #f97316;
-  --team-b: #8b5cf6;
+  /* Status colors */
+  --status-hp: #39ff14;
+  --status-mp: #00fff0;
+  --status-exp: #ffcc00;
+  --status-danger: #ff0040;
+
+  /* Gradient stops */
+  --grad-sky-start: #12102b;
+  --grad-sky-end: #1a0033;
 }
 
 @theme inline {
-  --color-stage-dark: var(--stage-dark);
-  --color-stage-deep: var(--stage-deep);
-  --color-stage-mid: var(--stage-mid);
-  --color-spotlight-gold: var(--spotlight-gold);
-  --color-spotlight-amber: var(--spotlight-amber);
-  --color-spotlight-warm: var(--spotlight-warm);
-  --color-neon-cyan: var(--neon-cyan);
-  --color-neon-magenta: var(--neon-magenta);
+  --color-arcade-void: var(--arcade-void);
+  --color-arcade-deep: var(--arcade-deep);
+  --color-arcade-night: var(--arcade-night);
   --color-neon-green: var(--neon-green);
-  --color-glass-white: var(--glass-white);
-  --color-glass-border: var(--glass-border);
-  --color-agree-green: var(--agree-green);
-  --color-disagree-red: var(--disagree-red);
-  --color-neutral-blue: var(--neutral-blue);
-  --color-team-a: var(--team-a);
-  --color-team-b: var(--team-b);
+  --color-neon-pink: var(--neon-pink);
+  --color-neon-yellow: var(--neon-yellow);
+  --color-neon-cyan: var(--neon-cyan);
+  --color-neon-red: var(--neon-red);
+  --color-neon-blue: var(--neon-blue);
+  --color-team-red: var(--team-red);
+  --color-team-blue: var(--team-blue);
+  --color-panel-bg: var(--panel-bg);
+  --color-text-white: var(--text-white);
+  --color-text-dim: var(--text-dim);
+  --color-text-muted: var(--text-muted);
 }
 
-/* === 字體 === */
-@font-face {
-  font-family: 'Bebas Neue';
-  src: url('https://fonts.gstatic.com/s/bebasneue/v14/JTUSjIg69CK48gW7PXoo9WlhyyTh89Y.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* === 基礎樣式 === */
+/* === GLOBAL RESET === */
 * {
   box-sizing: border-box;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
 }
 
 html {
   scroll-behavior: smooth;
+  font-size: 16px;
 }
 
 body {
-  background: var(--stage-dark);
-  color: var(--text-primary);
-  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--arcade-void);
+  color: var(--text-white);
+  font-family: var(--font-vt323), 'Courier New', monospace;
   min-height: 100vh;
   overflow-x: hidden;
+  font-size: 20px;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: none;
+  font-smooth: never;
+  -webkit-text-size-adjust: 100%;
 }
 
-/* === 舞台背景效果 === */
-.stage-background {
+/* === TYPOGRAPHY === */
+.font-pixel {
+  font-family: var(--font-press-start), 'Courier New', monospace;
+  letter-spacing: 0.05em;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.font-terminal {
+  font-family: var(--font-vt323), 'Courier New', monospace;
+  font-weight: 400;
+}
+
+.text-pixel-sm { font-size: 10px; }
+.text-pixel-base { font-size: 12px; }
+.text-pixel-lg { font-size: 16px; }
+.text-pixel-xl { font-size: 20px; }
+.text-pixel-2xl { font-size: 28px; }
+.text-pixel-3xl { font-size: 36px; }
+.text-pixel-4xl { font-size: 48px; }
+
+.text-terminal-sm { font-size: 16px; }
+.text-terminal-base { font-size: 20px; }
+.text-terminal-lg { font-size: 28px; }
+.text-terminal-xl { font-size: 40px; }
+.text-terminal-2xl { font-size: 64px; }
+.text-terminal-3xl { font-size: 96px; }
+
+/* === CRT SCANLINES BACKGROUND === */
+.arcade-bg {
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: -10;
   background:
-    /* 頂部聚光燈 */
-    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(255, 215, 0, 0.15) 0%, transparent 60%),
-    /* 左側光暈 */
-    radial-gradient(ellipse 40% 60% at -10% 50%, rgba(255, 0, 255, 0.08) 0%, transparent 50%),
-    /* 右側光暈 */
-    radial-gradient(ellipse 40% 60% at 110% 50%, rgba(0, 245, 255, 0.08) 0%, transparent 50%),
-    /* 底部漸層 */
-    linear-gradient(180deg, var(--stage-dark) 0%, var(--stage-deep) 50%, var(--stage-mid) 100%);
+    radial-gradient(ellipse 100% 80% at 50% 0%, rgba(157, 0, 255, 0.25) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 60% at 20% 90%, rgba(57, 255, 20, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse 80% 60% at 80% 90%, rgba(255, 0, 170, 0.15) 0%, transparent 50%),
+    linear-gradient(180deg, var(--arcade-deep) 0%, var(--arcade-void) 50%, var(--arcade-shadow) 100%);
 }
 
-/* 舞台網格效果 */
-.stage-grid {
+.arcade-grid {
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: -9;
   background-image:
-    linear-gradient(rgba(255, 215, 0, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 215, 0, 0.03) 1px, transparent 1px);
-  background-size: 50px 50px;
-  mask-image: linear-gradient(180deg, transparent 0%, black 30%, black 70%, transparent 100%);
+    linear-gradient(rgba(157, 0, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(157, 0, 255, 0.08) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%);
 }
 
-/* === 玻璃卡片 === */
-.glass-card {
-  background: var(--glass-white);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
+/* CRT scanlines */
+.scanlines {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0) 0px,
+    rgba(0, 0, 0, 0) 2px,
+    rgba(0, 0, 0, 0.15) 3px,
+    rgba(0, 0, 0, 0.15) 4px
+  );
+  mix-blend-mode: multiply;
+  animation: scanline-flicker 0.1s infinite;
 }
 
-.glass-card-strong {
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
+@keyframes scanline-flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.97; }
 }
 
-/* === 霓虹邊框效果 === */
-.neon-border {
+/* CRT vignette */
+.crt-vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 40%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
+}
+
+/* === PIXEL PANEL (RPG dialogue box) === */
+.pixel-panel {
   position: relative;
-}
-
-.neon-border::before {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  border-radius: inherit;
-  padding: 2px;
-  background: linear-gradient(135deg, var(--spotlight-gold), var(--neon-cyan), var(--neon-magenta));
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-}
-
-/* 動態霓虹邊框 */
-.neon-border-animated::before {
-  background: linear-gradient(135deg, var(--spotlight-gold), var(--neon-cyan), var(--neon-magenta), var(--spotlight-gold));
-  background-size: 300% 300%;
-  animation: neon-flow 3s ease infinite;
-}
-
-@keyframes neon-flow {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-}
-
-/* === 標題樣式 === */
-.title-display {
-  font-family: 'Bebas Neue', Impact, sans-serif;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.title-glow {
-  text-shadow:
-    0 0 10px rgba(255, 215, 0, 0.5),
-    0 0 30px rgba(255, 215, 0, 0.3),
-    0 0 60px rgba(255, 215, 0, 0.2);
-}
-
-/* === 按鈕樣式 === */
-.btn-primary {
-  background: linear-gradient(135deg, var(--spotlight-gold) 0%, var(--spotlight-amber) 100%);
-  color: var(--stage-dark);
-  font-weight: 700;
-  padding: 14px 32px;
-  border-radius: 12px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  background: var(--panel-bg);
+  padding: 20px;
   box-shadow:
-    0 4px 20px rgba(255, 215, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    /* Outer white border */
+    0 0 0 4px var(--panel-border),
+    /* Inner black gap */
+    0 0 0 8px var(--arcade-void),
+    /* Inner white border */
+    0 0 0 12px var(--panel-border),
+    /* Drop shadow */
+    12px 12px 0 0 rgba(0, 0, 0, 0.8);
+  margin: 12px;
 }
 
-.btn-primary:hover {
-  transform: translateY(-2px) scale(1.02);
+.pixel-panel-sm {
+  padding: 12px;
   box-shadow:
-    0 8px 30px rgba(255, 215, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    0 0 0 2px var(--panel-border),
+    0 0 0 4px var(--arcade-void),
+    0 0 0 6px var(--panel-border),
+    6px 6px 0 0 rgba(0, 0, 0, 0.8);
+  margin: 8px;
 }
 
-.btn-primary:active {
-  transform: translateY(0) scale(0.98);
+.pixel-panel-neon {
+  position: relative;
+  background: var(--panel-bg);
+  padding: 20px;
+  box-shadow:
+    0 0 0 4px var(--neon-green),
+    0 0 0 8px var(--arcade-void),
+    0 0 0 12px var(--neon-green),
+    12px 12px 0 0 rgba(0, 0, 0, 0.8),
+    0 0 40px rgba(57, 255, 20, 0.4);
 }
 
-.btn-secondary {
-  background: var(--glass-white);
-  color: var(--text-primary);
-  border: 1px solid var(--glass-border);
-  padding: 12px 28px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
+.pixel-panel-pink {
+  box-shadow:
+    0 0 0 4px var(--neon-pink),
+    0 0 0 8px var(--arcade-void),
+    0 0 0 12px var(--neon-pink),
+    12px 12px 0 0 rgba(0, 0, 0, 0.8),
+    0 0 40px rgba(255, 0, 170, 0.4);
 }
 
-.btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: var(--spotlight-gold);
+.pixel-panel-yellow {
+  box-shadow:
+    0 0 0 4px var(--neon-yellow),
+    0 0 0 8px var(--arcade-void),
+    0 0 0 12px var(--neon-yellow),
+    12px 12px 0 0 rgba(0, 0, 0, 0.8),
+    0 0 40px rgba(255, 204, 0, 0.4);
 }
 
-/* 投票按鈕 */
-.btn-agree {
-  background: linear-gradient(135deg, var(--agree-green) 0%, #059669 100%);
-  color: white;
-  font-weight: 700;
-  padding: 20px 40px;
-  border-radius: 16px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
-}
-
-.btn-agree:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 30px rgba(16, 185, 129, 0.5);
-}
-
-.btn-disagree {
-  background: linear-gradient(135deg, var(--disagree-red) 0%, #dc2626 100%);
-  color: white;
-  font-weight: 700;
-  padding: 20px 40px;
-  border-radius: 16px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3);
-}
-
-.btn-disagree:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 30px rgba(239, 68, 68, 0.5);
-}
-
-.btn-neutral {
-  background: linear-gradient(135deg, var(--neutral-blue) 0%, #2563eb 100%);
-  color: white;
-  font-weight: 700;
-  padding: 16px 32px;
-  border-radius: 12px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
-}
-
-/* === 難度星星 === */
-.difficulty-stars {
-  display: flex;
-  gap: 4px;
-}
-
-.star {
-  width: 24px;
-  height: 24px;
-  color: var(--spotlight-gold);
-  filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.6));
-}
-
-.star-empty {
-  opacity: 0.3;
-  filter: none;
-}
-
-/* === 標籤/分類 === */
-.category-tag {
+/* === PIXEL BUTTON === */
+.pixel-btn {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 600;
-  background: var(--glass-white);
-  border: 1px solid var(--glass-border);
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  font-family: var(--font-press-start), monospace;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  color: var(--text-dark);
+  background: var(--neon-yellow);
+  border: none;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.05s steps(2);
+  box-shadow:
+    0 0 0 3px var(--arcade-void),
+    0 0 0 6px var(--neon-yellow),
+    4px 4px 0 0 var(--arcade-void);
+  text-transform: uppercase;
 }
 
-/* === 計時器 === */
-.timer-display {
-  font-family: 'Bebas Neue', monospace;
-  font-size: 72px;
-  font-weight: 400;
-  letter-spacing: 0.1em;
-  color: var(--text-primary);
+.pixel-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow:
+    0 0 0 3px var(--arcade-void),
+    0 0 0 6px var(--neon-yellow),
+    6px 6px 0 0 var(--arcade-void);
 }
 
-.timer-urgent {
-  color: var(--disagree-red);
-  animation: timer-pulse 0.5s ease infinite;
+.pixel-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow:
+    0 0 0 3px var(--arcade-void),
+    0 0 0 6px var(--neon-yellow),
+    0 0 0 0 var(--arcade-void);
 }
 
-@keyframes timer-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.7; transform: scale(1.02); }
+.pixel-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(1);
 }
 
-/* === 排行榜樣式 === */
-.leaderboard-row {
+.pixel-btn-green {
+  background: var(--neon-green);
+  box-shadow:
+    0 0 0 3px var(--arcade-void),
+    0 0 0 6px var(--neon-green),
+    4px 4px 0 0 var(--arcade-void);
+}
+.pixel-btn-green:hover {
+  box-shadow:
+    0 0 0 3px var(--arcade-void),
+    0 0 0 6px var(--neon-green),
+    6px 6px 0 0 var(--arcade-void);
+}
+.pixel-btn-green:active {
+  box-shadow:
+    0 0 0 3px var(--arcade-void),
+    0 0 0 6px var(--neon-green),
+    0 0 0 0 var(--arcade-void);
+}
+
+.pixel-btn-pink {
+  background: var(--neon-pink);
+  color: var(--text-white);
+  box-shadow:
+    0 0 0 3px var(--arcade-void),
+    0 0 0 6px var(--neon-pink),
+    4px 4px 0 0 var(--arcade-void);
+}
+.pixel-btn-pink:hover {
+  box-shadow:
+    0 0 0 3px var(--arcade-void),
+    0 0 0 6px var(--neon-pink),
+    6px 6px 0 0 var(--arcade-void);
+}
+.pixel-btn-pink:active {
+  box-shadow:
+    0 0 0 3px var(--arcade-void),
+    0 0 0 6px var(--neon-pink),
+    0 0 0 0 var(--arcade-void);
+}
+
+.pixel-btn-red {
+  background: var(--neon-red);
+  color: var(--text-white);
+  box-shadow:
+    0 0 0 3px var(--arcade-void),
+    0 0 0 6px var(--neon-red),
+    4px 4px 0 0 var(--arcade-void);
+}
+.pixel-btn-red:hover {
+  box-shadow:
+    0 0 0 3px var(--arcade-void),
+    0 0 0 6px var(--neon-red),
+    6px 6px 0 0 var(--arcade-void);
+}
+
+.pixel-btn-blue {
+  background: var(--neon-blue);
+  color: var(--text-white);
+  box-shadow:
+    0 0 0 3px var(--arcade-void),
+    0 0 0 6px var(--neon-blue),
+    4px 4px 0 0 var(--arcade-void);
+}
+.pixel-btn-blue:hover {
+  box-shadow:
+    0 0 0 3px var(--arcade-void),
+    0 0 0 6px var(--neon-blue),
+    6px 6px 0 0 var(--arcade-void);
+}
+
+.pixel-btn-cyan {
+  background: var(--neon-cyan);
+  color: var(--text-dark);
+  box-shadow:
+    0 0 0 3px var(--arcade-void),
+    0 0 0 6px var(--neon-cyan),
+    4px 4px 0 0 var(--arcade-void);
+}
+.pixel-btn-cyan:hover {
+  box-shadow:
+    0 0 0 3px var(--arcade-void),
+    0 0 0 6px var(--neon-cyan),
+    6px 6px 0 0 var(--arcade-void);
+}
+
+.pixel-btn-ghost {
+  background: transparent;
+  color: var(--text-white);
+  box-shadow:
+    0 0 0 3px var(--text-white),
+    0 0 0 6px var(--arcade-void),
+    0 0 0 9px var(--text-white),
+    4px 4px 0 0 rgba(0, 0, 0, 0.8);
+}
+.pixel-btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 0 0 3px var(--text-white),
+    0 0 0 6px var(--arcade-void),
+    0 0 0 9px var(--text-white),
+    6px 6px 0 0 rgba(0, 0, 0, 0.8);
+}
+
+/* === RPG DIALOGUE ARROW === */
+.rpg-cursor {
+  display: inline-block;
+  color: var(--neon-yellow);
+  animation: cursor-blink 0.8s steps(2) infinite;
+}
+
+@keyframes cursor-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.rpg-select-arrow {
+  position: absolute;
+  left: -32px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--neon-yellow);
+  font-size: 20px;
+  animation: cursor-bounce 0.5s steps(2) infinite alternate;
+}
+
+@keyframes cursor-bounce {
+  0% { transform: translate(0, -50%); }
+  100% { transform: translate(4px, -50%); }
+}
+
+/* === PIXEL HP/MP BAR === */
+.pixel-bar-container {
   display: flex;
   align-items: center;
-  padding: 16px 20px;
-  background: var(--glass-white);
-  border-radius: 12px;
-  margin-bottom: 8px;
-  transition: all 0.3s ease;
+  gap: 8px;
+  background: var(--arcade-void);
+  padding: 4px;
+  box-shadow:
+    0 0 0 2px var(--panel-border),
+    inset 0 0 0 2px var(--panel-shadow);
 }
 
-.leaderboard-row:hover {
-  background: rgba(255, 255, 255, 0.12);
-  transform: translateX(4px);
+.pixel-bar {
+  position: relative;
+  height: 16px;
+  background: var(--arcade-shadow);
+  border: 2px solid var(--text-white);
+  overflow: hidden;
 }
 
-.leaderboard-rank {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 28px;
-  width: 50px;
+.pixel-bar-fill {
+  height: 100%;
+  transition: width 0.3s steps(20);
+  background-image: repeating-linear-gradient(
+    90deg,
+    currentColor 0,
+    currentColor 4px,
+    rgba(255, 255, 255, 0.3) 4px,
+    rgba(255, 255, 255, 0.3) 5px
+  );
+}
+
+.pixel-bar-hp { color: var(--status-hp); }
+.pixel-bar-mp { color: var(--status-mp); }
+.pixel-bar-exp { color: var(--status-exp); }
+.pixel-bar-red { color: var(--team-red); }
+.pixel-bar-blue { color: var(--team-blue); }
+
+/* === TITLE STYLES === */
+.arcade-title {
+  font-family: var(--font-press-start), monospace;
+  text-transform: uppercase;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+}
+
+.neon-glow-green {
+  color: var(--neon-green);
+  text-shadow:
+    0 0 10px var(--neon-green),
+    0 0 20px var(--neon-green),
+    2px 2px 0 var(--arcade-void),
+    4px 4px 0 rgba(0, 0, 0, 0.8);
+}
+
+.neon-glow-pink {
+  color: var(--neon-pink);
+  text-shadow:
+    0 0 10px var(--neon-pink),
+    0 0 20px var(--neon-pink),
+    2px 2px 0 var(--arcade-void),
+    4px 4px 0 rgba(0, 0, 0, 0.8);
+}
+
+.neon-glow-yellow {
+  color: var(--neon-yellow);
+  text-shadow:
+    0 0 10px var(--neon-yellow),
+    0 0 20px var(--neon-yellow),
+    2px 2px 0 var(--arcade-void),
+    4px 4px 0 rgba(0, 0, 0, 0.8);
+}
+
+.neon-glow-cyan {
+  color: var(--neon-cyan);
+  text-shadow:
+    0 0 10px var(--neon-cyan),
+    0 0 20px var(--neon-cyan),
+    2px 2px 0 var(--arcade-void),
+    4px 4px 0 rgba(0, 0, 0, 0.8);
+}
+
+.text-shadow-pixel {
+  text-shadow: 2px 2px 0 var(--arcade-void), 4px 4px 0 rgba(0, 0, 0, 0.5);
+}
+
+/* === PIXEL INPUT === */
+.pixel-input {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--arcade-void);
+  border: none;
+  box-shadow:
+    inset 0 0 0 3px var(--text-white),
+    inset 0 0 0 6px var(--arcade-shadow),
+    inset 0 0 0 9px var(--text-white);
+  color: var(--text-white);
+  font-family: var(--font-vt323), monospace;
+  font-size: 24px;
+  outline: none;
+}
+
+.pixel-input:focus {
+  box-shadow:
+    inset 0 0 0 3px var(--neon-green),
+    inset 0 0 0 6px var(--arcade-shadow),
+    inset 0 0 0 9px var(--neon-green);
+}
+
+.pixel-input::placeholder {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* === TIMER === */
+.pixel-timer {
+  font-family: var(--font-press-start), monospace;
+  font-variant-numeric: tabular-nums;
   text-align: center;
 }
 
-.leaderboard-rank-1 { color: var(--spotlight-gold); }
-.leaderboard-rank-2 { color: #c0c0c0; }
-.leaderboard-rank-3 { color: #cd7f32; }
-
-/* === 揭曉動畫 === */
-.reveal-container {
-  perspective: 1000px;
+.timer-danger {
+  color: var(--status-danger) !important;
+  animation: danger-blink 0.3s steps(2) infinite;
 }
 
-.reveal-card {
-  transform-style: preserve-3d;
-  animation: card-reveal 1s ease forwards;
+@keyframes danger-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0.5; }
 }
 
-@keyframes card-reveal {
-  0% {
-    opacity: 0;
-    transform: rotateY(-90deg) scale(0.8);
-  }
-  50% {
-    opacity: 1;
-    transform: rotateY(10deg) scale(1.05);
-  }
-  100% {
-    transform: rotateY(0deg) scale(1);
-  }
+/* === ANIMATIONS === */
+@keyframes pixel-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
 }
 
-/* 配對揭曉動畫 */
-.matchup-reveal {
-  animation: matchup-slide 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+@keyframes pixel-shake {
+  0%, 100% { transform: translate(0, 0); }
+  10%, 30%, 50%, 70%, 90% { transform: translate(-2px, 0); }
+  20%, 40%, 60%, 80% { transform: translate(2px, 0); }
 }
 
-@keyframes matchup-slide {
-  0% {
-    opacity: 0;
-    transform: translateY(40px) scale(0.9);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+@keyframes pixel-pop {
+  0% { transform: scale(0.5); opacity: 0; }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
 }
 
-/* VS 動畫 */
-.vs-badge {
-  font-family: 'Bebas Neue', Impact, sans-serif;
-  font-size: 48px;
-  color: var(--spotlight-gold);
-  text-shadow:
-    0 0 20px rgba(255, 215, 0, 0.8),
-    0 0 40px rgba(255, 215, 0, 0.5);
-  animation: vs-pulse 2s ease infinite;
-}
-
-@keyframes vs-pulse {
+@keyframes pixel-glitch {
   0%, 100% {
-    transform: scale(1);
     text-shadow:
-      0 0 20px rgba(255, 215, 0, 0.8),
-      0 0 40px rgba(255, 215, 0, 0.5);
+      2px 2px 0 var(--arcade-void),
+      -1px 0 0 var(--neon-pink),
+      1px 0 0 var(--neon-cyan);
+  }
+  25% {
+    text-shadow:
+      2px 2px 0 var(--arcade-void),
+      1px 0 0 var(--neon-pink),
+      -1px 0 0 var(--neon-cyan);
   }
   50% {
-    transform: scale(1.1);
     text-shadow:
-      0 0 30px rgba(255, 215, 0, 1),
-      0 0 60px rgba(255, 215, 0, 0.7);
+      2px 2px 0 var(--arcade-void),
+      -1px 0 0 var(--neon-cyan),
+      1px 0 0 var(--neon-pink);
   }
 }
 
-/* === 進度條 === */
-.progress-bar {
-  height: 8px;
-  background: var(--glass-white);
-  border-radius: 4px;
-  overflow: hidden;
+.animate-float {
+  animation: pixel-float 1s steps(4) infinite;
 }
 
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--spotlight-gold), var(--spotlight-amber));
-  border-radius: 4px;
-  transition: width 0.3s ease;
+.animate-shake {
+  animation: pixel-shake 0.3s steps(4);
 }
 
-/* 投票比例條 */
-.vote-bar {
-  display: flex;
-  height: 40px;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.3);
+.animate-pop {
+  animation: pixel-pop 0.3s steps(4);
 }
 
-.vote-bar-agree {
-  background: linear-gradient(90deg, var(--agree-green), #059669);
-  transition: width 0.5s ease;
+.animate-glitch {
+  animation: pixel-glitch 0.15s steps(2) infinite;
 }
 
-.vote-bar-disagree {
-  background: linear-gradient(90deg, #dc2626, var(--disagree-red));
-  transition: width 0.5s ease;
+/* === BATTLE MENU (Final Fantasy style) === */
+.battle-menu {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0;
+  background: var(--panel-bg);
+  border: 3px solid var(--text-white);
+  padding: 16px 24px;
+  box-shadow: 6px 6px 0 0 var(--arcade-void);
 }
 
-.vote-bar-neutral {
-  background: linear-gradient(90deg, var(--neutral-blue), #2563eb);
-  transition: width 0.5s ease;
-}
-
-/* === Team 卡片 === */
-.team-card {
-  padding: 24px;
-  border-radius: 20px;
-  transition: all 0.3s ease;
-}
-
-.team-card-a {
-  background: linear-gradient(135deg, rgba(249, 115, 22, 0.2) 0%, rgba(249, 115, 22, 0.05) 100%);
-  border: 2px solid rgba(249, 115, 22, 0.4);
-}
-
-.team-card-a:hover {
-  border-color: var(--team-a);
-  box-shadow: 0 0 30px rgba(249, 115, 22, 0.3);
-}
-
-.team-card-b {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(139, 92, 246, 0.05) 100%);
-  border: 2px solid rgba(139, 92, 246, 0.4);
-}
-
-.team-card-b:hover {
-  border-color: var(--team-b);
-  box-shadow: 0 0 30px rgba(139, 92, 246, 0.3);
-}
-
-/* === 輸入框 === */
-.input-field {
-  width: 100%;
-  padding: 16px 20px;
-  background: var(--glass-white);
-  border: 1px solid var(--glass-border);
-  border-radius: 12px;
-  color: var(--text-primary);
-  font-size: 16px;
-  transition: all 0.3s ease;
-}
-
-.input-field:focus {
-  outline: none;
-  border-color: var(--spotlight-gold);
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
-}
-
-.input-field::placeholder {
-  color: var(--text-muted);
-}
-
-/* === 分數顯示 === */
-.score-display {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 96px;
-  background: linear-gradient(180deg, var(--spotlight-gold) 0%, var(--spotlight-amber) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  filter: drop-shadow(0 4px 20px rgba(255, 215, 0, 0.4));
-}
-
-/* === 聚光燈效果 === */
-.spotlight-effect {
+.battle-menu-item {
   position: relative;
+  padding: 8px 16px 8px 32px;
+  font-family: var(--font-press-start), monospace;
+  font-size: 12px;
+  color: var(--text-white);
+  cursor: pointer;
+  user-select: none;
 }
 
-.spotlight-effect::after {
-  content: '';
+.battle-menu-item.active {
+  color: var(--neon-yellow);
+}
+
+.battle-menu-item.active::before {
+  content: '►';
   position: absolute;
-  top: -100px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 200%;
-  height: 300px;
-  background: radial-gradient(ellipse at center, rgba(255, 215, 0, 0.15) 0%, transparent 70%);
-  pointer-events: none;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--neon-yellow);
+  animation: cursor-bounce 0.5s steps(2) infinite alternate;
 }
 
-/* === 粒子效果（勝利時） === */
-@keyframes confetti {
+/* === SELECT CARD (pokemon-style option) === */
+.pokemon-option {
+  position: relative;
+  padding: 16px 24px 16px 48px;
+  background: var(--panel-bg);
+  border: 3px solid var(--text-white);
+  color: var(--text-white);
+  font-family: var(--font-press-start), monospace;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.05s steps(2);
+  box-shadow: 4px 4px 0 0 var(--arcade-void);
+  text-align: left;
+}
+
+.pokemon-option:hover:not(:disabled) {
+  background: var(--neon-yellow);
+  color: var(--text-dark);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 0 var(--arcade-void);
+}
+
+.pokemon-option:hover:not(:disabled)::before {
+  content: '►';
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-dark);
+}
+
+.pokemon-option.selected {
+  background: var(--neon-green);
+  color: var(--text-dark);
+}
+
+.pokemon-option.selected::before {
+  content: '✓';
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* === CRT ON/OFF effect === */
+.crt-on {
+  animation: crt-on 0.4s steps(4) forwards;
+}
+
+@keyframes crt-on {
   0% {
-    transform: translateY(0) rotate(0deg);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(100vh) rotate(720deg);
+    transform: scale(1, 0.8) translate3d(0, 0, 0);
+    filter: brightness(30) blur(1px);
     opacity: 0;
   }
-}
-
-.confetti {
-  position: fixed;
-  width: 10px;
-  height: 10px;
-  animation: confetti 3s ease-out forwards;
-}
-
-/* === 響應式 === */
-@media (max-width: 768px) {
-  .timer-display {
-    font-size: 48px;
+  50% {
+    transform: scale(1, 0.8) translate3d(0, 0, 0);
+    filter: brightness(30) blur(1px);
+    opacity: 1;
   }
-
-  .score-display {
-    font-size: 64px;
+  75% {
+    transform: scale(1, 1) translate3d(0, 0, 0);
+    filter: contrast(1) brightness(1.2) saturate(1.3);
   }
-
-  .vs-badge {
-    font-size: 32px;
-  }
-
-  .btn-agree, .btn-disagree {
-    padding: 16px 24px;
+  100% {
+    transform: scale(1, 1) translate3d(0, 0, 0);
+    filter: contrast(1) brightness(1) saturate(1.2);
   }
 }
 
-/* === 滾動條 === */
+/* === TICKING STAT (EXP-style counter) === */
+.stat-counter {
+  font-family: var(--font-press-start), monospace;
+  font-size: 20px;
+  color: var(--neon-yellow);
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+}
+
+/* === PIXEL BORDER UTILITIES === */
+.border-pixel {
+  border: none;
+  box-shadow: 0 0 0 2px var(--text-white);
+}
+
+.border-pixel-white {
+  box-shadow:
+    0 0 0 2px var(--text-white),
+    0 0 0 4px var(--arcade-void),
+    0 0 0 6px var(--text-white);
+}
+
+.border-pixel-neon-green {
+  box-shadow:
+    0 0 0 2px var(--neon-green),
+    0 0 0 4px var(--arcade-void),
+    0 0 0 6px var(--neon-green);
+}
+
+.border-pixel-neon-pink {
+  box-shadow:
+    0 0 0 2px var(--neon-pink),
+    0 0 0 4px var(--arcade-void),
+    0 0 0 6px var(--neon-pink);
+}
+
+.border-pixel-neon-yellow {
+  box-shadow:
+    0 0 0 2px var(--neon-yellow),
+    0 0 0 4px var(--arcade-void),
+    0 0 0 6px var(--neon-yellow);
+}
+
+/* === PIXEL SCROLLBAR === */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 16px;
+  height: 16px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--stage-dark);
+  background: var(--arcade-void);
+  border: 2px solid var(--text-white);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--glass-white);
-  border-radius: 4px;
+  background: var(--neon-green);
+  border: 2px solid var(--text-white);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--neon-yellow);
 }
 
-/* === 載入動畫 === */
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid var(--glass-border);
-  border-top-color: var(--spotlight-gold);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* === 文字動畫 === */
-.text-shimmer {
-  background: linear-gradient(
-    90deg,
-    var(--text-primary) 0%,
-    var(--spotlight-gold) 50%,
-    var(--text-primary) 100%
+/* === STAR PIXEL ICONS === */
+.pixel-star {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  background: var(--neon-yellow);
+  clip-path: polygon(
+    50% 0%, 61% 35%, 98% 35%, 68% 57%,
+    79% 91%, 50% 70%, 21% 91%, 32% 57%,
+    2% 35%, 39% 35%
   );
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: shimmer 3s linear infinite;
+  box-shadow: 0 0 8px var(--neon-yellow);
 }
 
-@keyframes shimmer {
-  to { background-position: 200% center; }
+.pixel-star-empty {
+  background: var(--text-muted);
+  box-shadow: none;
+  opacity: 0.3;
+}
+
+/* === DIALOGUE BOX === */
+.dialogue-box {
+  position: relative;
+  background: var(--arcade-void);
+  padding: 24px 32px;
+  color: var(--text-white);
+  font-family: var(--font-vt323), monospace;
+  font-size: 24px;
+  line-height: 1.5;
+  box-shadow:
+    0 0 0 3px var(--text-white),
+    0 0 0 6px var(--arcade-void),
+    0 0 0 9px var(--text-white),
+    8px 8px 0 0 rgba(0, 0, 0, 0.8);
+}
+
+.dialogue-box::after {
+  content: '▼';
+  position: absolute;
+  right: 16px;
+  bottom: 4px;
+  color: var(--neon-yellow);
+  font-size: 16px;
+  animation: cursor-blink 0.8s steps(2) infinite;
+}
+
+/* === POKEMON BATTLE TEAM CARD === */
+.battle-card {
+  position: relative;
+  background: var(--panel-bg);
+  padding: 16px;
+  box-shadow:
+    0 0 0 3px var(--text-white),
+    6px 6px 0 0 var(--arcade-void);
+}
+
+.battle-card-red {
+  box-shadow:
+    0 0 0 3px var(--team-red),
+    6px 6px 0 0 var(--arcade-void),
+    0 0 30px rgba(255, 0, 64, 0.4);
+}
+
+.battle-card-blue {
+  box-shadow:
+    0 0 0 3px var(--team-blue),
+    6px 6px 0 0 var(--arcade-void),
+    0 0 30px rgba(0, 128, 255, 0.4);
+}
+
+/* === POKEMON VS BADGE === */
+.vs-pixel {
+  display: inline-block;
+  font-family: var(--font-press-start), monospace;
+  font-size: 48px;
+  color: var(--neon-yellow);
+  text-shadow:
+    4px 4px 0 var(--arcade-void),
+    0 0 20px var(--neon-yellow);
+  animation: vs-pulse 0.5s steps(2) infinite alternate;
+}
+
+@keyframes vs-pulse {
+  0% { transform: scale(1); filter: brightness(1); }
+  100% { transform: scale(1.1); filter: brightness(1.3); }
+}
+
+/* === LEVEL UP EFFECT === */
+.level-up {
+  position: relative;
+  animation: level-up-flash 1s steps(6);
+}
+
+@keyframes level-up-flash {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(2) saturate(2); }
+}
+
+/* === LOADING DOTS === */
+.loading-dots::after {
+  content: '';
+  animation: loading-dots 1s steps(4) infinite;
+}
+
+@keyframes loading-dots {
+  0% { content: ''; }
+  25% { content: '.'; }
+  50% { content: '..'; }
+  75% { content: '...'; }
+}
+
+/* === PRESS START TEXT === */
+.press-start {
+  font-family: var(--font-press-start), monospace;
+  font-size: 16px;
+  color: var(--neon-yellow);
+  animation: press-start-blink 1s steps(2) infinite;
+}
+
+@keyframes press-start-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* === PIXEL SPRITE === */
+.pixel-sprite {
+  display: inline-block;
+  image-rendering: pixelated;
+  filter: drop-shadow(2px 2px 0 var(--arcade-void));
+}
+
+/* === GAME BOY ICON BOX === */
+.icon-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: var(--arcade-void);
+  border: 2px solid var(--text-white);
+  box-shadow: 3px 3px 0 0 rgba(0, 0, 0, 0.8);
+}
+
+.icon-box-lg {
+  width: 80px;
+  height: 80px;
+}
+
+.icon-box-xl {
+  width: 120px;
+  height: 120px;
+}
+
+/* === TAG / LABEL === */
+.pixel-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  font-family: var(--font-press-start), monospace;
+  font-size: 10px;
+  background: var(--arcade-void);
+  border: 2px solid var(--text-white);
+  color: var(--text-white);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pixel-tag-green { border-color: var(--neon-green); color: var(--neon-green); }
+.pixel-tag-pink { border-color: var(--neon-pink); color: var(--neon-pink); }
+.pixel-tag-yellow { border-color: var(--neon-yellow); color: var(--neon-yellow); }
+.pixel-tag-cyan { border-color: var(--neon-cyan); color: var(--neon-cyan); }
+.pixel-tag-red { border-color: var(--team-red); color: var(--team-red); }
+.pixel-tag-blue { border-color: var(--team-blue); color: var(--team-blue); }
+
+/* === MOBILE RESPONSIVE === */
+@media (max-width: 640px) {
+  body { font-size: 16px; }
+  .pixel-panel { padding: 12px; margin: 6px; }
+  .text-pixel-2xl { font-size: 16px; }
+  .text-pixel-3xl { font-size: 20px; }
+  .text-pixel-4xl { font-size: 28px; }
+  .text-terminal-2xl { font-size: 40px; }
+  .text-terminal-3xl { font-size: 56px; }
+  .pixel-btn { font-size: 10px; padding: 10px 16px; }
+  .dialogue-box { font-size: 18px; padding: 16px 20px; }
+  .vs-pixel { font-size: 32px; }
 }

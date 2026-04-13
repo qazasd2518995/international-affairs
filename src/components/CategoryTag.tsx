@@ -1,16 +1,23 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Globe2, UtensilsCrossed, Landmark, Cpu, Plane } from 'lucide-react'
 import type { TopicCategory } from '@/lib/types'
 import { CATEGORY_INFO } from '@/lib/types'
 
-const CATEGORY_ICONS: Record<TopicCategory, typeof Globe2> = {
-  'global-politics': Globe2,
-  'everyday-life': UtensilsCrossed,
-  'history-heritage': Landmark,
-  'tech-future': Cpu,
-  'travel-etiquette': Plane,
+const CATEGORY_COLORS: Record<TopicCategory, string> = {
+  'global-politics': 'pixel-tag-pink',
+  'everyday-life': 'pixel-tag-yellow',
+  'history-heritage': 'pixel-tag-cyan',
+  'tech-future': 'pixel-tag-green',
+  'travel-etiquette': 'pixel-tag-blue',
+}
+
+const CATEGORY_SYMBOLS: Record<TopicCategory, string> = {
+  'global-politics': '◆',
+  'everyday-life': '♥',
+  'history-heritage': '♠',
+  'tech-future': '▲',
+  'travel-etiquette': '►',
 }
 
 interface CategoryTagProps {
@@ -20,29 +27,18 @@ interface CategoryTagProps {
 
 export function CategoryTag({ category, size = 'md' }: CategoryTagProps) {
   const info = CATEGORY_INFO[category]
-  const Icon = CATEGORY_ICONS[category]
-
-  const sizeClasses = {
-    sm: 'text-xs px-2 py-1',
-    md: 'text-sm px-3 py-1.5',
-    lg: 'text-base px-4 py-2',
-  }
-
-  const iconSizes = {
-    sm: 14,
-    md: 16,
-    lg: 20,
-  }
+  const colorClass = CATEGORY_COLORS[category]
+  const symbol = CATEGORY_SYMBOLS[category]
 
   return (
     <motion.span
-      className={`category-tag ${sizeClasses[size]}`}
+      className={`pixel-tag ${colorClass}`}
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ type: 'spring', stiffness: 300 }}
+      transition={{ duration: 0.2, ease: 'linear' }}
     >
-      <Icon size={iconSizes[size]} className="text-[var(--spotlight-gold)]" />
-      <span>{info.label}</span>
+      <span>{symbol}</span>
+      <span>{info.label.toUpperCase()}</span>
     </motion.span>
   )
 }

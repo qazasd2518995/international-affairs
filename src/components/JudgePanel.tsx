@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Scale, Bot } from 'lucide-react'
 import type { Team, Match, AIAnalysis, JudgeScore } from '@/lib/types'
 
 interface JudgePanelProps {
@@ -27,7 +26,7 @@ export function JudgePanel({ judgeId, match, teamA, teamB, onSubmit }: JudgePane
     })
   }
 
-  const ScoreSlider = ({
+  const ScoreSection = ({
     label,
     value,
     onChange,
@@ -40,49 +39,54 @@ export function JudgePanel({ judgeId, match, teamA, teamB, onSubmit }: JudgePane
     color: string
     analysis?: AIAnalysis
   }) => (
-    <div className="mb-8">
-      <div className="flex justify-between items-center mb-2">
-        <h4 className="title-display text-lg" style={{ color }}>
-          {label}
-        </h4>
-        <span className="score-display text-4xl">{value}</span>
+    <div className="mb-6">
+      <div className="flex justify-between items-center mb-3">
+        <span className={`font-pixel text-pixel-base ${color}`}>
+          ◆ {label.toUpperCase()} ◆
+        </span>
+        <span className={`font-pixel text-pixel-3xl neon-glow-yellow`}>
+          {value}
+        </span>
       </div>
 
-      {/* Score slider */}
-      <input
-        type="range"
-        min="1"
-        max="10"
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        disabled={submitted}
-        className="w-full h-3 bg-[var(--glass-white)] rounded-lg appearance-none cursor-pointer accent-[var(--spotlight-gold)]"
-      />
-
-      <div className="flex justify-between text-xs text-[var(--text-muted)] mt-1">
-        <span>1</span>
-        <span>5</span>
-        <span>10</span>
+      {/* Score buttons 1-10 */}
+      <div className="grid grid-cols-10 gap-1 mb-3">
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+          <button
+            key={n}
+            onClick={() => onChange(n)}
+            disabled={submitted}
+            className={`font-pixel text-pixel-sm py-2 transition-all ${
+              n <= value
+                ? 'bg-neon-yellow text-text-dark'
+                : 'bg-arcade-void text-text-muted'
+            }`}
+            style={{
+              border: `2px solid ${n <= value ? 'var(--neon-yellow)' : 'var(--text-muted)'}`,
+            }}
+          >
+            {n}
+          </button>
+        ))}
       </div>
 
       {/* AI Analysis */}
       {analysis && (
         <motion.div
-          className="mt-4 glass-card p-4"
+          className="pixel-panel-sm pixel-panel mt-3"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
         >
           <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <Bot size={16} className="text-[var(--neon-cyan)]" />
-              <span className="text-sm text-[var(--neon-cyan)]">AI Suggestion</span>
-            </div>
-            <span className="text-lg font-bold text-[var(--spotlight-gold)]">
+            <span className="font-pixel text-pixel-sm text-neon-cyan">
+              ► AI SAYS
+            </span>
+            <span className="font-pixel text-pixel-base neon-glow-yellow">
               {analysis.score}/10
             </span>
           </div>
-          <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-            {analysis.commentary}
+          <p className="font-terminal text-terminal-base text-text-dim">
+            &gt; {analysis.commentary}
           </p>
         </motion.div>
       )}
@@ -92,39 +96,40 @@ export function JudgePanel({ judgeId, match, teamA, teamB, onSubmit }: JudgePane
   return (
     <div className="w-full max-w-2xl mx-auto">
       <motion.div
-        className="glass-card-strong p-6 md:p-8"
+        className="pixel-panel pixel-panel-yellow"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <h2 className="title-display text-2xl text-center text-[var(--spotlight-gold)] mb-8">
-          {judgeId === 'judge1' ? 'JUDGE 1' : 'JUDGE 2'} SCORING
-        </h2>
+        <div className="text-center mb-6">
+          <p className="font-pixel text-pixel-base neon-glow-yellow">
+            ★ {judgeId === 'judge1' ? 'JUDGE 1' : 'JUDGE 2'} ★
+          </p>
+        </div>
 
         {!submitted ? (
           <>
-            <ScoreSlider
+            <ScoreSection
               label={teamA.name}
               value={scoreA}
               onChange={setScoreA}
-              color="var(--team-a)"
+              color="text-team-red"
               analysis={match.aiAnalysisA}
             />
 
-            <ScoreSlider
+            <ScoreSection
               label={teamB.name}
               value={scoreB}
               onChange={setScoreB}
-              color="var(--team-b)"
+              color="text-team-blue"
               analysis={match.aiAnalysisB}
             />
 
             <motion.button
-              className="btn-primary w-full mt-6"
+              className="pixel-btn pixel-btn-green w-full mt-4"
               onClick={handleSubmit}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileTap={{ scale: 0.97 }}
             >
-              SUBMIT SCORES
+              ► LOCK IN JUDGMENT ◄
             </motion.button>
           </>
         ) : (
@@ -133,21 +138,26 @@ export function JudgePanel({ judgeId, match, teamA, teamB, onSubmit }: JudgePane
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
           >
-            <div className="flex justify-center mb-4">
-              <Scale size={56} className="text-[var(--spotlight-gold)]" strokeWidth={1.5} />
+            <div className="font-pixel text-pixel-2xl neon-glow-green mb-6">
+              ★ JUDGED ★
             </div>
-            <h3 className="text-xl font-bold text-[var(--spotlight-gold)]">
-              Scores Submitted!
-            </h3>
 
-            <div className="mt-6 flex justify-center gap-8">
-              <div className="text-center">
-                <p className="text-sm text-[var(--text-muted)]">{teamA.name}</p>
-                <p className="score-display text-4xl">{scoreA}</p>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="pixel-panel pixel-panel-sm">
+                <p className="font-pixel text-pixel-sm text-team-red mb-2">
+                  {teamA.name.toUpperCase()}
+                </p>
+                <p className="font-pixel text-pixel-3xl neon-glow-yellow">
+                  {scoreA}
+                </p>
               </div>
-              <div className="text-center">
-                <p className="text-sm text-[var(--text-muted)]">{teamB.name}</p>
-                <p className="score-display text-4xl">{scoreB}</p>
+              <div className="pixel-panel pixel-panel-sm">
+                <p className="font-pixel text-pixel-sm text-team-blue mb-2">
+                  {teamB.name.toUpperCase()}
+                </p>
+                <p className="font-pixel text-pixel-3xl neon-glow-yellow">
+                  {scoreB}
+                </p>
               </div>
             </div>
           </motion.div>
@@ -157,7 +167,6 @@ export function JudgePanel({ judgeId, match, teamA, teamB, onSubmit }: JudgePane
   )
 }
 
-// Quick cards for judges to show
 interface JudgeCardProps {
   teamName: string
   score: number
@@ -167,15 +176,17 @@ interface JudgeCardProps {
 export function JudgeCard({ teamName, score, color }: JudgeCardProps) {
   return (
     <motion.div
-      className="glass-card-strong p-8 text-center neon-border"
+      className="pixel-panel pixel-panel-sm text-center"
       initial={{ rotateY: 90, opacity: 0 }}
       animate={{ rotateY: 0, opacity: 1 }}
-      transition={{ type: 'spring', stiffness: 100 }}
+      transition={{ duration: 0.3, ease: 'linear' }}
     >
-      <h3 className="title-display text-xl mb-4" style={{ color }}>
-        {teamName}
-      </h3>
-      <div className="score-display text-6xl">{score}</div>
+      <p className="font-pixel text-pixel-sm mb-3" style={{ color }}>
+        {teamName.toUpperCase()}
+      </p>
+      <p className="font-pixel text-pixel-3xl neon-glow-yellow">
+        {score}
+      </p>
     </motion.div>
   )
 }

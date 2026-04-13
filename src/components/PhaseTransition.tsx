@@ -1,19 +1,6 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
-import {
-  Target,
-  Dices,
-  Vote,
-  Swords,
-  ClipboardList,
-  Mic,
-  Users,
-  Scale,
-  Trophy,
-  BarChart3,
-  Award,
-} from 'lucide-react'
 import type { GamePhase } from '@/lib/types'
 
 interface PhaseTransitionProps {
@@ -21,23 +8,22 @@ interface PhaseTransitionProps {
   round: number
 }
 
-const PHASE_INFO: Record<GamePhase, { title: string; subtitle: string; Icon: typeof Target; color: string }> = {
-  'lobby': { title: 'LOBBY', subtitle: 'Waiting for players', Icon: Target, color: 'var(--spotlight-gold)' },
-  'topic-reveal': { title: 'TOPIC REVEAL', subtitle: 'Drawing a topic...', Icon: Dices, color: 'var(--spotlight-gold)' },
-  'voting': { title: 'STANCE VOTE', subtitle: 'What do you think?', Icon: Vote, color: 'var(--neon-cyan)' },
-  'matchup-reveal': { title: 'MATCHUPS', subtitle: 'The battle begins!', Icon: Swords, color: 'var(--neon-magenta)' },
-  'preparation': { title: 'PREPARATION', subtitle: 'Teams are preparing...', Icon: ClipboardList, color: 'var(--spotlight-amber)' },
-  'debate': { title: 'DEBATE', subtitle: 'Battle of arguments!', Icon: Mic, color: 'var(--disagree-red)' },
-  'audience-vote': { title: 'AUDIENCE VOTE', subtitle: 'You decide!', Icon: Users, color: 'var(--agree-green)' },
-  'scoring': { title: 'SCORING', subtitle: 'Judges deliberating', Icon: Scale, color: 'var(--spotlight-gold)' },
-  'result': { title: 'RESULT', subtitle: 'The winner is...', Icon: Trophy, color: 'var(--spotlight-gold)' },
-  'leaderboard': { title: 'LEADERBOARD', subtitle: 'Current standings', Icon: BarChart3, color: 'var(--neon-cyan)' },
-  'final-awards': { title: 'FINAL AWARDS', subtitle: 'Ceremony time!', Icon: Award, color: 'var(--spotlight-gold)' },
+const PHASE_INFO: Record<GamePhase, { title: string; subtitle: string; symbol: string; color: string }> = {
+  'lobby': { title: 'LOBBY', subtitle: '> Awaiting heroes...', symbol: '◆', color: 'var(--neon-yellow)' },
+  'topic-reveal': { title: 'QUEST', subtitle: '> New topic drawn', symbol: '?', color: 'var(--neon-yellow)' },
+  'voting': { title: 'VOTE!', subtitle: '> Cast your spell', symbol: '✦', color: 'var(--neon-cyan)' },
+  'matchup-reveal': { title: 'MATCHUP', subtitle: '> Parties collide', symbol: '×', color: 'var(--neon-pink)' },
+  'preparation': { title: 'PREP', subtitle: '> Charging moves...', symbol: '↯', color: 'var(--neon-yellow)' },
+  'debate': { title: 'BATTLE!', subtitle: '> Attacks begin', symbol: '⚔', color: 'var(--neon-red)' },
+  'audience-vote': { title: 'CHEER!', subtitle: '> Crowd decides', symbol: '♪', color: 'var(--neon-green)' },
+  'scoring': { title: 'JUDGING', subtitle: '> Heroes ranked', symbol: '♦', color: 'var(--neon-yellow)' },
+  'result': { title: 'RESULT', subtitle: '> Victor revealed', symbol: '♛', color: 'var(--neon-yellow)' },
+  'leaderboard': { title: 'RANKS', subtitle: '> Hi-scores updated', symbol: '▲', color: 'var(--neon-cyan)' },
+  'final-awards': { title: 'ENDING', subtitle: '> Roll credits', symbol: '★', color: 'var(--neon-yellow)' },
 }
 
 export function PhaseTransition({ phase, round }: PhaseTransitionProps) {
   const info = PHASE_INFO[phase]
-  const Icon = info.Icon
 
   return (
     <AnimatePresence mode="wait">
@@ -47,41 +33,34 @@ export function PhaseTransition({ phase, round }: PhaseTransitionProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: [0, 1, 1, 0] }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 1.8, times: [0, 0.2, 0.7, 1] }}
+        transition={{ duration: 1.8, times: [0, 0.2, 0.7, 1], ease: 'linear' }}
       >
         <motion.div
           className="text-center"
-          initial={{ scale: 0.5, rotateX: -90 }}
-          animate={{ scale: [0.5, 1.2, 1, 1], rotateX: [-90, 0, 0, 90] }}
-          transition={{ duration: 1.8, times: [0, 0.3, 0.7, 1] }}
+          initial={{ scale: 0.5 }}
+          animate={{ scale: [0.5, 1.1, 1, 1] }}
+          transition={{ duration: 1.8, times: [0, 0.3, 0.7, 1], ease: 'linear' }}
         >
           <motion.div
-            className="flex justify-center mb-4"
-            animate={{ rotate: [0, 360] }}
-            transition={{ duration: 1, ease: 'easeOut' }}
+            className="font-pixel text-[120px] md:text-[180px] leading-none mb-4"
+            style={{ color: info.color, textShadow: `0 0 30px ${info.color}, 4px 4px 0 var(--arcade-void)` }}
+            animate={{ rotate: [0, 10, -10, 0] }}
+            transition={{ duration: 1, ease: 'linear' }}
           >
-            <Icon size={120} strokeWidth={2} style={{ color: info.color, filter: `drop-shadow(0 0 30px ${info.color})` }} />
+            {info.symbol}
           </motion.div>
           <motion.h1
-            className="title-display text-7xl md:text-9xl title-glow"
-            style={{ color: info.color }}
-            animate={{
-              textShadow: [
-                `0 0 20px ${info.color}`,
-                `0 0 60px ${info.color}`,
-                `0 0 20px ${info.color}`,
-              ],
-            }}
-            transition={{ duration: 1.5, repeat: 1 }}
+            className="font-pixel text-pixel-3xl md:text-pixel-4xl neon-glow-yellow animate-glitch"
+            style={{ color: info.color, textShadow: `0 0 20px ${info.color}, 4px 4px 0 var(--arcade-void)` }}
           >
             {info.title}
           </motion.h1>
-          <p className="text-xl text-[var(--text-secondary)] mt-4 uppercase tracking-[0.3em]">
+          <p className="font-terminal text-terminal-lg text-text-white mt-4">
             {info.subtitle}
           </p>
           {round > 0 && phase !== 'lobby' && phase !== 'final-awards' && (
-            <p className="text-[var(--text-muted)] text-sm mt-2">
-              Round {round}
+            <p className="font-pixel text-pixel-sm text-neon-cyan mt-2">
+              ROUND {round} / 3
             </p>
           )}
         </motion.div>

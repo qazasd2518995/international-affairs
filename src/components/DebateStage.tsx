@@ -1,7 +1,6 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Flame, Zap, Mic } from 'lucide-react'
 import type { Match, Team, Topic } from '@/lib/types'
 import { Timer } from './Timer'
 import { DifficultyStars } from './DifficultyStars'
@@ -20,146 +19,104 @@ export function DebateStage({ match, teamA, teamB, topic, phase, onTimerComplete
   const getPhaseInfo = () => {
     switch (phase) {
       case 'team-a-opening':
-        return {
-          label: 'OPENING STATEMENT',
-          team: teamA.name,
-          color: 'var(--team-a)',
-          Icon: Flame,
-          seconds: 20,
-        }
+        return { label: 'OPENING', team: teamA.name, color: 'var(--team-red)', symbol: '►' }
       case 'team-b-opening':
-        return {
-          label: 'OPENING STATEMENT',
-          team: teamB.name,
-          color: 'var(--team-b)',
-          Icon: Zap,
-          seconds: 20,
-        }
+        return { label: 'OPENING', team: teamB.name, color: 'var(--team-blue)', symbol: '►' }
       case 'host-challenge':
-        return {
-          label: 'HOST CHALLENGE',
-          team: 'HOST',
-          color: 'var(--spotlight-gold)',
-          Icon: Mic,
-          seconds: 15,
-        }
+        return { label: 'CHALLENGE', team: 'HOST', color: 'var(--neon-yellow)', symbol: '!' }
       case 'team-a-response':
-        return {
-          label: 'RESPONSE',
-          team: teamA.name,
-          color: 'var(--team-a)',
-          Icon: Flame,
-          seconds: 15,
-        }
+        return { label: 'RESPONSE', team: teamA.name, color: 'var(--team-red)', symbol: '◀' }
       case 'team-b-response':
-        return {
-          label: 'RESPONSE',
-          team: teamB.name,
-          color: 'var(--team-b)',
-          Icon: Zap,
-          seconds: 15,
-        }
+        return { label: 'RESPONSE', team: teamB.name, color: 'var(--team-blue)', symbol: '◀' }
     }
   }
 
   const phaseInfo = getPhaseInfo()
-  const PhaseIcon = phaseInfo.Icon
 
   return (
     <div className="w-full max-w-5xl mx-auto">
-      {/* Topic header */}
       <motion.div
-        className="text-center mb-8"
+        className="text-center mb-6"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <div className="flex justify-center gap-4 mb-4">
+        <div className="flex justify-center gap-3 mb-3 flex-wrap">
           <CategoryTag category={topic.category} />
           <DifficultyStars difficulty={topic.difficulty} />
         </div>
-        <h2 className="text-xl md:text-2xl font-semibold text-[var(--text-secondary)]">
-          {topic.question}
-        </h2>
+        <p className="font-terminal text-terminal-base md:text-terminal-lg text-text-dim">
+          &gt; {topic.question}
+        </p>
       </motion.div>
 
-      {/* Main stage area */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Team A side */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <motion.div
-          className={`team-card team-card-a ${phase.includes('team-a') ? 'ring-4 ring-[var(--team-a)]' : 'opacity-50'}`}
+          className={`battle-card battle-card-red ${phase.includes('team-a') ? '' : 'opacity-40'}`}
           animate={{
-            scale: phase.includes('team-a') ? 1.02 : 1,
-            opacity: phase.includes('team-a') ? 1 : 0.5,
+            scale: phase.includes('team-a') ? 1.02 : 0.95,
           }}
-          transition={{ duration: 0.3 }}
+          transition={{ duration: 0.2, ease: 'linear' }}
         >
           <div className="text-center">
-            <div className="flex justify-center mb-2">
-              <Flame size={40} className="text-[var(--team-a)]" fill="currentColor" />
+            <div className="font-pixel text-pixel-sm text-team-red mb-2">◆ PARTY A ◆</div>
+            <div className="font-pixel text-pixel-lg text-text-white mb-2">
+              {teamA.name.toUpperCase()}
             </div>
-            <h3 className="title-display text-2xl text-[var(--team-a)]">{teamA.name}</h3>
-            <span className="inline-block mt-2 px-3 py-1 rounded-full text-sm bg-[var(--agree-green)] bg-opacity-20 text-[var(--agree-green)] font-semibold">
-              AGREE
-            </span>
+            <div className="pixel-tag pixel-tag-green">AGREE</div>
 
             {match.teamAArguments.length > 0 && (
-              <div className="mt-4 text-left text-sm text-[var(--text-secondary)]">
+              <div className="mt-3 text-left font-terminal text-terminal-base text-text-dim">
                 {match.teamAArguments.map((arg, i) => (
-                  <p key={i} className="mb-1 truncate">• {arg}</p>
+                  <p key={i} className="truncate">&gt; {arg}</p>
                 ))}
               </div>
             )}
           </div>
         </motion.div>
 
-        {/* Center - Timer & Phase */}
         <div className="flex flex-col items-center justify-center">
           <motion.div
             key={phase}
-            className="text-center mb-6"
+            className="text-center mb-4"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ type: 'spring', stiffness: 200 }}
+            transition={{ duration: 0.2, ease: 'linear' }}
           >
-            <div className="flex justify-center mb-2">
-              <PhaseIcon size={40} style={{ color: phaseInfo.color }} fill="currentColor" />
-            </div>
-            <h3
-              className="title-display text-xl"
-              style={{ color: phaseInfo.color }}
+            <div
+              className="font-pixel text-pixel-4xl mb-2"
+              style={{ color: phaseInfo.color, textShadow: `0 0 10px ${phaseInfo.color}` }}
             >
-              {phaseInfo.team}
-            </h3>
-            <span className="text-sm text-[var(--text-muted)] uppercase tracking-wider">
+              {phaseInfo.symbol}
+            </div>
+            <p className="font-pixel text-pixel-sm" style={{ color: phaseInfo.color }}>
+              {phaseInfo.team.toUpperCase()}
+            </p>
+            <p className="font-pixel text-pixel-sm text-text-muted">
               {phaseInfo.label}
-            </span>
+            </p>
           </motion.div>
 
           <Timer onComplete={onTimerComplete} />
         </div>
 
-        {/* Team B side */}
         <motion.div
-          className={`team-card team-card-b ${phase.includes('team-b') ? 'ring-4 ring-[var(--team-b)]' : 'opacity-50'}`}
+          className={`battle-card battle-card-blue ${phase.includes('team-b') ? '' : 'opacity-40'}`}
           animate={{
-            scale: phase.includes('team-b') ? 1.02 : 1,
-            opacity: phase.includes('team-b') ? 1 : 0.5,
+            scale: phase.includes('team-b') ? 1.02 : 0.95,
           }}
-          transition={{ duration: 0.3 }}
+          transition={{ duration: 0.2, ease: 'linear' }}
         >
           <div className="text-center">
-            <div className="flex justify-center mb-2">
-              <Zap size={40} className="text-[var(--team-b)]" fill="currentColor" />
+            <div className="font-pixel text-pixel-sm text-team-blue mb-2">◆ PARTY B ◆</div>
+            <div className="font-pixel text-pixel-lg text-text-white mb-2">
+              {teamB.name.toUpperCase()}
             </div>
-            <h3 className="title-display text-2xl text-[var(--team-b)]">{teamB.name}</h3>
-            <span className="inline-block mt-2 px-3 py-1 rounded-full text-sm bg-[var(--disagree-red)] bg-opacity-20 text-[var(--disagree-red)] font-semibold">
-              DISAGREE
-            </span>
+            <div className="pixel-tag pixel-tag-red">DISAGREE</div>
 
             {match.teamBArguments.length > 0 && (
-              <div className="mt-4 text-left text-sm text-[var(--text-secondary)]">
+              <div className="mt-3 text-left font-terminal text-terminal-base text-text-dim">
                 {match.teamBArguments.map((arg, i) => (
-                  <p key={i} className="mb-1 truncate">• {arg}</p>
+                  <p key={i} className="truncate">&gt; {arg}</p>
                 ))}
               </div>
             )}

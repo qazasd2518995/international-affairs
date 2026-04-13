@@ -1,7 +1,6 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Trophy, Medal, Award } from 'lucide-react'
 import type { Team } from '@/lib/types'
 
 interface LeaderboardProps {
@@ -9,82 +8,72 @@ interface LeaderboardProps {
   title?: string
 }
 
-export function Leaderboard({ teams, title = 'LEADERBOARD' }: LeaderboardProps) {
-  // Sort teams by total score
+export function Leaderboard({ teams, title = 'HI-SCORE' }: LeaderboardProps) {
   const sortedTeams = [...teams].sort((a, b) => b.totalScore - a.totalScore)
 
-  const getRankIcon = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return <Trophy size={32} className="text-[var(--spotlight-gold)]" fill="currentColor" strokeWidth={1.5} />
-      case 2:
-        return <Medal size={32} className="text-[#c0c0c0]" fill="currentColor" strokeWidth={1.5} />
-      case 3:
-        return <Award size={32} className="text-[#cd7f32]" fill="currentColor" strokeWidth={1.5} />
-      default:
-        return null
-    }
+  const getRankSymbol = (rank: number) => {
+    if (rank === 1) return '1ST'
+    if (rank === 2) return '2ND'
+    if (rank === 3) return '3RD'
+    return `${rank}TH`
   }
 
-  const getRankClass = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return 'leaderboard-rank-1'
-      case 2:
-        return 'leaderboard-rank-2'
-      case 3:
-        return 'leaderboard-rank-3'
-      default:
-        return 'text-[var(--text-secondary)]'
-    }
+  const getRankColor = (rank: number) => {
+    if (rank === 1) return 'text-neon-yellow'
+    if (rank === 2) return 'text-neon-cyan'
+    if (rank === 3) return 'text-neon-pink'
+    return 'text-text-dim'
   }
 
   return (
     <div className="w-full max-w-2xl mx-auto">
       <motion.div
-        className="glass-card-strong p-6 md:p-8"
+        className="pixel-panel pixel-panel-yellow"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <h2 className="title-display text-3xl text-center text-[var(--spotlight-gold)] mb-8">
-          {title}
-        </h2>
+        <div className="text-center mb-6">
+          <p className="font-pixel text-pixel-2xl md:text-pixel-3xl neon-glow-yellow">
+            ★ {title} ★
+          </p>
+        </div>
 
-        <div className="space-y-3">
+        <div className="space-y-2">
           {sortedTeams.map((team, index) => {
             const rank = index + 1
             return (
               <motion.div
                 key={team.id}
-                className="leaderboard-row"
+                className="pixel-panel-sm pixel-panel flex items-center"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1 }}
+                transition={{ delay: index * 0.1, ease: 'linear' }}
               >
-                {/* Rank */}
-                <div className={`leaderboard-rank ${getRankClass(rank)} flex items-center justify-center`}>
-                  {rank <= 3 ? getRankIcon(rank) : `#${rank}`}
+                <div className={`font-pixel text-pixel-lg w-20 ${getRankColor(rank)}`}>
+                  {getRankSymbol(rank)}
                 </div>
 
-                {/* Team name */}
-                <div className="flex-1 ml-4">
-                  <h3 className="font-bold text-lg">{team.name}</h3>
-                  <p className="text-sm text-[var(--text-muted)]">
-                    {team.matchesPlayed} match{team.matchesPlayed !== 1 ? 'es' : ''} played
+                <div className="flex-1 px-4">
+                  <p className="font-pixel text-pixel-base text-text-white">
+                    {team.name.toUpperCase()}
+                  </p>
+                  <p className="font-terminal text-terminal-base text-text-dim">
+                    {team.matchesPlayed} {team.matchesPlayed === 1 ? 'battle' : 'battles'}
                   </p>
                 </div>
 
-                {/* Score */}
                 <div className="text-right">
                   <motion.p
-                    className="score-display text-3xl"
+                    className="font-pixel text-pixel-2xl neon-glow-yellow"
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    transition={{ type: 'spring', delay: index * 0.1 + 0.2 }}
+                    transition={{ delay: index * 0.1 + 0.2, ease: 'linear' }}
                   >
                     {team.totalScore.toFixed(1)}
                   </motion.p>
-                  <p className="text-xs text-[var(--text-muted)]">points</p>
+                  <p className="font-pixel text-pixel-sm text-text-muted">
+                    XP
+                  </p>
                 </div>
               </motion.div>
             )
@@ -95,31 +84,27 @@ export function Leaderboard({ teams, title = 'LEADERBOARD' }: LeaderboardProps) 
   )
 }
 
-// Mini leaderboard for sidebar
 export function MiniLeaderboard({ teams }: { teams: Team[] }) {
   const sortedTeams = [...teams].sort((a, b) => b.totalScore - a.totalScore).slice(0, 3)
 
   return (
-    <div className="glass-card p-4">
-      <h4 className="text-sm text-[var(--text-muted)] uppercase tracking-wider mb-3">
-        Top Teams
-      </h4>
-      {sortedTeams.map((team, index) => {
-        const rank = index + 1
-        const Icon = rank === 1 ? Trophy : rank === 2 ? Medal : Award
-        const color = rank === 1 ? 'var(--spotlight-gold)' : rank === 2 ? '#c0c0c0' : '#cd7f32'
-        return (
-          <div key={team.id} className="flex items-center justify-between py-2">
-            <div className="flex items-center gap-2">
-              <Icon size={18} style={{ color }} fill="currentColor" strokeWidth={1.5} />
-              <span className="text-sm">{team.name}</span>
-            </div>
-            <span className="text-[var(--spotlight-gold)] font-bold">
-              {team.totalScore.toFixed(1)}
+    <div className="pixel-panel pixel-panel-sm">
+      <p className="font-pixel text-pixel-sm text-neon-yellow mb-3">
+        ► HI-SCORE
+      </p>
+      {sortedTeams.map((team, index) => (
+        <div key={team.id} className="flex items-center justify-between py-1 font-pixel text-pixel-sm">
+          <div className="flex items-center gap-2">
+            <span className={index === 0 ? 'text-neon-yellow' : index === 1 ? 'text-neon-cyan' : 'text-neon-pink'}>
+              {index + 1}ST
             </span>
+            <span className="text-text-white">{team.name.toUpperCase()}</span>
           </div>
-        )
-      })}
+          <span className="text-neon-yellow">
+            {team.totalScore.toFixed(1)}
+          </span>
+        </div>
+      ))}
     </div>
   )
 }

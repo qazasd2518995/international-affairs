@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Trophy } from 'lucide-react'
 import type { Team, Match } from '@/lib/types'
 
 interface MatchResultProps {
@@ -26,42 +25,47 @@ export function MatchResult({
 }: MatchResultProps) {
   const [showConfetti, setShowConfetti] = useState(false)
 
-  // Calculate final scores
   const finalScoreA = judgeScoreA * 0.7 + (audiencePercentA / 10) * 0.3
   const finalScoreB = judgeScoreB * 0.7 + (audiencePercentB / 10) * 0.3
   const winner = finalScoreA > finalScoreB ? teamA : teamB
-  const winnerColor = finalScoreA > finalScoreB ? 'var(--team-a)' : 'var(--team-b)'
+  const winnerIsA = finalScoreA > finalScoreB
+  const winnerColor = winnerIsA ? 'team-red' : 'team-blue'
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowConfetti(true), 1500)
+    const timer = setTimeout(() => setShowConfetti(true), 800)
     return () => clearTimeout(timer)
   }, [])
 
+  const pixelColors = ['#39ff14', '#ff00aa', '#ffcc00', '#00fff0', '#ff0040', '#0080ff', '#9d00ff']
+
   return (
-    <div className="w-full max-w-4xl mx-auto relative">
-      {/* Confetti */}
+    <div className="w-full max-w-3xl mx-auto relative">
+      {/* Pixel confetti */}
       {showConfetti && (
         <div className="fixed inset-0 pointer-events-none overflow-hidden z-50">
-          {[...Array(50)].map((_, i) => (
+          {[...Array(60)].map((_, i) => (
             <motion.div
               key={i}
-              className="confetti"
+              className="absolute"
               style={{
                 left: `${Math.random() * 100}%`,
-                backgroundColor: ['#ffd700', '#ff00ff', '#00f5ff', '#39ff14', '#f97316', '#8b5cf6'][
-                  Math.floor(Math.random() * 6)
-                ],
+                top: '-20px',
+                width: '8px',
+                height: '8px',
+                background: pixelColors[Math.floor(Math.random() * pixelColors.length)],
+                boxShadow: `0 0 4px ${pixelColors[Math.floor(Math.random() * pixelColors.length)]}`,
               }}
               initial={{ y: -20, opacity: 1 }}
               animate={{
                 y: '100vh',
+                x: (Math.random() - 0.5) * 200,
                 rotate: Math.random() * 720,
                 opacity: 0,
               }}
               transition={{
                 duration: 3 + Math.random() * 2,
-                delay: Math.random() * 0.5,
-                ease: 'easeOut',
+                delay: Math.random() * 0.8,
+                ease: 'linear',
               }}
             />
           ))}
@@ -69,98 +73,107 @@ export function MatchResult({
       )}
 
       <motion.div
-        className="glass-card-strong p-8 md:p-12 spotlight-effect"
-        initial={{ opacity: 0, scale: 0.9 }}
+        className={`pixel-panel ${winnerIsA ? 'pixel-panel-pink' : 'pixel-panel-neon'}`}
+        initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ type: 'spring', stiffness: 100 }}
+        transition={{ duration: 0.3, ease: 'linear' }}
       >
         {/* Winner announcement */}
         <motion.div
-          className="text-center mb-10"
+          className="text-center mb-8"
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.2, ease: 'linear' }}
         >
-          <p className="text-[var(--text-muted)] uppercase tracking-wider mb-2">Round {match.round} Winner</p>
+          <p className="font-pixel text-pixel-sm text-neon-yellow mb-2">
+            ★ STAGE {match.round} CLEAR ★
+          </p>
           <motion.div
-            className="flex items-center justify-center gap-4"
+            className="font-pixel text-pixel-2xl md:text-pixel-3xl neon-glow-yellow mb-2"
+            animate={{ y: [0, -3, 0] }}
+            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+          >
+            WINNER
+          </motion.div>
+          <motion.div
+            className={`font-pixel text-pixel-3xl md:text-pixel-4xl text-${winnerColor}`}
             initial={{ scale: 0.5 }}
             animate={{ scale: 1 }}
-            transition={{ type: 'spring', stiffness: 150, delay: 0.5 }}
+            transition={{ delay: 0.4, duration: 0.3, ease: 'linear' }}
+            style={{
+              textShadow: `0 0 20px currentColor, 4px 4px 0 var(--arcade-void)`,
+            }}
           >
-            <Trophy size={56} style={{ color: winnerColor }} fill="currentColor" strokeWidth={1.5} />
-            <h2
-              className="title-display text-4xl md:text-6xl title-glow"
-              style={{ color: winnerColor }}
-            >
-              {winner.name}
-            </h2>
-            <Trophy size={56} style={{ color: winnerColor }} fill="currentColor" strokeWidth={1.5} />
+            {winner.name.toUpperCase()}
           </motion.div>
         </motion.div>
 
         {/* Score breakdown */}
-        <div className="grid grid-cols-3 gap-4 mb-8">
-          {/* Team A */}
+        <div className="grid grid-cols-3 gap-3 mb-6">
           <motion.div
-            className={`text-center p-4 rounded-xl ${
-              finalScoreA > finalScoreB ? 'bg-[var(--team-a)] bg-opacity-20' : ''
-            }`}
+            className={`battle-card ${winnerIsA ? 'battle-card-red level-up' : 'battle-card-red'}`}
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.7 }}
+            transition={{ delay: 0.6 }}
           >
-            <h3 className="title-display text-lg text-[var(--team-a)]">{teamA.name}</h3>
-            <p className="score-display text-5xl">{finalScoreA.toFixed(1)}</p>
+            <div className="text-center">
+              <p className="font-pixel text-pixel-sm text-team-red mb-2">
+                {teamA.name.toUpperCase()}
+              </p>
+              <p className="font-pixel text-pixel-3xl neon-glow-yellow">
+                {finalScoreA.toFixed(1)}
+              </p>
+            </div>
           </motion.div>
 
-          {/* VS */}
           <div className="flex items-center justify-center">
-            <span className="text-2xl text-[var(--text-muted)]">vs</span>
+            <span className="font-pixel text-pixel-2xl text-text-muted">VS</span>
           </div>
 
-          {/* Team B */}
           <motion.div
-            className={`text-center p-4 rounded-xl ${
-              finalScoreB > finalScoreA ? 'bg-[var(--team-b)] bg-opacity-20' : ''
-            }`}
+            className={`battle-card ${!winnerIsA ? 'battle-card-blue level-up' : 'battle-card-blue'}`}
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.7 }}
+            transition={{ delay: 0.6 }}
           >
-            <h3 className="title-display text-lg text-[var(--team-b)]">{teamB.name}</h3>
-            <p className="score-display text-5xl">{finalScoreB.toFixed(1)}</p>
+            <div className="text-center">
+              <p className="font-pixel text-pixel-sm text-team-blue mb-2">
+                {teamB.name.toUpperCase()}
+              </p>
+              <p className="font-pixel text-pixel-3xl neon-glow-yellow">
+                {finalScoreB.toFixed(1)}
+              </p>
+            </div>
           </motion.div>
         </div>
 
-        {/* Detailed breakdown */}
+        {/* Breakdown */}
         <motion.div
-          className="glass-card p-6"
+          className="pixel-panel-sm pixel-panel"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1 }}
+          transition={{ delay: 0.9 }}
         >
-          <h4 className="text-sm text-[var(--text-muted)] uppercase tracking-wider mb-4 text-center">
-            Score Breakdown
-          </h4>
+          <p className="font-pixel text-pixel-sm text-neon-yellow mb-3">
+            ► BATTLE LOG
+          </p>
 
-          <div className="grid grid-cols-2 gap-8">
-            {/* Judge scores */}
-            <div>
-              <p className="text-sm text-[var(--text-secondary)] mb-2">Judge Score (70%)</p>
-              <div className="flex justify-between items-center">
-                <span className="text-[var(--team-a)]">{teamA.name}: {judgeScoreA.toFixed(1)}</span>
-                <span className="text-[var(--team-b)]">{teamB.name}: {judgeScoreB.toFixed(1)}</span>
-              </div>
+          <div className="space-y-2 font-terminal text-terminal-base">
+            <div className="flex justify-between">
+              <span className="text-text-dim">JUDGE (70%)</span>
+              <span>
+                <span className="text-team-red">{judgeScoreA.toFixed(1)}</span>
+                <span className="text-text-muted mx-2">-</span>
+                <span className="text-team-blue">{judgeScoreB.toFixed(1)}</span>
+              </span>
             </div>
-
-            {/* Audience scores */}
-            <div>
-              <p className="text-sm text-[var(--text-secondary)] mb-2">Audience Vote (30%)</p>
-              <div className="flex justify-between items-center">
-                <span className="text-[var(--team-a)]">{teamA.name}: {Math.round(audiencePercentA)}%</span>
-                <span className="text-[var(--team-b)]">{teamB.name}: {Math.round(audiencePercentB)}%</span>
-              </div>
+            <div className="flex justify-between">
+              <span className="text-text-dim">CROWD (30%)</span>
+              <span>
+                <span className="text-team-red">{Math.round(audiencePercentA)}%</span>
+                <span className="text-text-muted mx-2">-</span>
+                <span className="text-team-blue">{Math.round(audiencePercentB)}%</span>
+              </span>
             </div>
           </div>
         </motion.div>

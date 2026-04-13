@@ -8,38 +8,55 @@ interface LogoProps {
 }
 
 export function Logo({ size = 'md', animate = true }: LogoProps) {
-  const sizeClasses = {
-    sm: 'text-2xl',
-    md: 'text-4xl md:text-5xl',
-    lg: 'text-5xl md:text-7xl',
+  const sizeMap = {
+    sm: { title: 'text-sm md:text-base', sub: 'text-xs' },
+    md: { title: 'text-lg md:text-2xl', sub: 'text-xs md:text-sm' },
+    lg: { title: 'text-xl md:text-4xl', sub: 'text-sm md:text-base' },
   }
-
-  const subtitleSizes = {
-    sm: 'text-xs',
-    md: 'text-sm',
-    lg: 'text-base md:text-lg',
-  }
+  const s = sizeMap[size]
 
   return (
     <div className="text-center">
-      <motion.h1
-        className={`title-display title-glow ${sizeClasses[size]}`}
-        initial={animate ? { opacity: 0, y: -20 } : false}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
+      <motion.div
+        className="inline-block"
+        initial={animate ? { opacity: 0, y: -20, scale: 0.8 } : false}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.4, ease: 'linear' }}
       >
-        <span className="text-white">MINI</span>{' '}
-        <span className="text-shimmer">DEBATE</span>{' '}
-        <span className="text-white">ARENA</span>
-      </motion.h1>
+        <div className={`font-pixel ${s.title} leading-tight`}>
+          <motion.span
+            className="neon-glow-pink inline-block"
+            animate={animate ? { y: [0, -2, 0] } : {}}
+            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+          >
+            MINI
+          </motion.span>
+          <span className="text-text-white mx-2"> </span>
+          <motion.span
+            className="neon-glow-yellow inline-block"
+            animate={animate ? { y: [0, -2, 0] } : {}}
+            transition={{ duration: 1, repeat: Infinity, ease: 'linear', delay: 0.2 }}
+          >
+            DEBATE
+          </motion.span>
+          <br />
+          <motion.span
+            className="neon-glow-green inline-block"
+            animate={animate ? { y: [0, -2, 0] } : {}}
+            transition={{ duration: 1, repeat: Infinity, ease: 'linear', delay: 0.4 }}
+          >
+            ARENA
+          </motion.span>
+        </div>
+      </motion.div>
 
       <motion.p
-        className={`${subtitleSizes[size]} text-[var(--text-secondary)] tracking-[0.3em] uppercase mt-2`}
+        className={`font-pixel ${s.sub} text-neon-cyan mt-4 tracking-[0.3em]`}
         initial={animate ? { opacity: 0 } : false}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.3 }}
+        transition={{ duration: 0.4, delay: 0.3 }}
       >
-        Vote • Prepare • Debate • Score
+        &lt; PRESS START &gt;
       </motion.p>
     </div>
   )

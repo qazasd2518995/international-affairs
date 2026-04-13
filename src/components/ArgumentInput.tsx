@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { CheckCircle2 } from 'lucide-react'
 import type { Topic } from '@/lib/types'
 
 interface ArgumentInputProps {
@@ -25,106 +24,97 @@ export function ArgumentInput({ topic, stance, teamName, onSubmit }: ArgumentInp
     }
   }
 
-  const stanceColor = stance === 'agree' ? 'var(--agree-green)' : 'var(--disagree-red)'
+  const stanceColor = stance === 'agree' ? 'text-neon-green' : 'text-neon-red'
   const stanceLabel = stance === 'agree' ? 'AGREE' : 'DISAGREE'
+  const stanceBorder = stance === 'agree' ? 'pixel-panel-neon' : 'pixel-panel-pink'
 
   return (
     <div className="w-full max-w-2xl mx-auto">
       <motion.div
-        className="glass-card-strong p-6 md:p-8"
+        className={`pixel-panel ${stanceBorder}`}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        style={{ borderColor: stanceColor, borderWidth: 2 }}
       >
-        {/* Header */}
-        <div className="text-center mb-6">
-          <h3 className="title-display text-2xl" style={{ color: stanceColor }}>
-            {teamName}
-          </h3>
-          <span
-            className="inline-block mt-2 px-4 py-1 rounded-full text-sm font-bold"
-            style={{ backgroundColor: `${stanceColor}20`, color: stanceColor }}
-          >
-            {stanceLabel}
-          </span>
+        <div className="text-center mb-4">
+          <p className={`font-pixel text-pixel-base ${stanceColor}`}>
+            ◆ {teamName.toUpperCase()} ◆
+          </p>
+          <div className="mt-2">
+            <span className={`pixel-tag ${stance === 'agree' ? 'pixel-tag-green' : 'pixel-tag-red'}`}>
+              YOUR STANCE: {stanceLabel}
+            </span>
+          </div>
         </div>
 
-        {/* Topic reminder */}
-        <div className="glass-card p-4 mb-6">
-          <p className="text-sm text-[var(--text-secondary)] text-center">
+        <div className="dialogue-box mb-6">
+          <p className="font-terminal text-terminal-base">
             {topic.question}
           </p>
         </div>
 
-        {/* Argument inputs */}
         {!submitted ? (
           <>
             <div className="space-y-4 mb-6">
               <div>
-                <label className="block text-sm text-[var(--text-muted)] mb-2">
-                  Argument 1 (Required)
+                <label className="block font-pixel text-pixel-sm text-neon-yellow mb-2">
+                  <span className="rpg-cursor">►</span> ARGUMENT 1 *REQUIRED
                 </label>
                 <textarea
-                  className="input-field min-h-[100px] resize-none"
-                  placeholder="Enter your main argument..."
+                  className="pixel-input min-h-[80px] resize-none"
+                  placeholder="TYPE YOUR MAIN ARGUMENT..."
                   value={arg1}
                   onChange={(e) => setArg1(e.target.value)}
                   maxLength={300}
                 />
-                <p className="text-xs text-[var(--text-muted)] mt-1 text-right">
+                <p className="font-pixel text-pixel-sm text-text-muted mt-1 text-right">
                   {arg1.length}/300
                 </p>
               </div>
 
               <div>
-                <label className="block text-sm text-[var(--text-muted)] mb-2">
-                  Argument 2 (Optional)
+                <label className="block font-pixel text-pixel-sm text-neon-yellow mb-2">
+                  <span className="rpg-cursor">►</span> ARGUMENT 2 *OPTIONAL
                 </label>
                 <textarea
-                  className="input-field min-h-[80px] resize-none"
-                  placeholder="Add a supporting argument..."
+                  className="pixel-input min-h-[60px] resize-none"
+                  placeholder="TYPE YOUR BACKUP ARGUMENT..."
                   value={arg2}
                   onChange={(e) => setArg2(e.target.value)}
                   maxLength={200}
                 />
-                <p className="text-xs text-[var(--text-muted)] mt-1 text-right">
+                <p className="font-pixel text-pixel-sm text-text-muted mt-1 text-right">
                   {arg2.length}/200
                 </p>
               </div>
             </div>
 
             <motion.button
-              className="btn-primary w-full"
+              className="pixel-btn pixel-btn-green w-full"
               onClick={handleSubmit}
               disabled={!arg1.trim()}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileTap={{ scale: 0.97 }}
             >
-              SUBMIT ARGUMENTS
+              ► SAVE ATTACKS ◄
             </motion.button>
           </>
         ) : (
           <motion.div
-            className="text-center py-8"
+            className="text-center py-6"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
           >
-            <div className="flex justify-center mb-4">
-              <CheckCircle2 size={56} className="text-[var(--agree-green)]" strokeWidth={2} />
+            <div className="font-pixel text-pixel-lg neon-glow-green mb-4">
+              ★ ATTACKS SAVED ★
             </div>
-            <h4 className="text-xl font-bold text-[var(--spotlight-gold)]">
-              Arguments Submitted!
-            </h4>
-            <p className="text-[var(--text-secondary)] mt-2">
-              Practice your delivery while waiting...
+            <p className="font-terminal text-terminal-base text-text-dim">
+              &gt; Practice your battle cry...
             </p>
 
-            {/* Show submitted arguments */}
-            <div className="mt-6 text-left glass-card p-4">
-              <p className="text-sm text-[var(--text-muted)] mb-2">Your arguments:</p>
-              <ul className="space-y-2">
-                <li className="text-sm">1. {arg1}</li>
-                {arg2 && <li className="text-sm">2. {arg2}</li>}
+            <div className="mt-6 text-left pixel-panel-sm pixel-panel">
+              <p className="font-pixel text-pixel-sm text-neon-yellow mb-2">YOUR MOVES:</p>
+              <ul className="space-y-2 font-terminal text-terminal-base">
+                <li>► {arg1}</li>
+                {arg2 && <li>► {arg2}</li>}
               </ul>
             </div>
           </motion.div>

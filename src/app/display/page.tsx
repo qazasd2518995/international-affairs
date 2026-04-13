@@ -3,7 +3,6 @@
 import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Star, Vote as VoteIcon, Flame, Zap, Scale } from 'lucide-react'
 import {
   StageBackground,
   Logo,
@@ -23,12 +22,12 @@ import { useRealtimeGame, type DebateSubPhase } from '@/lib/useRealtimeGame'
 import { TOPICS } from '@/lib/types'
 
 const DEBATE_SUB_INFO: Record<DebateSubPhase, { label: string; duration: number; team: 'A' | 'B' | 'HOST' }> = {
-  'team-a-opening': { label: 'OPENING STATEMENT', duration: 20, team: 'A' },
-  'team-b-opening': { label: 'OPENING STATEMENT', duration: 20, team: 'B' },
-  'host-challenge': { label: 'HOST CHALLENGE', duration: 15, team: 'HOST' },
+  'team-a-opening': { label: 'OPENING', duration: 20, team: 'A' },
+  'team-b-opening': { label: 'OPENING', duration: 20, team: 'B' },
+  'host-challenge': { label: 'CHALLENGE', duration: 15, team: 'HOST' },
   'team-a-response': { label: 'RESPONSE', duration: 15, team: 'A' },
   'team-b-response': { label: 'RESPONSE', duration: 15, team: 'B' },
-  'done': { label: 'DEBATE COMPLETE', duration: 0, team: 'A' },
+  'done': { label: 'DONE', duration: 0, team: 'A' },
 }
 
 function DisplayContent() {
@@ -42,7 +41,6 @@ function DisplayContent() {
   const currentMatch = game.currentMatchId ? game.matches.find((m) => m.id === game.currentMatchId) : null
   const currentRoundMatches = game.matches.filter((m) => m.round === game.currentRound)
 
-  // Show phase transition on phase change
   useEffect(() => {
     if (game.phase !== 'lobby') {
       setShowPhaseTransition(true)
@@ -53,14 +51,11 @@ function DisplayContent() {
 
   const getMatchScores = () => {
     if (!currentMatch) return null
-
     const judgeScoreA = currentMatch.judgeScores.reduce((sum, s) => sum + s.teamAScore, 0) / (currentMatch.judgeScores.length || 1)
     const judgeScoreB = currentMatch.judgeScores.reduce((sum, s) => sum + s.teamBScore, 0) / (currentMatch.judgeScores.length || 1)
-
     const totalAudienceVotes = currentMatch.audienceVotes.length || 1
     const votesForA = currentMatch.audienceVotes.filter((v) => v.votedFor === currentMatch.teamA).length
     const votesForB = currentMatch.audienceVotes.filter((v) => v.votedFor === currentMatch.teamB).length
-
     return {
       judgeScoreA,
       judgeScoreB,
@@ -75,7 +70,9 @@ function DisplayContent() {
         <StageBackground />
         <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-6">
           <Logo size="lg" />
-          <p className="text-[var(--text-muted)] mt-8">No session specified</p>
+          <p className="font-pixel text-pixel-base text-neon-red mt-8">
+            ※ NO SESSION ※
+          </p>
         </div>
       </main>
     )
@@ -87,7 +84,9 @@ function DisplayContent() {
         <StageBackground />
         <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-6">
           <Logo size="lg" />
-          <div className="loading-spinner mx-auto mt-8" />
+          <p className="font-pixel text-pixel-base text-neon-cyan mt-8">
+            LOADING<span className="loading-dots"></span>
+          </p>
         </div>
       </main>
     )
@@ -97,20 +96,18 @@ function DisplayContent() {
     <main className="min-h-screen relative overflow-hidden">
       <StageBackground />
 
-      {/* Phase transition overlay */}
       {showPhaseTransition && <PhaseTransition phase={game.phase} round={game.currentRound} />}
 
       <div className="relative z-10 min-h-screen flex flex-col">
-        {/* Header */}
-        <header className="p-6 flex items-center justify-between">
-          <Logo size="md" animate={false} />
-          <div className="flex items-center gap-6">
-            <span className="text-[var(--text-muted)]">
-              Round {game.currentRound} / 3
+        <header className="p-6 flex items-center justify-between border-b-2 border-panel-border">
+          <Logo size="sm" animate={false} />
+          <div className="flex items-center gap-4">
+            <span className="pixel-tag pixel-tag-cyan">
+              ROUND {game.currentRound}/3
             </span>
             <motion.span
               key={game.phase}
-              className="px-4 py-2 rounded-full bg-[var(--neon-cyan)] bg-opacity-20 text-[var(--neon-cyan)] font-bold uppercase tracking-wider"
+              className="pixel-tag pixel-tag-yellow"
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
             >
@@ -119,10 +116,8 @@ function DisplayContent() {
           </div>
         </header>
 
-        {/* Main content area */}
         <div className="flex-1 flex items-center justify-center p-6">
           <AnimatePresence mode="wait">
-            {/* Lobby */}
             {game.phase === 'lobby' && (
               <motion.div
                 key="lobby"
@@ -131,53 +126,43 @@ function DisplayContent() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
               >
-                <motion.div
-                  className="glass-card-strong p-12 spotlight-effect"
-                  initial={{ scale: 0.9 }}
-                  animate={{ scale: 1 }}
-                >
-                  <h2 className="title-display text-5xl text-[var(--spotlight-gold)] mb-8 title-glow">
-                    SCAN TO JOIN
-                  </h2>
+                <div className="pixel-panel pixel-panel-yellow">
+                  <p className="font-pixel text-pixel-3xl md:text-pixel-4xl neon-glow-yellow mb-6">
+                    ★ SCAN TO JOIN ★
+                  </p>
 
                   {typeof window !== 'undefined' && (
-                    <motion.div
-                      className="flex justify-center mb-6"
-                      animate={{
-                        scale: [1, 1.02, 1],
-                      }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                    >
+                    <div className="flex justify-center mb-6">
                       <QRCodeDisplay
                         url={`${window.location.origin}?session=${sessionId}`}
-                        size={280}
+                        size={320}
                       />
-                    </motion.div>
+                    </div>
                   )}
 
                   <motion.p
-                    className="text-[var(--spotlight-gold)] text-4xl title-display"
-                    animate={{
-                      scale: [1, 1.1, 1],
-                    }}
-                    transition={{ duration: 1, repeat: Infinity }}
+                    className="font-pixel text-pixel-2xl neon-glow-pink"
+                    animate={{ scale: [1, 1.05, 1] }}
+                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                   >
-                    {Object.keys(game.players).length} PLAYERS JOINED
+                    {Object.keys(game.players).length} HEROES JOINED
                   </motion.p>
 
-                  <div className="grid grid-cols-3 gap-4 mt-8 max-w-md mx-auto">
+                  <div className="grid grid-cols-3 gap-3 mt-6 max-w-lg mx-auto">
                     {Object.values(game.teams).map((team) => (
                       <motion.div
                         key={team.id}
-                        className="glass-card p-3 text-center"
+                        className="pixel-panel-sm pixel-panel text-center"
                         animate={{
-                          borderColor: team.members.length > 0 ? 'var(--spotlight-gold)' : 'var(--glass-border)',
+                          boxShadow: team.members.length > 0
+                            ? '0 0 0 2px var(--neon-green), 0 0 0 4px var(--arcade-void), 0 0 0 6px var(--neon-green), 4px 4px 0 0 rgba(0, 0, 0, 0.8)'
+                            : undefined,
                         }}
                       >
-                        <p className="text-sm font-bold">{team.name}</p>
+                        <p className="font-pixel text-pixel-sm">{team.name.toUpperCase()}</p>
                         <motion.p
                           key={team.members.length}
-                          className="text-[var(--spotlight-gold)]"
+                          className="font-pixel text-pixel-xl neon-glow-green"
                           initial={{ scale: 1.5 }}
                           animate={{ scale: 1 }}
                         >
@@ -186,60 +171,61 @@ function DisplayContent() {
                       </motion.div>
                     ))}
                   </div>
-                </motion.div>
+                </div>
               </motion.div>
             )}
 
-            {/* Topic Reveal */}
             {game.phase === 'topic-reveal' && currentTopic && (
               <motion.div
                 key="topic"
-                className="w-full max-w-5xl"
+                className="w-full max-w-5xl crt-on"
                 initial={{ opacity: 0, rotateY: -90 }}
                 animate={{ opacity: 1, rotateY: 0 }}
                 exit={{ opacity: 0 }}
-                transition={{ type: 'spring', stiffness: 80 }}
+                transition={{ duration: 0.4, ease: 'linear' }}
               >
-                <div className="glass-card-strong p-12 neon-border spotlight-effect text-center">
+                <div className="pixel-panel pixel-panel-neon">
+                  <div className="text-center mb-6">
+                    <p className="font-pixel text-pixel-base text-neon-yellow">
+                      ★ NEW QUEST ★
+                    </p>
+                  </div>
+
                   <motion.div
-                    className="flex justify-center items-center gap-6 mb-8"
+                    className="flex justify-center items-center gap-4 mb-6 flex-wrap"
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
                   >
                     <CategoryTag category={currentTopic.category} size="lg" />
-                    <div className="h-8 w-px bg-[var(--glass-border)]" />
+                    <span className="font-pixel text-neon-yellow">|</span>
                     <DifficultyStars difficulty={currentTopic.difficulty} size="lg" />
                   </motion.div>
 
-                  <motion.h2
-                    className="text-4xl md:text-5xl font-bold leading-relaxed"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6 }}
-                  >
-                    {currentTopic.question}
-                  </motion.h2>
+                  <div className="dialogue-box">
+                    <motion.p
+                      className="font-terminal text-terminal-xl md:text-terminal-2xl"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.6 }}
+                    >
+                      {currentTopic.question}
+                    </motion.p>
+                  </div>
 
                   {currentTopic.difficulty === 3 && (
                     <motion.div
-                      className="mt-8"
+                      className="text-center mt-6"
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      transition={{ delay: 1, type: 'spring' }}
+                      transition={{ delay: 1, ease: 'linear' }}
                     >
                       <motion.div
-                        className="flex items-center justify-center gap-3"
-                        animate={{
-                          scale: [1, 1.1, 1],
-                        }}
-                        transition={{ duration: 1.5, repeat: Infinity }}
+                        className="pixel-tag pixel-tag-yellow inline-flex"
+                        animate={{ scale: [1, 1.1, 1] }}
+                        transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                       >
-                        <Star size={28} className="text-[var(--spotlight-gold)]" fill="currentColor" />
-                        <span className="text-[var(--spotlight-gold)] text-xl uppercase tracking-wider title-display">
-                          Challenge Topic — Bonus Points!
-                        </span>
-                        <Star size={28} className="text-[var(--spotlight-gold)]" fill="currentColor" />
+                        ★ BOSS LEVEL · BONUS XP ★
                       </motion.div>
                     </motion.div>
                   )}
@@ -247,42 +233,37 @@ function DisplayContent() {
               </motion.div>
             )}
 
-            {/* Voting Phase */}
             {game.phase === 'voting' && (
               <motion.div
                 key="voting"
-                className="w-full max-w-4xl"
+                className="w-full max-w-4xl space-y-6"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
               >
                 {currentTopic && (
                   <motion.div
-                    className="text-center mb-8"
+                    className="dialogue-box max-w-3xl mx-auto"
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                   >
-                    <h2 className="title-display text-3xl text-[var(--spotlight-gold)] mb-4">
-                      CAST YOUR VOTE
-                    </h2>
-                    <p className="text-xl text-[var(--text-secondary)]">{currentTopic.question}</p>
+                    <p className="font-terminal text-terminal-xl md:text-terminal-2xl text-center">
+                      {currentTopic.question}
+                    </p>
                   </motion.div>
                 )}
 
-                <div className="flex justify-center mb-8">
-                  <SyncedCountdown
-                    duration={30}
-                    startedAt={game.phaseStartedAt}
-                    label="Time to Vote"
-                    size="md"
-                  />
-                </div>
+                <SyncedCountdown
+                  duration={30}
+                  startedAt={game.phaseStartedAt}
+                  label="VOTING"
+                  size="md"
+                />
 
                 <VoteResults votes={game.votes} totalVoters={Object.keys(game.players).length} />
               </motion.div>
             )}
 
-            {/* Matchup Reveal */}
             {game.phase === 'matchup-reveal' && (
               <motion.div
                 key="matchup"
@@ -295,152 +276,131 @@ function DisplayContent() {
               </motion.div>
             )}
 
-            {/* Preparation */}
             {game.phase === 'preparation' && (
               <motion.div
                 key="prep"
-                className="text-center"
+                className="text-center space-y-6"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
               >
-                <motion.h2
-                  className="title-display text-5xl text-[var(--spotlight-gold)] mb-8 title-glow"
-                  animate={{
-                    textShadow: [
-                      '0 0 20px rgba(255, 215, 0, 0.5)',
-                      '0 0 50px rgba(255, 215, 0, 1)',
-                      '0 0 20px rgba(255, 215, 0, 0.5)',
-                    ],
-                  }}
-                  transition={{ duration: 2, repeat: Infinity }}
+                <motion.p
+                  className="font-pixel text-pixel-3xl md:text-pixel-4xl neon-glow-yellow animate-glitch"
                 >
-                  PREPARATION TIME
-                </motion.h2>
+                  ♪ CHARGING MP ♪
+                </motion.p>
 
                 <SyncedCountdown
                   duration={90}
                   startedAt={game.phaseStartedAt}
-                  label="Teams Preparing"
+                  label="TEAMS PREPARING"
                   size="lg"
                 />
 
                 <motion.p
-                  className="text-[var(--text-secondary)] mt-8 text-2xl"
+                  className="font-terminal text-terminal-xl text-text-dim"
                   animate={{ opacity: [0.5, 1, 0.5] }}
-                  transition={{ duration: 2, repeat: Infinity }}
+                  transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
                 >
-                  Teams are writing their arguments...
+                  &gt; Heroes are writing their attacks...
                 </motion.p>
 
-                {/* Show competing teams */}
                 {currentMatch && (
-                  <motion.div
-                    className="flex justify-center gap-8 mt-10"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.5 }}
-                  >
-                    <div className="team-card team-card-a p-4">
-                      <h3 className="title-display text-lg text-[var(--team-a)]">
-                        {game.teams[currentMatch.teamA]?.name}
-                      </h3>
-                      <p className="text-sm text-[var(--agree-green)] mt-1">AGREE</p>
+                  <div className="flex justify-center gap-6 mt-8 flex-wrap">
+                    <div className="battle-card battle-card-red">
+                      <div className="text-center">
+                        <p className="font-pixel text-pixel-sm text-team-red mb-1">◆ A ◆</p>
+                        <p className="font-pixel text-pixel-lg text-text-white">
+                          {game.teams[currentMatch.teamA]?.name.toUpperCase()}
+                        </p>
+                        <p className="font-pixel text-pixel-sm text-neon-green mt-2">AGREE</p>
+                      </div>
                     </div>
-                    <div className="flex items-center text-[var(--text-muted)] text-2xl">VS</div>
-                    <div className="team-card team-card-b p-4">
-                      <h3 className="title-display text-lg text-[var(--team-b)]">
-                        {game.teams[currentMatch.teamB]?.name}
-                      </h3>
-                      <p className="text-sm text-[var(--disagree-red)] mt-1">DISAGREE</p>
+                    <div className="vs-pixel">VS</div>
+                    <div className="battle-card battle-card-blue">
+                      <div className="text-center">
+                        <p className="font-pixel text-pixel-sm text-team-blue mb-1">◆ B ◆</p>
+                        <p className="font-pixel text-pixel-lg text-text-white">
+                          {game.teams[currentMatch.teamB]?.name.toUpperCase()}
+                        </p>
+                        <p className="font-pixel text-pixel-sm text-neon-red mt-2">DISAGREE</p>
+                      </div>
                     </div>
-                  </motion.div>
+                  </div>
                 )}
               </motion.div>
             )}
 
-            {/* Debate */}
             {game.phase === 'debate' && currentMatch && (() => {
               const subInfo = DEBATE_SUB_INFO[game.debateSubPhase]
               const activeTeam = subInfo.team
-              const phaseColor = activeTeam === 'A' ? 'var(--team-a)' : activeTeam === 'B' ? 'var(--team-b)' : 'var(--spotlight-gold)'
+              const color = activeTeam === 'A' ? 'var(--team-red)' : activeTeam === 'B' ? 'var(--team-blue)' : 'var(--neon-yellow)'
 
               return (
                 <motion.div
                   key="debate"
-                  className="w-full text-center"
+                  className="w-full text-center space-y-6"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                 >
-                  {/* Sub-phase label */}
                   <motion.div
                     key={game.debateSubPhase}
-                    className="mb-6"
-                    initial={{ opacity: 0, y: -20 }}
+                    initial={{ opacity: 0, y: -30 }}
                     animate={{ opacity: 1, y: 0 }}
                   >
-                    <p className="text-[var(--text-muted)] uppercase tracking-[0.3em] text-sm mb-2">
-                      Now Speaking
+                    <p className="font-pixel text-pixel-sm text-text-muted mb-2 uppercase">
+                      &gt; NOW SPEAKING
                     </p>
-                    <motion.h2
-                      className="title-display text-5xl md:text-7xl title-glow"
-                      style={{ color: phaseColor }}
-                      animate={{
-                        textShadow: [
-                          `0 0 20px ${phaseColor}`,
-                          `0 0 60px ${phaseColor}`,
-                          `0 0 20px ${phaseColor}`,
-                        ],
-                      }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
+                    <motion.p
+                      className="font-pixel text-pixel-3xl md:text-pixel-4xl animate-glitch"
+                      style={{ color, textShadow: `0 0 20px ${color}, 4px 4px 0 var(--arcade-void)` }}
                     >
                       {activeTeam === 'HOST'
                         ? 'HOST CHALLENGE'
-                        : `${game.teams[activeTeam === 'A' ? currentMatch.teamA : currentMatch.teamB]?.name} — ${subInfo.label}`}
-                    </motion.h2>
+                        : game.teams[activeTeam === 'A' ? currentMatch.teamA : currentMatch.teamB]?.name.toUpperCase()}
+                    </motion.p>
+                    <p className="font-pixel text-pixel-lg text-neon-yellow mt-2">
+                      [ {subInfo.label} ]
+                    </p>
                   </motion.div>
 
-                  {/* Teams row */}
-                  <div className="flex justify-center items-center gap-8 mb-8">
+                  <div className="flex justify-center items-center gap-6 flex-wrap">
                     <motion.div
-                      className="team-card team-card-a p-6"
+                      className="battle-card battle-card-red"
                       animate={{
                         scale: activeTeam === 'A' ? [1, 1.05, 1] : 0.9,
                         opacity: activeTeam === 'A' ? 1 : 0.4,
                       }}
-                      transition={{ duration: 1.5, repeat: activeTeam === 'A' ? Infinity : 0 }}
+                      transition={{ duration: 1, repeat: activeTeam === 'A' ? Infinity : 0, ease: 'linear' }}
                     >
-                      <div className="flex justify-center mb-2">
-                        <Flame size={40} className="text-[var(--team-a)]" fill="currentColor" />
+                      <div className="text-center">
+                        <p className="font-pixel text-pixel-sm text-team-red">◆ A ◆</p>
+                        <p className="font-pixel text-pixel-xl text-text-white mt-2">
+                          {game.teams[currentMatch.teamA]?.name.toUpperCase()}
+                        </p>
                       </div>
-                      <h3 className="title-display text-2xl text-[var(--team-a)]">
-                        {game.teams[currentMatch.teamA]?.name}
-                      </h3>
-                      <span className="text-sm text-[var(--agree-green)]">AGREE</span>
                     </motion.div>
 
-                    <div className="vs-badge text-5xl">VS</div>
+                    <div className="vs-pixel">VS</div>
 
                     <motion.div
-                      className="team-card team-card-b p-6"
+                      className="battle-card battle-card-blue"
                       animate={{
                         scale: activeTeam === 'B' ? [1, 1.05, 1] : 0.9,
                         opacity: activeTeam === 'B' ? 1 : 0.4,
                       }}
-                      transition={{ duration: 1.5, repeat: activeTeam === 'B' ? Infinity : 0 }}
+                      transition={{ duration: 1, repeat: activeTeam === 'B' ? Infinity : 0, ease: 'linear' }}
                     >
-                      <div className="flex justify-center mb-2">
-                        <Zap size={40} className="text-[var(--team-b)]" fill="currentColor" />
+                      <div className="text-center">
+                        <p className="font-pixel text-pixel-sm text-team-blue">◆ B ◆</p>
+                        <p className="font-pixel text-pixel-xl text-text-white mt-2">
+                          {game.teams[currentMatch.teamB]?.name.toUpperCase()}
+                        </p>
                       </div>
-                      <h3 className="title-display text-2xl text-[var(--team-b)]">
-                        {game.teams[currentMatch.teamB]?.name}
-                      </h3>
-                      <span className="text-sm text-[var(--disagree-red)]">DISAGREE</span>
                     </motion.div>
                   </div>
 
-                  {/* Big synced countdown */}
                   {game.debateSubPhase !== 'done' && (
                     <SyncedCountdown
                       key={game.debateSubPhase}
@@ -454,42 +414,26 @@ function DisplayContent() {
               )
             })()}
 
-            {/* Audience Vote */}
             {game.phase === 'audience-vote' && currentMatch && (
               <motion.div
                 key="audience-vote"
-                className="w-full max-w-4xl"
+                className="w-full max-w-4xl space-y-6"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
               >
-                <motion.div
-                  className="text-center mb-8"
-                  animate={{
-                    scale: [1, 1.02, 1],
-                  }}
-                  transition={{ duration: 1, repeat: Infinity }}
+                <motion.p
+                  className="font-pixel text-pixel-3xl md:text-pixel-4xl text-center neon-glow-yellow animate-glitch"
                 >
-                  <div className="flex items-center justify-center gap-6">
-                    <VoteIcon size={56} className="text-[var(--spotlight-gold)]" strokeWidth={2} />
-                    <h2 className="title-display text-5xl text-[var(--spotlight-gold)] title-glow">
-                      VOTE NOW!
-                    </h2>
-                    <VoteIcon size={56} className="text-[var(--spotlight-gold)]" strokeWidth={2} />
-                  </div>
-                  <p className="text-xl text-[var(--text-secondary)] mt-4">
-                    Use your phone to cast your vote
-                  </p>
-                </motion.div>
+                  ♪ CHEER! ♪
+                </motion.p>
 
-                <div className="flex justify-center mb-8">
-                  <SyncedCountdown
-                    duration={20}
-                    startedAt={game.phaseStartedAt}
-                    label="Vote Time"
-                    size="md"
-                  />
-                </div>
+                <SyncedCountdown
+                  duration={20}
+                  startedAt={game.phaseStartedAt}
+                  label="VOTING"
+                  size="md"
+                />
 
                 <AudienceVoteResults
                   teamA={game.teams[currentMatch.teamA]}
@@ -499,7 +443,6 @@ function DisplayContent() {
               </motion.div>
             )}
 
-            {/* Scoring */}
             {game.phase === 'scoring' && (
               <motion.div
                 key="scoring"
@@ -508,25 +451,24 @@ function DisplayContent() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
               >
-                <div className="glass-card-strong p-12 spotlight-effect">
+                <div className="pixel-panel pixel-panel-yellow">
                   <motion.div
-                    className="flex justify-center mb-6"
-                    animate={{
-                      rotate: [0, 10, -10, 0],
-                    }}
-                    transition={{ duration: 2, repeat: Infinity }}
+                    className="font-pixel text-[120px] md:text-[180px] neon-glow-yellow leading-none mb-6"
+                    animate={{ rotate: [0, -10, 10, 0] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
                   >
-                    <Scale size={120} className="text-[var(--spotlight-gold)]" strokeWidth={1.5} style={{ filter: 'drop-shadow(0 0 30px rgba(255, 215, 0, 0.6))' }} />
+                    ♦
                   </motion.div>
-                  <h2 className="title-display text-5xl text-[var(--spotlight-gold)] mb-4 title-glow">
-                    JUDGES DELIBERATING
-                  </h2>
-                  <div className="loading-spinner mx-auto mt-8" />
+                  <p className="font-pixel text-pixel-3xl md:text-pixel-4xl neon-glow-yellow animate-glitch">
+                    JUDGES
+                  </p>
+                  <p className="font-terminal text-terminal-xl text-text-dim mt-4">
+                    &gt; Calculating damage<span className="loading-dots"></span>
+                  </p>
                 </div>
               </motion.div>
             )}
 
-            {/* Result */}
             {game.phase === 'result' && currentMatch && (
               <motion.div
                 key="result"
@@ -553,11 +495,10 @@ function DisplayContent() {
               </motion.div>
             )}
 
-            {/* Leaderboard */}
             {game.phase === 'leaderboard' && (
               <motion.div
                 key="leaderboard"
-                className="w-full max-w-2xl"
+                className="w-full"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -566,7 +507,6 @@ function DisplayContent() {
               </motion.div>
             )}
 
-            {/* Final Awards */}
             {game.phase === 'final-awards' && (
               <motion.div
                 key="awards"
@@ -592,7 +532,9 @@ export default function DisplayPage() {
         <StageBackground />
         <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-6">
           <Logo size="lg" />
-          <div className="loading-spinner mx-auto mt-8" />
+          <p className="font-pixel text-pixel-base text-neon-cyan mt-8">
+            LOADING<span className="loading-dots"></span>
+          </p>
         </div>
       </main>
     }>

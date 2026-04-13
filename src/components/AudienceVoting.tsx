@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Drama, Flame, Zap, Check } from 'lucide-react'
 import type { Team, AudienceVote } from '@/lib/types'
 
 interface AudienceVotingProps {
@@ -17,7 +16,6 @@ interface AudienceVotingProps {
 export function AudienceVoting({
   teamA,
   teamB,
-  playerId,
   playerTeamId,
   onVote,
   currentVote,
@@ -25,7 +23,6 @@ export function AudienceVoting({
   const [selected, setSelected] = useState<string | null>(currentVote || null)
   const [submitted, setSubmitted] = useState(!!currentVote)
 
-  // Check if this player is on one of the competing teams
   const isCompeting = playerTeamId === teamA.id || playerTeamId === teamB.id
 
   const handleVote = (teamId: string) => {
@@ -37,92 +34,88 @@ export function AudienceVoting({
 
   if (isCompeting) {
     return (
-      <div className="w-full max-w-lg mx-auto">
+      <div className="w-full max-w-md mx-auto">
         <motion.div
-          className="glass-card p-8 text-center"
+          className="pixel-panel"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <div className="flex justify-center mb-4">
-            <Drama size={56} className="text-[var(--spotlight-gold)]" strokeWidth={1.5} />
+          <div className="text-center py-4">
+            <p className="font-pixel text-pixel-base neon-glow-pink mb-2">
+              ※ YOU ARE IN BATTLE ※
+            </p>
+            <p className="font-terminal text-terminal-base text-text-dim">
+              &gt; You can&apos;t vote in your own battle!<br/>
+              &gt; Wait for results...
+            </p>
           </div>
-          <h3 className="text-xl font-bold mb-2">You&apos;re Competing!</h3>
-          <p className="text-[var(--text-secondary)]">
-            You can't vote in this round. Wait for the results!
-          </p>
         </motion.div>
       </div>
     )
   }
 
   return (
-    <div className="w-full max-w-lg mx-auto">
+    <div className="w-full max-w-md mx-auto">
       <motion.div
-        className="glass-card p-6"
+        className="pixel-panel pixel-panel-yellow"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <h3 className="title-display text-xl text-center text-[var(--spotlight-gold)] mb-6">
-          WHO WAS MORE CONVINCING?
-        </h3>
+        <div className="text-center mb-6">
+          <p className="font-pixel text-pixel-base neon-glow-yellow">
+            ★ CHOOSE YOUR WINNER ★
+          </p>
+        </div>
 
-        <div className="space-y-4">
-          {/* Team A */}
+        <div className="space-y-3">
           <motion.button
-            className={`w-full team-card team-card-a p-6 ${
-              selected === teamA.id ? 'ring-4 ring-[var(--team-a)]' : ''
-            }`}
+            className="battle-card battle-card-red w-full"
             onClick={() => handleVote(teamA.id)}
             disabled={submitted && selected !== teamA.id}
-            whileHover={{ scale: submitted ? 1 : 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            whileTap={{ scale: 0.97 }}
+            style={{
+              background: selected === teamA.id ? 'var(--team-red)' : 'var(--panel-bg)',
+            }}
           >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <Flame size={36} className="text-[var(--team-a)]" fill="currentColor" />
-                <div className="text-left">
-                  <h4 className="title-display text-lg text-[var(--team-a)]">{teamA.name}</h4>
-                  <span className="text-sm text-[var(--agree-green)]">AGREE</span>
-                </div>
-              </div>
+            <div className="flex items-center justify-between px-2">
+              <span className="font-pixel text-pixel-sm text-team-red">◆ A ◆</span>
+              <span className="font-pixel text-pixel-lg text-text-white">
+                {teamA.name.toUpperCase()}
+              </span>
               {selected === teamA.id && (
-                <motion.div
+                <motion.span
+                  className="font-pixel text-pixel-lg text-text-white"
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  transition={{ type: 'spring', stiffness: 300 }}
                 >
-                  <Check size={28} className="text-[var(--agree-green)]" />
-                </motion.div>
+                  ✓
+                </motion.span>
               )}
             </div>
           </motion.button>
 
-          {/* Team B */}
           <motion.button
-            className={`w-full team-card team-card-b p-6 ${
-              selected === teamB.id ? 'ring-4 ring-[var(--team-b)]' : ''
-            }`}
+            className="battle-card battle-card-blue w-full"
             onClick={() => handleVote(teamB.id)}
             disabled={submitted && selected !== teamB.id}
-            whileHover={{ scale: submitted ? 1 : 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            whileTap={{ scale: 0.97 }}
+            style={{
+              background: selected === teamB.id ? 'var(--team-blue)' : 'var(--panel-bg)',
+            }}
           >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <Zap size={36} className="text-[var(--team-b)]" fill="currentColor" />
-                <div className="text-left">
-                  <h4 className="title-display text-lg text-[var(--team-b)]">{teamB.name}</h4>
-                  <span className="text-sm text-[var(--disagree-red)]">DISAGREE</span>
-                </div>
-              </div>
+            <div className="flex items-center justify-between px-2">
+              <span className="font-pixel text-pixel-sm text-team-blue">◆ B ◆</span>
+              <span className="font-pixel text-pixel-lg text-text-white">
+                {teamB.name.toUpperCase()}
+              </span>
               {selected === teamB.id && (
-                <motion.div
+                <motion.span
+                  className="font-pixel text-pixel-lg text-text-white"
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  transition={{ type: 'spring', stiffness: 300 }}
                 >
-                  <Check size={28} className="text-[var(--agree-green)]" />
-                </motion.div>
+                  ✓
+                </motion.span>
               )}
             </div>
           </motion.button>
@@ -132,12 +125,12 @@ export function AudienceVoting({
           {submitted && (
             <motion.div
               className="mt-6 text-center"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
-              <p className="text-[var(--spotlight-gold)]">
-                Vote submitted! Waiting for results...
+              <p className="font-pixel text-pixel-sm neon-glow-yellow">
+                ★ CHEER COUNTED ★
               </p>
             </motion.div>
           )}
@@ -147,7 +140,6 @@ export function AudienceVoting({
   )
 }
 
-// Results display for big screen
 interface AudienceVoteResultsProps {
   teamA: Team
   teamB: Team
@@ -158,61 +150,68 @@ export function AudienceVoteResults({ teamA, teamB, votes }: AudienceVoteResults
   const votesForA = votes.filter((v) => v.votedFor === teamA.id).length
   const votesForB = votes.filter((v) => v.votedFor === teamB.id).length
   const total = votes.length || 1
-
   const percentA = (votesForA / total) * 100
   const percentB = (votesForB / total) * 100
 
   return (
     <div className="w-full max-w-2xl mx-auto">
-      <motion.div
-        className="glass-card-strong p-8"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-      >
-        <h3 className="title-display text-2xl text-center mb-6 text-[var(--spotlight-gold)]">
-          AUDIENCE VOTE
-        </h3>
+      <div className="pixel-panel pixel-panel-yellow">
+        <div className="text-center mb-6">
+          <p className="font-pixel text-pixel-base neon-glow-yellow">
+            ★ CROWD CHEER ★
+          </p>
+        </div>
 
-        <div className="flex items-center gap-4">
-          {/* Team A bar */}
-          <div className="flex-1">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[var(--team-a)] font-bold">{teamA.name}</span>
-              <span className="text-xl font-bold">{Math.round(percentA)}%</span>
+        <div className="space-y-5">
+          {/* Team A */}
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <span className="font-pixel text-pixel-sm text-team-red">
+                {teamA.name.toUpperCase()}
+              </span>
+              <span className="font-pixel text-pixel-lg neon-glow-pink">
+                {Math.round(percentA)}%
+              </span>
             </div>
-            <div className="h-8 bg-[var(--glass-white)] rounded-lg overflow-hidden">
-              <motion.div
-                className="h-full bg-gradient-to-r from-[var(--team-a)] to-[var(--spotlight-amber)]"
-                initial={{ width: 0 }}
-                animate={{ width: `${percentA}%` }}
-                transition={{ duration: 1, ease: 'easeOut' }}
-              />
+            <div className="pixel-bar-container">
+              <div className="pixel-bar flex-1 h-6">
+                <motion.div
+                  className="pixel-bar-fill pixel-bar-red"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${percentA}%` }}
+                  transition={{ duration: 0.5, ease: 'linear' }}
+                />
+              </div>
             </div>
           </div>
 
-          <span className="text-2xl text-[var(--text-muted)]">vs</span>
-
-          {/* Team B bar */}
-          <div className="flex-1">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[var(--team-b)] font-bold">{teamB.name}</span>
-              <span className="text-xl font-bold">{Math.round(percentB)}%</span>
+          {/* Team B */}
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <span className="font-pixel text-pixel-sm text-team-blue">
+                {teamB.name.toUpperCase()}
+              </span>
+              <span className="font-pixel text-pixel-lg neon-glow-cyan">
+                {Math.round(percentB)}%
+              </span>
             </div>
-            <div className="h-8 bg-[var(--glass-white)] rounded-lg overflow-hidden">
-              <motion.div
-                className="h-full bg-gradient-to-r from-[var(--team-b)] to-[var(--neon-magenta)]"
-                initial={{ width: 0 }}
-                animate={{ width: `${percentB}%` }}
-                transition={{ duration: 1, ease: 'easeOut', delay: 0.2 }}
-              />
+            <div className="pixel-bar-container">
+              <div className="pixel-bar flex-1 h-6">
+                <motion.div
+                  className="pixel-bar-fill pixel-bar-blue"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${percentB}%` }}
+                  transition={{ duration: 0.5, ease: 'linear' }}
+                />
+              </div>
             </div>
           </div>
         </div>
 
-        <p className="text-center text-[var(--text-muted)] mt-4">
-          {votes.length} audience votes
+        <p className="text-center font-terminal text-terminal-base text-text-dim mt-6">
+          {votes.length} CHEERS RECEIVED
         </p>
-      </motion.div>
+      </div>
     </div>
   )
 }

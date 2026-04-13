@@ -16,11 +16,11 @@ export function LoginForm({ teamCount, onLogin }: LoginFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!name.trim()) {
-      setError('Please enter your name')
+      setError('ENTER YOUR NAME')
       return
     }
     if (!selectedTeam) {
-      setError('Please select your group')
+      setError('SELECT YOUR GROUP')
       return
     }
     onLogin(name.trim(), selectedTeam)
@@ -28,60 +28,62 @@ export function LoginForm({ teamCount, onLogin }: LoginFormProps) {
 
   const teams = Array.from({ length: teamCount }, (_, i) => ({
     id: `team-${i + 1}`,
-    name: `Group ${i + 1}`,
+    name: `GROUP ${i + 1}`,
   }))
 
   return (
     <motion.div
       className="w-full max-w-md mx-auto"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.3, ease: 'linear' }}
     >
-      <div className="glass-card-strong p-8">
-        <h2 className="title-display text-2xl text-center text-[var(--spotlight-gold)] mb-6">
-          JOIN THE ARENA
-        </h2>
+      <div className="pixel-panel pixel-panel-neon">
+        <div className="text-center mb-6">
+          <p className="font-pixel text-pixel-base neon-glow-green">
+            ★ NEW CHALLENGER ★
+          </p>
+          <div className="mt-2 h-[2px] bg-neon-green" />
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Name input */}
           <div>
-            <label className="block text-sm text-[var(--text-muted)] mb-2">
-              Your Name
+            <label className="block font-pixel text-pixel-sm text-neon-yellow mb-3">
+              <span className="rpg-cursor">►</span> NAME?
             </label>
             <input
               type="text"
-              className="input-field"
-              placeholder="Enter your name..."
+              className="pixel-input"
+              placeholder="ENTER NAME..."
               value={name}
               onChange={(e) => {
-                setName(e.target.value)
+                setName(e.target.value.toUpperCase())
                 setError('')
               }}
-              maxLength={30}
+              maxLength={12}
             />
+            <p className="font-pixel text-pixel-sm text-text-muted mt-1 text-right">
+              {name.length}/12
+            </p>
           </div>
 
-          {/* Team selection */}
+          {/* Team selection - pokemon battle menu style */}
           <div>
-            <label className="block text-sm text-[var(--text-muted)] mb-2">
-              Select Your Group
+            <label className="block font-pixel text-pixel-sm text-neon-yellow mb-3">
+              <span className="rpg-cursor">►</span> CHOOSE PARTY
             </label>
             <div className="grid grid-cols-2 gap-3">
               {teams.map((team) => (
                 <motion.button
                   key={team.id}
                   type="button"
-                  className={`p-4 rounded-xl text-center transition-all ${
-                    selectedTeam === team.id
-                      ? 'bg-[var(--spotlight-gold)] text-[var(--stage-dark)] font-bold'
-                      : 'glass-card hover:bg-[var(--glass-white)]'
-                  }`}
+                  className={`pokemon-option ${selectedTeam === team.id ? 'selected' : ''}`}
                   onClick={() => {
                     setSelectedTeam(team.id)
                     setError('')
                   }}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  whileTap={{ scale: 0.95 }}
                 >
                   {team.name}
                 </motion.button>
@@ -89,25 +91,24 @@ export function LoginForm({ teamCount, onLogin }: LoginFormProps) {
             </div>
           </div>
 
-          {/* Error message */}
+          {/* Error */}
           {error && (
-            <motion.p
-              className="text-[var(--disagree-red)] text-sm text-center"
+            <motion.div
+              className="font-pixel text-pixel-sm text-neon-red text-center animate-shake"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
-              {error}
-            </motion.p>
+              ※ {error} ※
+            </motion.div>
           )}
 
-          {/* Submit button */}
+          {/* Submit */}
           <motion.button
             type="submit"
-            className="btn-primary w-full"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            className="pixel-btn pixel-btn-green w-full"
+            whileTap={{ scale: 0.97 }}
           >
-            ENTER ARENA
+            ► START BATTLE ◄
           </motion.button>
         </form>
       </div>

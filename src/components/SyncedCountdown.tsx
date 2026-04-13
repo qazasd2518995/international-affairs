@@ -2,11 +2,10 @@
 
 import { useEffect, useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { AlertTriangle, Clock } from 'lucide-react'
 
 interface SyncedCountdownProps {
   duration: number
-  startedAt: number | null // unix timestamp in ms
+  startedAt: number | null
   onComplete?: () => void
   label?: string
   size?: 'sm' | 'md' | 'lg'
@@ -16,7 +15,7 @@ export function SyncedCountdown({
   duration,
   startedAt,
   onComplete,
-  label = 'Time Remaining',
+  label = 'TIME',
   size = 'md',
 }: SyncedCountdownProps) {
   const [seconds, setSeconds] = useState(duration)
@@ -43,7 +42,6 @@ export function SyncedCountdown({
 
     tick()
     const interval = setInterval(tick, 200)
-
     return () => clearInterval(interval)
   }, [duration, startedAt, onComplete])
 
@@ -54,104 +52,70 @@ export function SyncedCountdown({
   const progress = duration > 0 ? (seconds / duration) * 100 : 0
 
   const sizeClasses = {
-    sm: 'text-4xl',
-    md: 'text-7xl',
-    lg: 'text-[10rem]',
+    sm: 'text-pixel-2xl',
+    md: 'text-pixel-3xl',
+    lg: 'text-pixel-4xl md:text-[80px]',
   }
 
-  const svgSizes = {
-    sm: { size: 120, radius: 55, stroke: 6 },
-    md: { size: 240, radius: 110, stroke: 8 },
-    lg: { size: 320, radius: 150, stroke: 10 },
+  const containerSizes = {
+    sm: 'max-w-xs',
+    md: 'max-w-sm',
+    lg: 'max-w-md',
   }
-
-  const svg = svgSizes[size]
 
   return (
-    <div className="text-center">
-      <div className="relative inline-block">
-        <svg width={svg.size} height={svg.size} className="transform -rotate-90">
-          <circle
-            cx={svg.size / 2}
-            cy={svg.size / 2}
-            r={svg.radius}
-            stroke="rgba(255, 255, 255, 0.1)"
-            strokeWidth={svg.stroke}
-            fill="none"
-          />
-          <motion.circle
-            cx={svg.size / 2}
-            cy={svg.size / 2}
-            r={svg.radius}
-            stroke={
-              isUrgent ? 'var(--disagree-red)' :
-              isWarning ? 'var(--spotlight-amber)' :
-              'var(--spotlight-gold)'
-            }
-            strokeWidth={svg.stroke}
-            fill="none"
-            strokeLinecap="round"
-            strokeDasharray={`${2 * Math.PI * svg.radius}`}
-            strokeDashoffset={`${2 * Math.PI * svg.radius * (1 - progress / 100)}`}
-            style={{
-              filter: isUrgent ? 'drop-shadow(0 0 20px var(--disagree-red))' :
-                      isWarning ? 'drop-shadow(0 0 15px var(--spotlight-amber))' :
-                      'drop-shadow(0 0 10px var(--spotlight-gold))',
-            }}
-            transition={{ duration: 0.3, ease: 'linear' }}
-          />
-        </svg>
+    <div className={`${containerSizes[size]} mx-auto w-full`}>
+      <div className="pixel-panel pixel-panel-sm">
+        {/* Label bar */}
+        <div className="flex items-center justify-between mb-3">
+          <span className="font-pixel text-pixel-sm text-neon-yellow">
+            {label.toUpperCase()}
+          </span>
+          <span className="font-pixel text-pixel-sm text-text-dim">
+            {seconds}s
+          </span>
+        </div>
 
-        <div className="absolute inset-0 flex items-center justify-center">
+        {/* Big timer */}
+        <div className="text-center my-3">
           <AnimatePresence mode="wait">
             <motion.div
               key={seconds}
-              className={`timer-display ${sizeClasses[size]} font-bold`}
-              style={{
-                color: isUrgent ? 'var(--disagree-red)' :
-                       isWarning ? 'var(--spotlight-amber)' :
-                       'var(--text-primary)',
-              }}
-              initial={{ scale: 1.3, opacity: 0 }}
-              animate={{
-                scale: 1,
-                opacity: 1,
-                ...(isUrgent ? { scale: [1, 1.15, 1] } : {}),
-              }}
-              exit={{ scale: 0.7, opacity: 0 }}
-              transition={{
-                duration: isUrgent ? 0.4 : 0.2,
-                repeat: isUrgent ? Infinity : 0,
-              }}
+              className={`pixel-timer font-pixel ${sizeClasses[size]} ${isUrgent ? 'timer-danger neon-glow-pink' : isWarning ? 'neon-glow-yellow' : 'neon-glow-cyan'}`}
+              initial={{ scale: 1.2, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ duration: 0.1, ease: 'linear' }}
             >
-              {minutes > 0 ? `${minutes}:${String(secs).padStart(2, '0')}` : secs}
+              {minutes > 0 ? `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}` : String(secs).padStart(2, '0')}
             </motion.div>
           </AnimatePresence>
         </div>
+
+        {/* Pixel HP bar */}
+        <div className="pixel-bar-container">
+          <span className="font-pixel text-pixel-sm text-neon-yellow">T</span>
+          <div className="pixel-bar flex-1">
+            <motion.div
+              className={`pixel-bar-fill ${isUrgent ? 'pixel-bar-red' : isWarning ? 'pixel-bar-exp' : 'pixel-bar-hp'}`}
+              initial={{ width: '100%' }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.3, ease: 'linear' }}
+            />
+          </div>
+        </div>
+
+        {/* Warning text */}
+        {isUrgent && (
+          <motion.p
+            className="font-pixel text-pixel-sm text-neon-red text-center mt-3 animate-shake"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            ※ HURRY UP! ※
+          </motion.p>
+        )}
       </div>
-
-      <motion.div
-        className="mt-4 flex items-center justify-center gap-2 uppercase tracking-wider"
-        animate={{ color: isUrgent ? 'var(--disagree-red)' : 'var(--text-secondary)' }}
-      >
-        {isUrgent && <AlertTriangle size={18} className="text-[var(--disagree-red)]" />}
-        {isWarning && !isUrgent && <Clock size={18} className="text-[var(--spotlight-amber)]" />}
-        <span>{isUrgent ? 'HURRY UP!' : isWarning ? 'Wrap it up' : label}</span>
-      </motion.div>
-
-      {isUrgent && (
-        <motion.div
-          className="fixed inset-0 pointer-events-none z-30"
-          animate={{
-            boxShadow: [
-              'inset 0 0 0 rgba(239, 68, 68, 0)',
-              'inset 0 0 150px rgba(239, 68, 68, 0.3)',
-              'inset 0 0 0 rgba(239, 68, 68, 0)',
-            ],
-          }}
-          transition={{ duration: 0.8, repeat: Infinity }}
-        />
-      )}
     </div>
   )
 }

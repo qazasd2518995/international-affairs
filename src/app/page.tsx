@@ -3,7 +3,6 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { Target, CheckCircle2, Dices, Swords, Hourglass, Mic, Scale, Trophy } from 'lucide-react'
 import { StageBackground, Logo, LoginForm, VotingPanel, AudienceVoting, ArgumentInput, SyncedCountdown } from '@/components'
 import { useRealtimeGame } from '@/lib/useRealtimeGame'
 import { TOPICS } from '@/lib/types'
@@ -22,19 +21,16 @@ function HomeContent() {
   const currentTopic = game.currentTopicId ? TOPICS.find((t) => t.id === game.currentTopicId) : null
   const currentMatch = game.currentMatchId ? game.matches.find((m) => m.id === game.currentMatchId) : null
 
-  // Check if player is in a competing team for current match
   const isCompeting = currentMatch && playerTeamId && (currentMatch.teamA === playerTeamId || currentMatch.teamB === playerTeamId)
   const playerStance = currentMatch && playerTeamId === currentMatch.teamA ? 'agree' : 'disagree'
 
   const handleLogin = async (name: string, teamId: string) => {
     if (!sessionId) return
-
     try {
       const id = await game.joinSession(sessionId, name, teamId)
       setPlayerId(id)
       setPlayerTeamId(teamId)
       setIsLoggedIn(true)
-      // Store in localStorage for persistence
       localStorage.setItem('mda_player_id', id)
       localStorage.setItem('mda_team_id', teamId)
       localStorage.setItem('mda_session_id', sessionId)
@@ -43,7 +39,6 @@ function HomeContent() {
     }
   }
 
-  // Restore session from localStorage
   useEffect(() => {
     const storedPlayerId = localStorage.getItem('mda_player_id')
     const storedTeamId = localStorage.getItem('mda_team_id')
@@ -72,7 +67,7 @@ function HomeContent() {
     game.submitArguments(currentMatch.id, playerTeamId, args)
   }
 
-  // No session - show landing
+  // No session - landing
   if (!sessionId) {
     return (
       <main className="min-h-screen relative overflow-hidden">
@@ -80,36 +75,35 @@ function HomeContent() {
         <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-6">
           <Logo size="lg" />
           <motion.div
-            className="glass-card-strong p-8 mt-12 text-center max-w-md"
+            className="mt-12 max-w-md"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <div className="flex justify-center mb-4">
-              <Target size={64} className="text-[var(--spotlight-gold)]" strokeWidth={1.5} />
+            <div className="pixel-panel pixel-panel-pink">
+              <p className="font-pixel text-pixel-base text-neon-pink text-center mb-3">
+                ※ NO GAME FOUND ※
+              </p>
+              <div className="dialogue-box">
+                <p className="font-terminal text-terminal-base">
+                  &gt; Scan the QR code from your host to start the adventure!
+                </p>
+              </div>
             </div>
-            <h2 className="text-2xl font-bold text-[var(--spotlight-gold)] mb-4">
-              Join a Game
-            </h2>
-            <p className="text-[var(--text-secondary)]">
-              Scan the QR code or ask your host for the game link.
-            </p>
           </motion.div>
         </div>
       </main>
     )
   }
 
-  // Loading
   if (game.isLoading) {
     return (
       <main className="min-h-screen relative overflow-hidden">
         <StageBackground />
         <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-6">
           <Logo size="lg" />
-          <div className="mt-8">
-            <div className="loading-spinner mx-auto" />
-          </div>
-          <p className="text-[var(--text-muted)] mt-4">Connecting...</p>
+          <p className="font-pixel text-pixel-base text-neon-cyan mt-8">
+            CONNECTING<span className="loading-dots"></span>
+          </p>
         </div>
       </main>
     )
@@ -119,74 +113,72 @@ function HomeContent() {
     <main className="min-h-screen relative overflow-hidden">
       <StageBackground />
 
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-6">
-        {/* Logo */}
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-4 pb-24">
         <motion.div
-          className="mb-8"
+          className="mb-6"
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.4, ease: 'linear' }}
         >
-          <Logo size="md" />
+          <Logo size="sm" />
         </motion.div>
 
         {!isLoggedIn ? (
-          // Login form
           <LoginForm teamCount={6} onLogin={handleLogin} />
         ) : (
-          // Game content based on phase
-          <div className="w-full max-w-lg">
-            {/* Lobby - waiting */}
+          <div className="w-full max-w-md">
+            {/* Lobby */}
             {game.phase === 'lobby' && (
               <motion.div
-                className="glass-card-strong p-8 text-center"
+                className="pixel-panel pixel-panel-neon text-center"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
               >
-                <div className="flex justify-center mb-4">
-                  <CheckCircle2 size={64} className="text-[var(--agree-green)]" strokeWidth={2} />
-                </div>
-                <h2 className="text-2xl font-bold text-[var(--spotlight-gold)] mb-2">
-                  You&apos;re In!
-                </h2>
-                <p className="text-[var(--text-secondary)] mb-4">
-                  Welcome to {game.teams[playerTeamId!]?.name}
+                <p className="font-pixel text-pixel-lg neon-glow-green mb-4">
+                  ★ JOINED ★
                 </p>
-                <p className="text-[var(--text-muted)] text-sm">
-                  Wait for the host to start...
-                </p>
-                <div className="mt-6">
-                  <div className="loading-spinner mx-auto" />
+                <div className="dialogue-box mb-4">
+                  <p className="font-terminal text-terminal-base">
+                    &gt; Welcome, warrior!<br/>
+                    &gt; Your party: {game.teams[playerTeamId!]?.name}
+                  </p>
                 </div>
+                <p className="font-pixel text-pixel-sm text-neon-cyan">
+                  WAITING FOR HOST<span className="loading-dots"></span>
+                </p>
               </motion.div>
             )}
 
-            {/* Topic reveal - just watch */}
+            {/* Topic reveal */}
             {game.phase === 'topic-reveal' && (
               <motion.div
-                className="glass-card-strong p-8 text-center"
+                className="pixel-panel pixel-panel-yellow text-center"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
               >
-                <div className="flex justify-center mb-4">
-                  <Dices size={64} className="text-[var(--spotlight-gold)]" strokeWidth={1.5} />
-                </div>
-                <h2 className="text-xl font-bold text-[var(--spotlight-gold)]">
-                  Topic Being Revealed...
-                </h2>
-                <p className="text-[var(--text-secondary)] mt-2">
-                  Watch the big screen!
+                <motion.div
+                  className="font-pixel text-pixel-4xl neon-glow-yellow mb-3"
+                  animate={{ rotate: [0, 360] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                >
+                  ?
+                </motion.div>
+                <p className="font-pixel text-pixel-base text-neon-yellow mb-3">
+                  DRAWING QUEST
+                </p>
+                <p className="font-terminal text-terminal-base text-text-dim">
+                  &gt; Look at the big screen!
                 </p>
               </motion.div>
             )}
 
-            {/* Voting phase */}
+            {/* Voting */}
             {game.phase === 'voting' && currentTopic && (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <SyncedCountdown
                   duration={30}
                   startedAt={game.phaseStartedAt}
-                  label="Voting"
+                  label="VOTING"
                   size="sm"
                 />
                 <VotingPanel
@@ -199,32 +191,36 @@ function HomeContent() {
               </div>
             )}
 
-            {/* Matchup reveal - just watch */}
+            {/* Matchup reveal */}
             {game.phase === 'matchup-reveal' && (
               <motion.div
-                className="glass-card-strong p-8 text-center"
+                className="pixel-panel pixel-panel-pink text-center"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
               >
-                <div className="flex justify-center mb-4">
-                  <Swords size={64} className="text-[var(--spotlight-gold)]" strokeWidth={1.5} />
-                </div>
-                <h2 className="text-xl font-bold text-[var(--spotlight-gold)]">
-                  Matchups Being Revealed!
-                </h2>
-                <p className="text-[var(--text-secondary)] mt-2">
-                  Watch the big screen!
+                <motion.div
+                  className="font-pixel text-pixel-4xl neon-glow-pink mb-3"
+                  animate={{ x: [-4, 4, -4] }}
+                  transition={{ duration: 0.3, repeat: Infinity, ease: 'linear' }}
+                >
+                  ×
+                </motion.div>
+                <p className="font-pixel text-pixel-base neon-glow-pink mb-3">
+                  MATCHUPS!
+                </p>
+                <p className="font-terminal text-terminal-base text-text-dim">
+                  &gt; Check the big screen!
                 </p>
               </motion.div>
             )}
 
-            {/* Preparation - input arguments if competing */}
+            {/* Preparation */}
             {game.phase === 'preparation' && currentTopic && (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <SyncedCountdown
                   duration={90}
                   startedAt={game.phaseStartedAt}
-                  label="Preparation"
+                  label="PREP TIME"
                   size="sm"
                 />
                 {isCompeting ? (
@@ -236,61 +232,72 @@ function HomeContent() {
                   />
                 ) : (
                   <motion.div
-                    className="glass-card-strong p-8 text-center"
+                    className="pixel-panel text-center"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                   >
-                    <div className="flex justify-center mb-4">
-                      <Hourglass size={64} className="text-[var(--spotlight-gold)]" strokeWidth={1.5} />
+                    <p className="font-pixel text-pixel-base text-neon-yellow mb-3">
+                      ♪ CHARGING MP ♪
+                    </p>
+                    <div className="dialogue-box">
+                      <p className="font-terminal text-terminal-base">
+                        &gt; {currentTopic.question}
+                      </p>
                     </div>
-                    <h2 className="text-xl font-bold text-[var(--spotlight-gold)] mb-3">
-                      Teams Preparing...
-                    </h2>
-                    <p className="text-sm text-[var(--text-muted)] mb-3">Topic:</p>
-                    <p className="text-base text-[var(--text-secondary)]">
-                      {currentTopic.question}
+                    <p className="font-terminal text-terminal-base text-text-dim mt-3">
+                      &gt; Teams are preparing moves...
                     </p>
                   </motion.div>
                 )}
               </div>
             )}
 
-            {/* Debate - show who's speaking */}
+            {/* Debate */}
             {game.phase === 'debate' && currentMatch && (() => {
-              const subLabels: Record<string, { label: string; team: 'A' | 'B' | 'HOST'; duration: number }> = {
-                'team-a-opening': { label: 'Opening', team: 'A', duration: 20 },
-                'team-b-opening': { label: 'Opening', team: 'B', duration: 20 },
-                'host-challenge': { label: 'Challenge', team: 'HOST', duration: 15 },
-                'team-a-response': { label: 'Response', team: 'A', duration: 15 },
-                'team-b-response': { label: 'Response', team: 'B', duration: 15 },
-                'done': { label: 'Done', team: 'A', duration: 0 },
+              const subLabels: Record<string, { label: string; team: 'A' | 'B' | 'HOST'; duration: number; symbol: string }> = {
+                'team-a-opening': { label: 'OPENING', team: 'A', duration: 20, symbol: '►' },
+                'team-b-opening': { label: 'OPENING', team: 'B', duration: 20, symbol: '►' },
+                'host-challenge': { label: 'CHALLENGE', team: 'HOST', duration: 15, symbol: '!' },
+                'team-a-response': { label: 'RESPONSE', team: 'A', duration: 15, symbol: '◀' },
+                'team-b-response': { label: 'RESPONSE', team: 'B', duration: 15, symbol: '◀' },
+                'done': { label: 'DONE', team: 'A', duration: 0, symbol: '✓' },
               }
               const subInfo = subLabels[game.debateSubPhase]
               const activeTeam = subInfo?.team
-              const color = activeTeam === 'A' ? 'var(--team-a)' : activeTeam === 'B' ? 'var(--team-b)' : 'var(--spotlight-gold)'
+              const color = activeTeam === 'A' ? 'var(--team-red)' : activeTeam === 'B' ? 'var(--team-blue)' : 'var(--neon-yellow)'
 
               return (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <motion.div
-                    className="glass-card-strong p-6 text-center"
+                    className="pixel-panel text-center"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                   >
-                    <div className="flex justify-center mb-3">
-                      <Mic size={48} className="text-[var(--disagree-red)]" strokeWidth={1.5} />
-                    </div>
-                    <p className="text-[var(--text-muted)] text-xs uppercase tracking-wider mb-2">Now Speaking</p>
+                    <motion.div
+                      className="font-pixel text-pixel-3xl mb-2"
+                      style={{ color, textShadow: `0 0 15px ${color}` }}
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ duration: 0.5, repeat: Infinity, ease: 'linear' }}
+                    >
+                      {subInfo?.symbol}
+                    </motion.div>
+                    <p className="font-pixel text-pixel-sm text-text-muted mb-1">
+                      NOW SPEAKING
+                    </p>
                     <motion.p
                       key={game.debateSubPhase}
-                      className="title-display text-xl"
+                      className="font-pixel text-pixel-lg"
                       style={{ color }}
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                     >
                       {activeTeam === 'HOST'
-                        ? 'HOST CHALLENGE'
-                        : `${game.teams[activeTeam === 'A' ? currentMatch.teamA : currentMatch.teamB]?.name} — ${subInfo?.label}`}
+                        ? 'HOST!'
+                        : `${game.teams[activeTeam === 'A' ? currentMatch.teamA : currentMatch.teamB]?.name.toUpperCase()}`}
                     </motion.p>
+                    <p className="font-pixel text-pixel-sm text-neon-yellow mt-1">
+                      [{subInfo?.label}]
+                    </p>
                   </motion.div>
 
                   {game.debateSubPhase !== 'done' && subInfo && (
@@ -308,11 +315,11 @@ function HomeContent() {
 
             {/* Audience vote */}
             {game.phase === 'audience-vote' && currentMatch && (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <SyncedCountdown
                   duration={20}
                   startedAt={game.phaseStartedAt}
-                  label="Vote Now"
+                  label="CHEER!"
                   size="sm"
                 />
                 <AudienceVoting
@@ -326,54 +333,73 @@ function HomeContent() {
               </div>
             )}
 
-            {/* Scoring - waiting */}
+            {/* Scoring */}
             {game.phase === 'scoring' && (
               <motion.div
-                className="glass-card-strong p-8 text-center"
+                className="pixel-panel pixel-panel-yellow text-center"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
               >
-                <div className="flex justify-center mb-4">
-                  <Scale size={64} className="text-[var(--spotlight-gold)]" strokeWidth={1.5} />
-                </div>
-                <h2 className="text-xl font-bold text-[var(--spotlight-gold)]">
-                  Judges Scoring...
-                </h2>
-                <div className="loading-spinner mx-auto mt-4" />
+                <motion.div
+                  className="font-pixel text-pixel-4xl neon-glow-yellow mb-3"
+                  animate={{ rotate: [0, -5, 5, 0] }}
+                  transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                >
+                  ♦
+                </motion.div>
+                <p className="font-pixel text-pixel-base neon-glow-yellow mb-2">
+                  JUDGES DELIBERATING
+                </p>
+                <p className="font-terminal text-terminal-base text-text-dim">
+                  &gt; Calculating damage<span className="loading-dots"></span>
+                </p>
               </motion.div>
             )}
 
-            {/* Result / Leaderboard / Awards - watch */}
+            {/* Result / Leaderboard / Awards */}
             {(game.phase === 'result' || game.phase === 'leaderboard' || game.phase === 'final-awards') && (
               <motion.div
-                className="glass-card-strong p-8 text-center"
+                className="pixel-panel pixel-panel-yellow text-center"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
               >
-                <div className="flex justify-center mb-4">
-                  <Trophy size={64} className="text-[var(--spotlight-gold)]" fill="currentColor" strokeWidth={1.5} />
-                </div>
-                <h2 className="text-xl font-bold text-[var(--spotlight-gold)]">
-                  {game.phase === 'result' ? 'Results!' : game.phase === 'leaderboard' ? 'Leaderboard' : 'Awards!'}
-                </h2>
-                <p className="text-[var(--text-secondary)] mt-2">
-                  Watch the big screen!
+                <motion.div
+                  className="font-pixel text-pixel-4xl neon-glow-yellow mb-3"
+                  animate={{ y: [0, -4, 0] }}
+                  transition={{ duration: 0.5, repeat: Infinity, ease: 'linear' }}
+                >
+                  {game.phase === 'result' ? '♛' : game.phase === 'leaderboard' ? '▲' : '★'}
+                </motion.div>
+                <p className="font-pixel text-pixel-lg neon-glow-yellow mb-2">
+                  {game.phase === 'result' ? 'RESULT!' : game.phase === 'leaderboard' ? 'RANKS!' : 'ENDING!'}
+                </p>
+                <p className="font-terminal text-terminal-base text-text-dim">
+                  &gt; Watch the big screen!
                 </p>
               </motion.div>
             )}
           </div>
         )}
 
-        {/* Phase indicator */}
+        {/* Phase status bar */}
         {isLoggedIn && (
           <motion.div
-            className="fixed bottom-4 left-4 glass-card px-4 py-2"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            className="fixed bottom-0 left-0 right-0 bg-arcade-void border-t-2 border-text-white px-4 py-2 z-20"
+            initial={{ y: 60 }}
+            animate={{ y: 0 }}
+            transition={{ delay: 0.5 }}
           >
-            <p className="text-xs text-[var(--text-muted)]">
-              Phase: <span className="text-[var(--neon-cyan)] uppercase">{game.phase.replace(/-/g, ' ')}</span>
-            </p>
+            <div className="flex items-center justify-between font-pixel text-pixel-sm">
+              <span className="text-text-dim">
+                {playerTeamId?.replace('team-', 'P')}
+              </span>
+              <span className="text-neon-cyan">
+                {game.phase.toUpperCase().replace(/-/g, ' ')}
+              </span>
+              <span className="text-text-dim">
+                R{game.currentRound}/3
+              </span>
+            </div>
           </motion.div>
         )}
       </div>
@@ -388,7 +414,9 @@ export default function HomePage() {
         <StageBackground />
         <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-6">
           <Logo size="lg" />
-          <div className="loading-spinner mx-auto mt-8" />
+          <p className="font-pixel text-pixel-base text-neon-cyan mt-8">
+            LOADING<span className="loading-dots"></span>
+          </p>
         </div>
       </main>
     }>

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Trophy, Medal, TrendingUp, PartyPopper, Sparkles } from 'lucide-react'
 import type { Team } from '@/lib/types'
 
 interface FinalAwardsProps {
@@ -11,7 +10,7 @@ interface FinalAwardsProps {
 
 interface Award {
   title: string
-  Icon: typeof Trophy
+  symbol: string
   team: Team
   description: string
   color: string
@@ -26,44 +25,36 @@ export function FinalAwards({ teams }: FinalAwardsProps) {
   const awards: Award[] = [
     {
       title: 'CHAMPION',
-      Icon: Trophy,
+      symbol: '♛',
       team: sortedByScore[0],
-      description: 'Highest total score',
-      color: 'var(--spotlight-gold)',
+      description: 'Highest XP earned',
+      color: 'var(--neon-yellow)',
     },
     {
       title: 'RUNNER UP',
-      Icon: Medal,
+      symbol: '♞',
       team: sortedByScore[1],
-      description: 'Second highest score',
-      color: '#c0c0c0',
+      description: 'Second highest',
+      color: 'var(--neon-cyan)',
     },
     {
-      title: 'MOST IMPROVED',
-      Icon: TrendingUp,
+      title: 'BRAVE SOUL',
+      symbol: '♟',
       team: sortedByScore[sortedByScore.length - 1],
-      description: 'Great effort!',
-      color: 'var(--neon-cyan)',
+      description: 'Fought hard!',
+      color: 'var(--neon-pink)',
     },
   ]
 
   useEffect(() => {
     if (currentAward < awards.length - 1) {
-      const timer = setTimeout(() => {
-        setCurrentAward((prev) => prev + 1)
-      }, 3000)
+      const timer = setTimeout(() => setCurrentAward((prev) => prev + 1), 3000)
       return () => clearTimeout(timer)
     } else if (currentAward === awards.length - 1) {
-      const timer = setTimeout(() => {
-        setShowAll(true)
-      }, 2000)
+      const timer = setTimeout(() => setShowAll(true), 2500)
       return () => clearTimeout(timer)
     }
   }, [currentAward, awards.length])
-
-  const startReveal = () => {
-    setCurrentAward(0)
-  }
 
   return (
     <div className="w-full max-w-4xl mx-auto">
@@ -76,104 +67,88 @@ export function FinalAwards({ teams }: FinalAwardsProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <motion.div
-              className="glass-card-strong p-12 cursor-pointer spotlight-effect"
-              onClick={startReveal}
+            <motion.button
+              className="pixel-panel pixel-panel-yellow cursor-pointer"
+              onClick={() => setCurrentAward(0)}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              <motion.div
-                className="flex justify-center mb-6"
-                animate={{
-                  scale: [1, 1.2, 1],
-                  rotate: [0, 10, -10, 0],
-                }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                <PartyPopper size={96} className="text-[var(--spotlight-gold)]" strokeWidth={1.5} style={{ filter: 'drop-shadow(0 0 30px rgba(255, 215, 0, 0.6))' }} />
-              </motion.div>
-              <h2 className="title-display text-4xl text-[var(--spotlight-gold)] mb-4">
-                AWARD CEREMONY
-              </h2>
-              <p className="text-[var(--text-secondary)]">
-                Click to reveal the winners!
-              </p>
-            </motion.div>
+              <div className="py-8 px-12">
+                <motion.div
+                  className="font-pixel text-pixel-4xl neon-glow-yellow mb-4"
+                  animate={{ rotate: [0, -3, 3, 0] }}
+                  transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                >
+                  ★
+                </motion.div>
+                <p className="font-pixel text-pixel-2xl neon-glow-yellow mb-4">
+                  AWARDS
+                </p>
+                <p className="font-terminal text-terminal-lg text-text-dim">
+                  &gt; Press A to continue...
+                </p>
+                <p className="press-start mt-4 text-pixel-sm">
+                  ► PRESS A ◄
+                </p>
+              </div>
+            </motion.button>
           </motion.div>
         )}
 
         {currentAward >= 0 && !showAll && (
           <motion.div
             key={`award-${currentAward}`}
-            className="text-center"
+            className="text-center crt-on"
             initial={{ opacity: 0, scale: 0.8, rotateY: -90 }}
             animate={{ opacity: 1, scale: 1, rotateY: 0 }}
             exit={{ opacity: 0, scale: 0.8, rotateY: 90 }}
-            transition={{ type: 'spring', stiffness: 100, damping: 15 }}
+            transition={{ duration: 0.4, ease: 'linear' }}
           >
-            <motion.div className="glass-card-strong p-12 neon-border spotlight-effect">
+            <div className="pixel-panel pixel-panel-yellow">
               <motion.div
-                className="flex justify-center mb-6"
+                className="font-pixel text-[100px] md:text-[140px] leading-none mb-6"
+                style={{ color: awards[currentAward].color }}
                 animate={{
-                  scale: [1, 1.2, 1],
-                  rotate: [0, 5, -5, 0],
+                  y: [0, -8, 0],
+                  rotate: [0, -5, 5, 0],
                 }}
-                transition={{
-                  duration: 1,
-                  repeat: Infinity,
-                  repeatDelay: 1,
-                }}
+                transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
               >
-                {(() => {
-                  const Icon = awards[currentAward].Icon
-                  const color = awards[currentAward].color
-                  return (
-                    <Icon
-                      size={120}
-                      style={{ color, filter: `drop-shadow(0 0 30px ${color})` }}
-                      fill="currentColor"
-                      strokeWidth={1.5}
-                    />
-                  )
-                })()}
+                {awards[currentAward].symbol}
               </motion.div>
 
-              <motion.h2
-                className="title-display text-3xl text-[var(--spotlight-gold)] mb-4"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+              <motion.p
+                className="font-pixel text-pixel-2xl md:text-pixel-3xl neon-glow-yellow mb-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}
               >
                 {awards[currentAward].title}
-              </motion.h2>
+              </motion.p>
 
-              <motion.h3
-                className="title-display text-5xl text-white title-glow mb-4"
+              <motion.div
+                className="dialogue-box my-6"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
               >
-                {awards[currentAward].team.name}
-              </motion.h3>
+                <p className="font-terminal text-terminal-xl md:text-terminal-2xl text-text-white">
+                  {awards[currentAward].team?.name.toUpperCase()}
+                </p>
+                <p className="font-terminal text-terminal-base text-text-dim mt-2">
+                  &gt; {awards[currentAward].description}
+                </p>
+              </motion.div>
 
-              <motion.p
-                className="text-[var(--text-secondary)]"
+              <motion.div
+                className="font-pixel text-pixel-xl neon-glow-green"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.7 }}
+                transition={{ delay: 0.8 }}
               >
-                {awards[currentAward].description}
-              </motion.p>
-
-              <motion.p
-                className="text-4xl mt-6"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.9 }}
-              >
-                Score: <span className="score-display">{awards[currentAward].team.totalScore.toFixed(1)}</span>
-              </motion.p>
-            </motion.div>
+                XP: {awards[currentAward].team?.totalScore.toFixed(1)}
+              </motion.div>
+            </div>
           </motion.div>
         )}
 
@@ -184,51 +159,45 @@ export function FinalAwards({ teams }: FinalAwardsProps) {
             animate={{ opacity: 1 }}
           >
             <motion.div
-              className="flex items-center justify-center gap-4 mb-8"
+              className="text-center mb-6"
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <Sparkles size={36} className="text-[var(--spotlight-gold)]" fill="currentColor" />
-              <h2 className="title-display text-4xl text-center text-[var(--spotlight-gold)]">
-                CONGRATULATIONS TO ALL!
-              </h2>
-              <Sparkles size={36} className="text-[var(--spotlight-gold)]" fill="currentColor" />
+              <p className="font-pixel text-pixel-3xl md:text-pixel-4xl neon-glow-yellow animate-glitch">
+                THE END
+              </p>
+              <p className="font-terminal text-terminal-xl text-text-dim mt-2">
+                &gt; GG everyone!
+              </p>
             </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {awards.map((award, index) => {
-                const Icon = award.Icon
-                return (
-                  <motion.div
-                    key={award.title}
-                    className="glass-card-strong p-6 text-center"
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.2 }}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {awards.map((award, index) => (
+                <motion.div
+                  key={award.title}
+                  className="pixel-panel text-center"
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.2, ease: 'linear' }}
+                >
+                  <div
+                    className="font-pixel text-[60px] leading-none mb-3"
+                    style={{ color: award.color }}
                   >
-                    <div className="flex justify-center mb-4">
-                      <Icon size={64} style={{ color: award.color }} fill="currentColor" strokeWidth={1.5} />
-                    </div>
-                    <h3 className="title-display text-xl text-[var(--spotlight-gold)]">
-                      {award.title}
-                    </h3>
-                    <h4 className="text-xl font-bold mt-2">{award.team.name}</h4>
-                    <p className="text-2xl mt-2">
-                      <span className="score-display">{award.team.totalScore.toFixed(1)}</span>
-                    </p>
-                  </motion.div>
-                )
-              })}
+                    {award.symbol}
+                  </div>
+                  <p className="font-pixel text-pixel-sm neon-glow-yellow">
+                    {award.title}
+                  </p>
+                  <p className="font-pixel text-pixel-lg text-text-white mt-2">
+                    {award.team?.name.toUpperCase()}
+                  </p>
+                  <p className="font-pixel text-pixel-xl neon-glow-green mt-2">
+                    {award.team?.totalScore.toFixed(1)}
+                  </p>
+                </motion.div>
+              ))}
             </div>
-
-            <motion.p
-              className="text-center text-[var(--text-secondary)] mt-8 text-lg"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1 }}
-            >
-              Thank you for participating in Mini Debate Arena!
-            </motion.p>
           </motion.div>
         )}
       </AnimatePresence>

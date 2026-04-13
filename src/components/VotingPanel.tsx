@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ThumbsUp, ThumbsDown, HelpCircle, Check } from 'lucide-react'
 import type { Topic, Vote } from '@/lib/types'
 
 interface VotingPanelProps {
@@ -13,7 +12,7 @@ interface VotingPanelProps {
   currentVote?: Vote['stance']
 }
 
-export function VotingPanel({ topic, playerId, teamId, onVote, currentVote }: VotingPanelProps) {
+export function VotingPanel({ topic, onVote, currentVote }: VotingPanelProps) {
   const [selected, setSelected] = useState<Vote['stance'] | null>(currentVote || null)
   const [submitted, setSubmitted] = useState(!!currentVote)
 
@@ -24,62 +23,66 @@ export function VotingPanel({ topic, playerId, teamId, onVote, currentVote }: Vo
   }
 
   return (
-    <div className="w-full max-w-lg mx-auto">
+    <div className="w-full max-w-md mx-auto">
       <motion.div
-        className="glass-card p-6"
+        className="pixel-panel"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        {/* Topic display */}
-        <div className="text-center mb-8">
-          <p className="text-[var(--text-muted)] text-sm uppercase tracking-wider mb-2">
-            What's your stance?
+        <div className="mb-4">
+          <p className="font-pixel text-pixel-sm text-neon-yellow mb-2">
+            <span className="rpg-cursor">►</span> CAST YOUR VOTE
           </p>
-          <h3 className="text-lg font-semibold leading-relaxed">
-            {topic.question}
-          </h3>
+          <div className="dialogue-box">
+            <p className="font-terminal text-terminal-base">
+              {topic.question}
+            </p>
+          </div>
         </div>
 
-        {/* Voting buttons */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           <motion.button
-            className={`w-full btn-agree flex items-center justify-center gap-3 ${selected === 'agree' ? 'ring-4 ring-[var(--agree-green)] ring-opacity-50' : ''}`}
+            className={`pokemon-option w-full ${selected === 'agree' ? 'selected' : ''}`}
             onClick={() => handleVote('agree')}
             disabled={submitted && selected !== 'agree'}
-            whileHover={{ scale: submitted ? 1 : 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            whileTap={{ scale: 0.97 }}
+            style={{
+              background: selected === 'agree' ? 'var(--neon-green)' : undefined,
+              borderColor: 'var(--neon-green)',
+            }}
           >
-            <ThumbsUp size={24} />
-            <span>AGREE</span>
-            {selected === 'agree' && <Check size={20} />}
+            <span className="font-pixel">AGREE</span>
           </motion.button>
 
           <motion.button
-            className={`w-full btn-disagree flex items-center justify-center gap-3 ${selected === 'disagree' ? 'ring-4 ring-[var(--disagree-red)] ring-opacity-50' : ''}`}
+            className={`pokemon-option w-full ${selected === 'disagree' ? 'selected' : ''}`}
             onClick={() => handleVote('disagree')}
             disabled={submitted && selected !== 'disagree'}
-            whileHover={{ scale: submitted ? 1 : 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            whileTap={{ scale: 0.97 }}
+            style={{
+              background: selected === 'disagree' ? 'var(--neon-red)' : undefined,
+              borderColor: 'var(--neon-red)',
+              color: selected === 'disagree' ? 'var(--text-white)' : undefined,
+            }}
           >
-            <ThumbsDown size={24} />
-            <span>DISAGREE</span>
-            {selected === 'disagree' && <Check size={20} />}
+            <span className="font-pixel">DISAGREE</span>
           </motion.button>
 
           <motion.button
-            className={`w-full btn-neutral flex items-center justify-center gap-3 ${selected === 'not-sure' ? 'ring-4 ring-[var(--neutral-blue)] ring-opacity-50' : ''}`}
+            className={`pokemon-option w-full ${selected === 'not-sure' ? 'selected' : ''}`}
             onClick={() => handleVote('not-sure')}
             disabled={submitted && selected !== 'not-sure'}
-            whileHover={{ scale: submitted ? 1 : 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            whileTap={{ scale: 0.97 }}
+            style={{
+              background: selected === 'not-sure' ? 'var(--neon-cyan)' : undefined,
+              borderColor: 'var(--neon-cyan)',
+              color: selected === 'not-sure' ? 'var(--text-dark)' : undefined,
+            }}
           >
-            <HelpCircle size={22} />
-            <span>NOT SURE</span>
-            {selected === 'not-sure' && <Check size={20} />}
+            <span className="font-pixel">NOT SURE</span>
           </motion.button>
         </div>
 
-        {/* Submitted confirmation */}
         <AnimatePresence>
           {submitted && (
             <motion.div
@@ -88,8 +91,8 @@ export function VotingPanel({ topic, playerId, teamId, onVote, currentVote }: Vo
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
             >
-              <p className="text-[var(--spotlight-gold)]">
-                Vote submitted! Waiting for others...
+              <p className="font-pixel text-pixel-sm neon-glow-green">
+                ★ VOTE LOCKED IN ★
               </p>
             </motion.div>
           )}
@@ -99,7 +102,6 @@ export function VotingPanel({ topic, playerId, teamId, onVote, currentVote }: Vo
   )
 }
 
-// Results display for big screen
 interface VoteResultsProps {
   votes: Vote[]
   totalVoters: number
@@ -117,64 +119,85 @@ export function VoteResults({ votes, totalVoters }: VoteResultsProps) {
 
   return (
     <div className="w-full max-w-2xl mx-auto">
-      <motion.div
-        className="glass-card-strong p-8"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-      >
-        <h3 className="title-display text-2xl text-center mb-6 text-[var(--spotlight-gold)]">
-          VOTING RESULTS
-        </h3>
-
-        {/* Progress bar */}
-        <div className="vote-bar mb-6">
-          <motion.div
-            className="vote-bar-agree flex items-center justify-center text-white font-bold"
-            initial={{ width: 0 }}
-            animate={{ width: `${agreePercent}%` }}
-            transition={{ duration: 1, ease: 'easeOut' }}
-          >
-            {agreePercent > 10 && `${Math.round(agreePercent)}%`}
-          </motion.div>
-          <motion.div
-            className="vote-bar-neutral flex items-center justify-center text-white font-bold"
-            initial={{ width: 0 }}
-            animate={{ width: `${notSurePercent}%` }}
-            transition={{ duration: 1, ease: 'easeOut', delay: 0.1 }}
-          >
-            {notSurePercent > 10 && `${Math.round(notSurePercent)}%`}
-          </motion.div>
-          <motion.div
-            className="vote-bar-disagree flex items-center justify-center text-white font-bold"
-            initial={{ width: 0 }}
-            animate={{ width: `${disagreePercent}%` }}
-            transition={{ duration: 1, ease: 'easeOut', delay: 0.2 }}
-          >
-            {disagreePercent > 10 && `${Math.round(disagreePercent)}%`}
-          </motion.div>
+      <div className="pixel-panel pixel-panel-neon">
+        <div className="text-center mb-6">
+          <p className="font-pixel text-pixel-base neon-glow-green">
+            ★ PARTY VOTE RESULTS ★
+          </p>
         </div>
 
-        {/* Legend */}
-        <div className="flex justify-center gap-8 text-sm">
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-[var(--agree-green)]" />
-            <span>Agree ({agreeCount})</span>
+        <div className="space-y-4">
+          {/* AGREE */}
+          <div>
+            <div className="flex justify-between items-center mb-1">
+              <span className="font-pixel text-pixel-sm text-neon-green">
+                AGREE
+              </span>
+              <span className="font-pixel text-pixel-sm text-text-white">
+                {agreeCount} / {Math.round(agreePercent)}%
+              </span>
+            </div>
+            <div className="pixel-bar-container">
+              <div className="pixel-bar flex-1">
+                <motion.div
+                  className="pixel-bar-fill pixel-bar-hp"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${agreePercent}%` }}
+                  transition={{ duration: 0.5, ease: 'linear' }}
+                />
+              </div>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-[var(--neutral-blue)]" />
-            <span>Not Sure ({notSureCount})</span>
+
+          {/* DISAGREE */}
+          <div>
+            <div className="flex justify-between items-center mb-1">
+              <span className="font-pixel text-pixel-sm text-neon-red">
+                DISAGREE
+              </span>
+              <span className="font-pixel text-pixel-sm text-text-white">
+                {disagreeCount} / {Math.round(disagreePercent)}%
+              </span>
+            </div>
+            <div className="pixel-bar-container">
+              <div className="pixel-bar flex-1">
+                <motion.div
+                  className="pixel-bar-fill pixel-bar-red"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${disagreePercent}%` }}
+                  transition={{ duration: 0.5, ease: 'linear' }}
+                />
+              </div>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-[var(--disagree-red)]" />
-            <span>Disagree ({disagreeCount})</span>
+
+          {/* NOT SURE */}
+          <div>
+            <div className="flex justify-between items-center mb-1">
+              <span className="font-pixel text-pixel-sm text-neon-cyan">
+                NOT SURE
+              </span>
+              <span className="font-pixel text-pixel-sm text-text-white">
+                {notSureCount} / {Math.round(notSurePercent)}%
+              </span>
+            </div>
+            <div className="pixel-bar-container">
+              <div className="pixel-bar flex-1">
+                <motion.div
+                  className="pixel-bar-fill pixel-bar-mp"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${notSurePercent}%` }}
+                  transition={{ duration: 0.5, ease: 'linear' }}
+                />
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Voter count */}
-        <p className="text-center text-[var(--text-muted)] mt-4">
-          {votes.length} / {totalVoters} voted
+        <p className="text-center font-terminal text-text-dim mt-6 text-terminal-base">
+          {votes.length} / {totalVoters} PARTY MEMBERS VOTED
         </p>
-      </motion.div>
+      </div>
     </div>
   )
 }
