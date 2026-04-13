@@ -21,18 +21,9 @@ import {
   QRCodeDisplay,
   PhaseTransition,
 } from '@/components'
-import { useRealtimeGame, type DebateSubPhase } from '@/lib/useRealtimeGame'
+import { useRealtimeGame } from '@/lib/useRealtimeGame'
 import { findLatestSessionId } from '@/lib/supabase'
 import { TOPICS, type Topic, type GamePhase, type Match } from '@/lib/types'
-
-const DEBATE_SUB_PHASES: Record<DebateSubPhase, { label: string; duration: number; team: 'A' | 'B' | 'HOST' }> = {
-  'team-a-opening': { label: 'A OPENING', duration: 20, team: 'A' },
-  'team-b-opening': { label: 'B OPENING', duration: 20, team: 'B' },
-  'host-challenge': { label: 'CHALLENGE', duration: 15, team: 'HOST' },
-  'team-a-response': { label: 'A RESPONSE', duration: 15, team: 'A' },
-  'team-b-response': { label: 'B RESPONSE', duration: 15, team: 'B' },
-  'done': { label: 'DONE', duration: 0, team: 'A' },
-}
 
 function AdminContent() {
   const searchParams = useSearchParams()
@@ -45,7 +36,6 @@ function AdminContent() {
   const [latestSessionId, setLatestSessionId] = useState<string | null>(null)
 
   const game = useRealtimeGame(sessionId || undefined)
-  const debateSubPhase = game.debateSubPhase
 
   const currentTopic = game.currentTopicId ? TOPICS.find((t) => t.id === game.currentTopicId) : null
   const currentMatch = game.currentMatchId ? game.matches.find((m) => m.id === game.currentMatchId) : null
@@ -69,20 +59,6 @@ function AdminContent() {
       const timer = setTimeout(() => setShowPhaseTransition(false), 1800)
       return () => clearTimeout(timer)
     }
-  }, [game.phase])
-
-  useEffect(() => {
-    if (game.phase === 'debate' && game.debateSubPhase !== 'team-a-opening') {
-      game.updateDebateSubPhase('team-a-opening')
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [game.currentMatchId])
-
-  useEffect(() => {
-    if (game.phase === 'debate' && !game.debateSubPhaseStartedAt) {
-      game.updateDebateSubPhase('team-a-opening')
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game.phase])
 
   const handleCreateSession = async () => {
@@ -163,14 +139,6 @@ function AdminContent() {
     }
   }
 
-  const handleDebateSubPhaseNext = async () => {
-    const subPhases: DebateSubPhase[] = ['team-a-opening', 'team-b-opening', 'host-challenge', 'team-a-response', 'team-b-response', 'done']
-    const currentIdx = subPhases.indexOf(debateSubPhase)
-    if (currentIdx < subPhases.length - 1) {
-      await game.updateDebateSubPhase(subPhases[currentIdx + 1])
-    }
-  }
-
   const handleCalculateResult = async () => {
     if (!currentMatch) return
     const judgeScoreA = currentMatch.judgeScores.reduce((sum, s) => sum + s.teamAScore, 0) / (currentMatch.judgeScores.length || 1)
@@ -194,7 +162,6 @@ function AdminContent() {
     const matchIndex = currentRoundMatches.findIndex((m) => m.id === game.currentMatchId)
     if (matchIndex < currentRoundMatches.length - 1) {
       await game.setCurrentMatch(currentRoundMatches[matchIndex + 1].id)
-      await game.updateDebateSubPhase('team-a-opening')
       await game.updatePhase('preparation')
     } else {
       await game.updatePhase('leaderboard')
@@ -277,8 +244,6 @@ function AdminContent() {
       </main>
     )
   }
-
-  const debateInfo = DEBATE_SUB_PHASES[debateSubPhase]
 
   return (
     <main className="min-h-screen relative overflow-hidden">
@@ -534,82 +499,50 @@ function AdminContent() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
               >
-                <motion.div
-                  key={debateSubPhase}
-                  className="text-center"
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
+                <motion.p
+                  className="font-pixel text-pixel-3xl md:text-pixel-4xl neon-glow-pink text-center animate-glitch"
                 >
-                  <p
-                    className="font-pixel text-pixel-3xl md:text-pixel-4xl animate-glitch"
-                    style={{
-                      color: debateInfo.team === 'A' ? 'var(--team-red)'
-                        : debateInfo.team === 'B' ? 'var(--team-blue)'
-                        : 'var(--neon-yellow)',
-                    }}
-                  >
-                    {debateInfo.label}
-                  </p>
-                </motion.div>
+                  ♪ FREE DEBATE ♪
+                </motion.p>
 
                 <div className="flex justify-center items-center gap-4 flex-wrap">
                   <motion.div
                     className="battle-card battle-card-red"
-                    animate={{
-                      scale: debateInfo.team === 'A' ? 1.05 : 0.9,
-                      opacity: debateInfo.team === 'A' ? 1 : 0.5,
-                    }}
+                    animate={{ scale: [1, 1.02, 1] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
                   >
                     <p className="font-pixel text-pixel-sm text-team-red mb-1">◆ A ◆</p>
                     <p className="font-pixel text-pixel-base text-text-white">
                       {game.teams[currentMatch.teamA]?.name.toUpperCase()}
                     </p>
+                    <p className="font-pixel text-pixel-sm text-neon-green mt-1">AGREE</p>
                   </motion.div>
 
                   <div className="vs-pixel text-pixel-2xl">VS</div>
 
                   <motion.div
                     className="battle-card battle-card-blue"
-                    animate={{
-                      scale: debateInfo.team === 'B' ? 1.05 : 0.9,
-                      opacity: debateInfo.team === 'B' ? 1 : 0.5,
-                    }}
+                    animate={{ scale: [1, 1.02, 1] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: 'linear', delay: 1 }}
                   >
                     <p className="font-pixel text-pixel-sm text-team-blue mb-1">◆ B ◆</p>
                     <p className="font-pixel text-pixel-base text-text-white">
                       {game.teams[currentMatch.teamB]?.name.toUpperCase()}
                     </p>
+                    <p className="font-pixel text-pixel-sm text-neon-red mt-1">DISAGREE</p>
                   </motion.div>
                 </div>
 
-                {debateSubPhase !== 'done' && (
-                  <SyncedCountdown
-                    key={debateSubPhase}
-                    duration={debateInfo.duration}
-                    startedAt={game.debateSubPhaseStartedAt}
-                    label={debateInfo.label}
-                    size="md"
-                    onComplete={handleDebateSubPhaseNext}
-                  />
-                )}
+                <SyncedCountdown
+                  duration={120}
+                  startedAt={game.phaseStartedAt}
+                  label="BATTLE TIME"
+                  size="lg"
+                  onComplete={handleNextPhase}
+                />
 
                 <div className="flex justify-center gap-3 flex-wrap">
-                  {debateSubPhase !== 'done' ? (
-                    <>
-                      <SkipButton onClick={handleDebateSubPhaseNext} label="Skip Speaker" variant="skip" />
-                      <SkipButton onClick={handleNextPhase} label="End Debate" variant="next" />
-                    </>
-                  ) : (
-                    <motion.button
-                      className="pixel-btn pixel-btn-pink"
-                      onClick={handleNextPhase}
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      ► AUDIENCE VOTE ◄
-                    </motion.button>
-                  )}
+                  <SkipButton onClick={handleNextPhase} label="End Debate" variant="next" />
                 </div>
               </motion.div>
             )}

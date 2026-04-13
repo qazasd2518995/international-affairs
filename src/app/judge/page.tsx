@@ -13,18 +13,9 @@ import {
   CategoryTag,
   PhaseTransition,
 } from '@/components'
-import { useRealtimeGame, type DebateSubPhase } from '@/lib/useRealtimeGame'
+import { useRealtimeGame } from '@/lib/useRealtimeGame'
 import { findLatestSessionId } from '@/lib/supabase'
 import { TOPICS, type JudgeScore } from '@/lib/types'
-
-const DEBATE_SUB_INFO: Record<DebateSubPhase, { label: string; duration: number; team: 'A' | 'B' | 'HOST' }> = {
-  'team-a-opening': { label: 'OPENING', duration: 20, team: 'A' },
-  'team-b-opening': { label: 'OPENING', duration: 20, team: 'B' },
-  'host-challenge': { label: 'CHALLENGE', duration: 15, team: 'HOST' },
-  'team-a-response': { label: 'RESPONSE', duration: 15, team: 'A' },
-  'team-b-response': { label: 'RESPONSE', duration: 15, team: 'B' },
-  'done': { label: 'DONE', duration: 0, team: 'A' },
-}
 
 function JudgeContent() {
   const searchParams = useSearchParams()
@@ -336,57 +327,46 @@ function JudgeContent() {
             </motion.div>
           )}
 
-          {game.phase === 'debate' && currentMatch && currentTopic && (() => {
-            const subInfo = DEBATE_SUB_INFO[game.debateSubPhase]
-            const activeTeam = subInfo.team
-            const color = activeTeam === 'A' ? 'var(--team-red)' : activeTeam === 'B' ? 'var(--team-blue)' : 'var(--neon-yellow)'
+          {game.phase === 'debate' && currentMatch && currentTopic && (
+            <motion.div
+              key="debate"
+              className="max-w-2xl mx-auto space-y-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <p className="font-pixel text-pixel-xl text-center neon-glow-pink">
+                ♪ FREE DEBATE ♪
+              </p>
 
-            return (
-              <motion.div
-                key="debate"
-                className="max-w-2xl mx-auto space-y-4"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
-                <motion.div
-                  key={game.debateSubPhase}
-                  className="text-center"
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                >
-                  <p className="font-pixel text-pixel-sm text-text-muted mb-2">
-                    &gt; NOW SPEAKING
+              <div className="flex justify-center items-center gap-3 flex-wrap">
+                <div className="battle-card battle-card-red">
+                  <p className="font-pixel text-pixel-sm text-team-red">◆ A ◆</p>
+                  <p className="font-pixel text-pixel-base text-text-white mt-1">
+                    {game.teams[currentMatch.teamA]?.name.toUpperCase()}
                   </p>
-                  <p
-                    className="font-pixel text-pixel-2xl md:text-pixel-3xl"
-                    style={{ color, textShadow: `0 0 15px ${color}, 2px 2px 0 var(--arcade-void)` }}
-                  >
-                    {activeTeam === 'HOST'
-                      ? 'HOST!'
-                      : game.teams[activeTeam === 'A' ? currentMatch.teamA : currentMatch.teamB]?.name.toUpperCase()}
+                </div>
+                <div className="vs-pixel text-pixel-lg">VS</div>
+                <div className="battle-card battle-card-blue">
+                  <p className="font-pixel text-pixel-sm text-team-blue">◆ B ◆</p>
+                  <p className="font-pixel text-pixel-base text-text-white mt-1">
+                    {game.teams[currentMatch.teamB]?.name.toUpperCase()}
                   </p>
-                  <p className="font-pixel text-pixel-base text-neon-yellow mt-2">
-                    [{subInfo.label}]
-                  </p>
-                </motion.div>
+                </div>
+              </div>
 
-                {game.debateSubPhase !== 'done' && (
-                  <SyncedCountdown
-                    key={game.debateSubPhase}
-                    duration={subInfo.duration}
-                    startedAt={game.debateSubPhaseStartedAt}
-                    label={subInfo.label}
-                    size="sm"
-                  />
-                )}
+              <SyncedCountdown
+                duration={120}
+                startedAt={game.phaseStartedAt}
+                label="BATTLE TIME"
+                size="sm"
+              />
 
-                <p className="text-center font-terminal text-terminal-base text-text-dim">
-                  &gt; Listen carefully — scoring soon!
-                </p>
-              </motion.div>
-            )
-          })()}
+              <p className="text-center font-terminal text-terminal-base text-text-dim">
+                &gt; Listen carefully — scoring soon!
+              </p>
+            </motion.div>
+          )}
 
           {game.phase === 'audience-vote' && currentMatch && (
             <motion.div

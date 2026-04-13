@@ -18,18 +18,9 @@ import {
   QRCodeDisplay,
   PhaseTransition,
 } from '@/components'
-import { useRealtimeGame, type DebateSubPhase } from '@/lib/useRealtimeGame'
+import { useRealtimeGame } from '@/lib/useRealtimeGame'
 import { findLatestSessionId } from '@/lib/supabase'
 import { TOPICS } from '@/lib/types'
-
-const DEBATE_SUB_INFO: Record<DebateSubPhase, { label: string; duration: number; team: 'A' | 'B' | 'HOST' }> = {
-  'team-a-opening': { label: 'OPENING', duration: 20, team: 'A' },
-  'team-b-opening': { label: 'OPENING', duration: 20, team: 'B' },
-  'host-challenge': { label: 'CHALLENGE', duration: 15, team: 'HOST' },
-  'team-a-response': { label: 'RESPONSE', duration: 15, team: 'A' },
-  'team-b-response': { label: 'RESPONSE', duration: 15, team: 'B' },
-  'done': { label: 'DONE', duration: 0, team: 'A' },
-}
 
 function DisplayContent() {
   const searchParams = useSearchParams()
@@ -357,88 +348,60 @@ function DisplayContent() {
               </motion.div>
             )}
 
-            {game.phase === 'debate' && currentMatch && (() => {
-              const subInfo = DEBATE_SUB_INFO[game.debateSubPhase]
-              const activeTeam = subInfo.team
-              const color = activeTeam === 'A' ? 'var(--team-red)' : activeTeam === 'B' ? 'var(--team-blue)' : 'var(--neon-yellow)'
-
-              return (
-                <motion.div
-                  key="debate"
-                  className="w-full text-center space-y-6"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
+            {game.phase === 'debate' && currentMatch && (
+              <motion.div
+                key="debate"
+                className="w-full text-center space-y-8"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <motion.p
+                  className="font-pixel text-pixel-3xl md:text-pixel-4xl neon-glow-pink animate-glitch"
                 >
+                  ♪ FREE DEBATE ♪
+                </motion.p>
+
+                <div className="flex justify-center items-center gap-6 flex-wrap">
                   <motion.div
-                    key={game.debateSubPhase}
-                    initial={{ opacity: 0, y: -30 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    className="battle-card battle-card-red p-6"
+                    animate={{ scale: [1, 1.03, 1] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
                   >
-                    <p className="font-pixel text-pixel-sm text-text-muted mb-2 uppercase">
-                      &gt; NOW SPEAKING
-                    </p>
-                    <motion.p
-                      className="font-pixel text-pixel-3xl md:text-pixel-4xl animate-glitch"
-                      style={{ color, textShadow: `0 0 20px ${color}, 4px 4px 0 var(--arcade-void)` }}
-                    >
-                      {activeTeam === 'HOST'
-                        ? 'HOST CHALLENGE'
-                        : game.teams[activeTeam === 'A' ? currentMatch.teamA : currentMatch.teamB]?.name.toUpperCase()}
-                    </motion.p>
-                    <p className="font-pixel text-pixel-lg text-neon-yellow mt-2">
-                      [ {subInfo.label} ]
-                    </p>
+                    <div className="text-center">
+                      <p className="font-pixel text-pixel-sm text-team-red">◆ A ◆</p>
+                      <p className="font-pixel text-pixel-xl text-text-white mt-2">
+                        {game.teams[currentMatch.teamA]?.name.toUpperCase()}
+                      </p>
+                      <p className="font-pixel text-pixel-sm text-neon-green mt-2">AGREE</p>
+                    </div>
                   </motion.div>
 
-                  <div className="flex justify-center items-center gap-6 flex-wrap">
-                    <motion.div
-                      className="battle-card battle-card-red"
-                      animate={{
-                        scale: activeTeam === 'A' ? [1, 1.05, 1] : 0.9,
-                        opacity: activeTeam === 'A' ? 1 : 0.4,
-                      }}
-                      transition={{ duration: 1, repeat: activeTeam === 'A' ? Infinity : 0, ease: 'linear' }}
-                    >
-                      <div className="text-center">
-                        <p className="font-pixel text-pixel-sm text-team-red">◆ A ◆</p>
-                        <p className="font-pixel text-pixel-xl text-text-white mt-2">
-                          {game.teams[currentMatch.teamA]?.name.toUpperCase()}
-                        </p>
-                      </div>
-                    </motion.div>
+                  <div className="vs-pixel text-pixel-4xl">VS</div>
 
-                    <div className="vs-pixel">VS</div>
+                  <motion.div
+                    className="battle-card battle-card-blue p-6"
+                    animate={{ scale: [1, 1.03, 1] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: 'linear', delay: 1 }}
+                  >
+                    <div className="text-center">
+                      <p className="font-pixel text-pixel-sm text-team-blue">◆ B ◆</p>
+                      <p className="font-pixel text-pixel-xl text-text-white mt-2">
+                        {game.teams[currentMatch.teamB]?.name.toUpperCase()}
+                      </p>
+                      <p className="font-pixel text-pixel-sm text-neon-red mt-2">DISAGREE</p>
+                    </div>
+                  </motion.div>
+                </div>
 
-                    <motion.div
-                      className="battle-card battle-card-blue"
-                      animate={{
-                        scale: activeTeam === 'B' ? [1, 1.05, 1] : 0.9,
-                        opacity: activeTeam === 'B' ? 1 : 0.4,
-                      }}
-                      transition={{ duration: 1, repeat: activeTeam === 'B' ? Infinity : 0, ease: 'linear' }}
-                    >
-                      <div className="text-center">
-                        <p className="font-pixel text-pixel-sm text-team-blue">◆ B ◆</p>
-                        <p className="font-pixel text-pixel-xl text-text-white mt-2">
-                          {game.teams[currentMatch.teamB]?.name.toUpperCase()}
-                        </p>
-                      </div>
-                    </motion.div>
-                  </div>
-
-                  {game.debateSubPhase !== 'done' && (
-                    <SyncedCountdown
-                      key={game.debateSubPhase}
-                      duration={subInfo.duration}
-                      startedAt={game.debateSubPhaseStartedAt}
-                      label={subInfo.label}
-                      size="lg"
-                    />
-                  )}
-                </motion.div>
-              )
-            })()}
+                <SyncedCountdown
+                  duration={120}
+                  startedAt={game.phaseStartedAt}
+                  label="BATTLE TIME"
+                  size="lg"
+                />
+              </motion.div>
+            )}
 
             {game.phase === 'audience-vote' && currentMatch && (
               <motion.div
