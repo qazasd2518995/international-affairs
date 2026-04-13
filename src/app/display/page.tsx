@@ -19,6 +19,7 @@ import {
   PhaseTransition,
 } from '@/components'
 import { useRealtimeGame, type DebateSubPhase } from '@/lib/useRealtimeGame'
+import { findLatestSessionId } from '@/lib/supabase'
 import { TOPICS } from '@/lib/types'
 
 const DEBATE_SUB_INFO: Record<DebateSubPhase, { label: string; duration: number; team: 'A' | 'B' | 'HOST' }> = {
@@ -32,8 +33,22 @@ const DEBATE_SUB_INFO: Record<DebateSubPhase, { label: string; duration: number;
 
 function DisplayContent() {
   const searchParams = useSearchParams()
-  const sessionId = searchParams.get('session')
+  const sessionIdParam = searchParams.get('session')
+  const [sessionId, setSessionId] = useState<string | null>(sessionIdParam)
+  const [lookupFailed, setLookupFailed] = useState(false)
   const [showPhaseTransition, setShowPhaseTransition] = useState(false)
+
+  // Auto-discover latest session when none provided in URL
+  useEffect(() => {
+    if (sessionIdParam) return
+    let cancelled = false
+    findLatestSessionId().then((id) => {
+      if (cancelled) return
+      if (id) setSessionId(id)
+      else setLookupFailed(true)
+    })
+    return () => { cancelled = true }
+  }, [sessionIdParam])
 
   const game = useRealtimeGame(sessionId || undefined)
 
@@ -70,9 +85,20 @@ function DisplayContent() {
         <StageBackground />
         <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-6">
           <Logo size="lg" />
-          <p className="font-pixel text-pixel-base text-neon-red mt-8">
-            ※ NO SESSION ※
-          </p>
+          {lookupFailed ? (
+            <div className="pixel-panel pixel-panel-pink mt-8 text-center max-w-md">
+              <p className="font-pixel text-pixel-base text-neon-pink mb-3">
+                ※ NO ACTIVE GAME ※
+              </p>
+              <p className="font-terminal text-terminal-base text-text-dim">
+                &gt; Ask the host to create a game first.
+              </p>
+            </div>
+          ) : (
+            <p className="font-pixel text-pixel-base text-neon-cyan mt-8">
+              FINDING GAME<span className="loading-dots"></span>
+            </p>
+          )}
         </div>
       </main>
     )

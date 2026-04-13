@@ -22,6 +22,7 @@ import {
   PhaseTransition,
 } from '@/components'
 import { useRealtimeGame, type DebateSubPhase } from '@/lib/useRealtimeGame'
+import { findLatestSessionId } from '@/lib/supabase'
 import { TOPICS, type Topic, type GamePhase, type Match } from '@/lib/types'
 
 const DEBATE_SUB_PHASES: Record<DebateSubPhase, { label: string; duration: number; team: 'A' | 'B' | 'HOST' }> = {
@@ -41,6 +42,7 @@ function AdminContent() {
   const [usedTopicIds, setUsedTopicIds] = useState<string[]>([])
   const [gameUrl, setGameUrl] = useState<string>('')
   const [showPhaseTransition, setShowPhaseTransition] = useState(false)
+  const [latestSessionId, setLatestSessionId] = useState<string | null>(null)
 
   const game = useRealtimeGame(sessionId || undefined)
   const debateSubPhase = game.debateSubPhase
@@ -53,6 +55,12 @@ function AdminContent() {
     if (sessionId && typeof window !== 'undefined') {
       setGameUrl(`${window.location.origin}?session=${sessionId}`)
     }
+  }, [sessionId])
+
+  // Look up the latest session so host can resume on accidental tab close
+  useEffect(() => {
+    if (sessionId) return
+    findLatestSessionId().then((id) => setLatestSessionId(id))
   }, [sessionId])
 
   useEffect(() => {
@@ -209,6 +217,12 @@ function AdminContent() {
   }
 
   if (!sessionId) {
+    const handleResume = () => {
+      if (!latestSessionId) return
+      setSessionId(latestSessionId)
+      window.history.pushState({}, '', `/admin?session=${latestSessionId}`)
+    }
+
     return (
       <main className="min-h-screen relative overflow-hidden">
         <StageBackground />
@@ -223,13 +237,26 @@ function AdminContent() {
               <p className="font-pixel text-pixel-lg neon-glow-yellow mb-6">
                 ★ HOST CONSOLE ★
               </p>
-              <motion.button
-                className="pixel-btn pixel-btn-green"
-                onClick={handleCreateSession}
-                whileTap={{ scale: 0.95 }}
-              >
-                ► START NEW GAME ◄
-              </motion.button>
+
+              <div className="flex flex-col gap-3 items-center">
+                <motion.button
+                  className="pixel-btn pixel-btn-green"
+                  onClick={handleCreateSession}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  ► START NEW GAME ◄
+                </motion.button>
+
+                {latestSessionId && (
+                  <motion.button
+                    className="pixel-btn pixel-btn-ghost"
+                    onClick={handleResume}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    » RESUME LAST GAME
+                  </motion.button>
+                )}
+              </div>
             </div>
           </motion.div>
         </div>

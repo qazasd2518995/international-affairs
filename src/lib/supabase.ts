@@ -11,6 +11,22 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   },
 })
 
+// Find the most recently updated game session.
+// Used by /display, /judge, and /?session=... fallback so spectators/judges
+// don't have to paste a session ID — they just open the URL and auto-join
+// whatever game the host most recently created.
+export async function findLatestSessionId(): Promise<string | null> {
+  const { data, error } = await supabase
+    .from('game_sessions')
+    .select('id, updated_at')
+    .order('updated_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (error || !data) return null
+  return data.id
+}
+
 // Database types
 export interface DbGameSession {
   id: string
