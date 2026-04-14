@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 2400" font-family="'Press Start 2P', monospace">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#12102b"/>
+      <stop offset="50%" stop-color="#0a0a2e"/>
+      <stop offset="100%" stop-color="#0d0d1a"/>
+    </linearGradient>
+
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0 L0 0 L0 32" fill="none" stroke="#9d00ff" stroke-width="1" opacity="0.08"/>
+    </pattern>
+
+    <filter id="glow-yellow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glow-pink" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glow-green" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#ffcc00"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1600" height="2400" fill="url(#bg)"/>
+  <rect width="1600" height="2400" fill="url(#grid)"/>
+
+  <!-- Title -->
+  <g transform="translate(800, 80)">
+    <text x="0" y="0" font-size="48" fill="#ff00aa" text-anchor="middle" filter="url(#glow-pink)">MINI DEBATE</text>
+    <text x="0" y="60" font-size="48" fill="#ffcc00" text-anchor="middle" filter="url(#glow-yellow)">ARENA</text>
+    <text x="0" y="100" font-size="14" fill="#00fff0" text-anchor="middle" letter-spacing="6">&lt; ACTIVITY FLOW &gt;</text>
+  </g>
+
+  <!-- Total time tag -->
+  <g transform="translate(800, 220)">
+    <rect x="-150" y="-25" width="300" height="40" fill="#0a0a2e" stroke="#39ff14" stroke-width="2"/>
+    <text x="0" y="2" font-size="14" fill="#39ff14" text-anchor="middle">TOTAL: ~15 MIN</text>
+  </g>
+
+  <!-- ===== STEP 1: SETUP ===== -->
+  <g transform="translate(100, 280)">
+    <rect x="0" y="0" width="1400" height="180" fill="#0f0f1e" stroke="#ffcc00" stroke-width="3"/>
+    <rect x="-6" y="-6" width="1412" height="192" fill="none" stroke="#ffcc00" stroke-width="2"/>
+    <circle cx="60" cy="60" r="28" fill="#ffcc00"/>
+    <text x="60" y="68" font-size="22" fill="#0a0a2e" text-anchor="middle">1</text>
+    <text x="120" y="50" font-size="22" fill="#ffcc00" filter="url(#glow-yellow)">SETUP &amp; LOBBY</text>
+    <text x="120" y="80" font-size="14" fill="#39ff14">~ 2 MIN</text>
+
+    <text x="120" y="120" font-size="13" fill="#ffffff" font-family="'VT323', monospace">► Host opens /admin and clicks START NEW GAME</text>
+    <text x="120" y="143" font-size="13" fill="#ffffff" font-family="'VT323', monospace">► Big QR code projects on screen</text>
+    <text x="120" y="166" font-size="13" fill="#ffffff" font-family="'VT323', monospace">► Students scan, type their name, choose 1 of 6 groups</text>
+
+    <!-- icon visual -->
+    <g transform="translate(1200, 90)">
+      <rect x="-50" y="-50" width="100" height="100" fill="#ffffff"/>
+      <rect x="-40" y="-40" width="20" height="20" fill="#0a0a2e"/>
+      <rect x="20" y="-40" width="20" height="20" fill="#0a0a2e"/>
+      <rect x="-40" y="20" width="20" height="20" fill="#0a0a2e"/>
+      <rect x="-10" y="-10" width="20" height="20" fill="#0a0a2e"/>
+      <rect x="20" y="20" width="20" height="20" fill="#0a0a2e"/>
+      <text x="0" y="80" font-size="11" fill="#ffcc00" text-anchor="middle">SCAN QR</text>
+    </g>
+  </g>
+  <line x1="800" y1="460" x2="800" y2="500" stroke="#ffcc00" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <!-- ===== STEP 2: AUTO-PAIR ===== -->
+  <g transform="translate(100, 510)">
+    <rect x="0" y="0" width="1400" height="160" fill="#0f0f1e" stroke="#ff00aa" stroke-width="3"/>
+    <rect x="-6" y="-6" width="1412" height="172" fill="none" stroke="#ff00aa" stroke-width="2"/>
+    <circle cx="60" cy="60" r="28" fill="#ff00aa"/>
+    <text x="60" y="68" font-size="22" fill="#ffffff" text-anchor="middle">2</text>
+    <text x="120" y="50" font-size="22" fill="#ff00aa" filter="url(#glow-pink)">AUTO-PAIR &amp; ASSIGN</text>
+    <text x="120" y="80" font-size="14" fill="#39ff14">~ 5 SEC</text>
+
+    <text x="120" y="115" font-size="13" fill="#ffffff" font-family="'VT323', monospace">► System randomly pairs the 6 groups into 3 matchups</text>
+    <text x="120" y="138" font-size="13" fill="#ffffff" font-family="'VT323', monospace">► Coin-flip assigns AGREE / DISAGREE — fair, no one chooses</text>
+
+    <!-- 3 brackets visual -->
+    <g transform="translate(1180, 80)" font-size="11" fill="#ffffff">
+      <rect x="-100" y="-50" width="200" height="100" fill="none" stroke="#ff00aa" stroke-width="2"/>
+      <text x="-70" y="-25" fill="#ff0040">G2</text>
+      <text x="-30" y="-25" fill="#ffcc00">VS</text>
+      <text x="20" y="-25" fill="#0080ff">G3</text>
+      <text x="-70" y="0" fill="#ff0040">G4</text>
+      <text x="-30" y="0" fill="#ffcc00">VS</text>
+      <text x="20" y="0" fill="#0080ff">G5</text>
+      <text x="-70" y="25" fill="#ff0040">G1</text>
+      <text x="-30" y="25" fill="#ffcc00">VS</text>
+      <text x="20" y="25" fill="#0080ff">G6</text>
+    </g>
+  </g>
+  <line x1="800" y1="670" x2="800" y2="710" stroke="#ffcc00" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <!-- Match loop banner -->
+  <g transform="translate(800, 730)">
+    <rect x="-300" y="0" width="600" height="40" fill="#1a0033" stroke="#39ff14" stroke-width="2" stroke-dasharray="6 4"/>
+    <text x="0" y="27" font-size="16" fill="#39ff14" text-anchor="middle">REPEAT 3X — ONE PER MATCH</text>
+  </g>
+
+  <!-- ===== STEP 3: TOPIC ===== -->
+  <g transform="translate(100, 800)">
+    <rect x="0" y="0" width="1400" height="160" fill="#0f0f1e" stroke="#ffcc00" stroke-width="3"/>
+    <rect x="-6" y="-6" width="1412" height="172" fill="none" stroke="#ffcc00" stroke-width="2"/>
+    <circle cx="60" cy="60" r="28" fill="#ffcc00"/>
+    <text x="60" y="68" font-size="22" fill="#0a0a2e" text-anchor="middle">3</text>
+    <text x="120" y="50" font-size="22" fill="#ffcc00" filter="url(#glow-yellow)">DRAW A TOPIC</text>
+    <text x="120" y="80" font-size="14" fill="#39ff14">~ 30 SEC</text>
+
+    <text x="120" y="115" font-size="13" fill="#ffffff" font-family="'VT323', monospace">► Host clicks DRAW — 3-2-1 countdown, then shuffle animation</text>
+    <text x="120" y="138" font-size="13" fill="#ffffff" font-family="'VT323', monospace">► Random topic from 12-question bank with ★ difficulty rating</text>
+
+    <!-- dice visual -->
+    <g transform="translate(1180, 80)">
+      <rect x="-40" y="-40" width="80" height="80" fill="#ffcc00" stroke="#0a0a2e" stroke-width="3"/>
+      <circle cx="-20" cy="-20" r="6" fill="#0a0a2e"/>
+      <circle cx="20" cy="-20" r="6" fill="#0a0a2e"/>
+      <circle cx="0" cy="0" r="6" fill="#0a0a2e"/>
+      <circle cx="-20" cy="20" r="6" fill="#0a0a2e"/>
+      <circle cx="20" cy="20" r="6" fill="#0a0a2e"/>
+      <text x="0" y="68" font-size="11" fill="#ffcc00" text-anchor="middle">RANDOM</text>
+    </g>
+  </g>
+  <line x1="800" y1="960" x2="800" y2="1000" stroke="#ffcc00" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <!-- ===== STEP 4: MATCHUP ===== -->
+  <g transform="translate(100, 1010)">
+    <rect x="0" y="0" width="1400" height="140" fill="#0f0f1e" stroke="#ff00aa" stroke-width="3"/>
+    <rect x="-6" y="-6" width="1412" height="152" fill="none" stroke="#ff00aa" stroke-width="2"/>
+    <circle cx="60" cy="60" r="28" fill="#ff00aa"/>
+    <text x="60" y="68" font-size="22" fill="#ffffff" text-anchor="middle">4</text>
+    <text x="120" y="50" font-size="22" fill="#ff00aa" filter="url(#glow-pink)">REVEAL MATCHUP</text>
+    <text x="120" y="80" font-size="14" fill="#39ff14">~ 15 SEC</text>
+
+    <text x="120" y="115" font-size="13" fill="#ffffff" font-family="'VT323', monospace">► Round 1: shows all 3 pairings · Rounds 2-3: shows just the next pair</text>
+
+    <!-- VS visual -->
+    <g transform="translate(1180, 70)">
+      <rect x="-90" y="-30" width="60" height="60" fill="#ff0040" stroke="#ffffff" stroke-width="2"/>
+      <text x="-60" y="5" font-size="14" fill="#ffffff" text-anchor="middle">A</text>
+      <text x="0" y="10" font-size="20" fill="#ffcc00" text-anchor="middle" filter="url(#glow-yellow)">VS</text>
+      <rect x="30" y="-30" width="60" height="60" fill="#0080ff" stroke="#ffffff" stroke-width="2"/>
+      <text x="60" y="5" font-size="14" fill="#ffffff" text-anchor="middle">B</text>
+    </g>
+  </g>
+  <line x1="800" y1="1150" x2="800" y2="1190" stroke="#ffcc00" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <!-- ===== STEP 5: PREP ===== -->
+  <g transform="translate(100, 1200)">
+    <rect x="0" y="0" width="1400" height="200" fill="#0f0f1e" stroke="#39ff14" stroke-width="3"/>
+    <rect x="-6" y="-6" width="1412" height="212" fill="none" stroke="#39ff14" stroke-width="2"/>
+    <circle cx="60" cy="60" r="28" fill="#39ff14"/>
+    <text x="60" y="68" font-size="22" fill="#0a0a2e" text-anchor="middle">5</text>
+    <text x="120" y="50" font-size="22" fill="#39ff14" filter="url(#glow-green)">PREPARATION</text>
+    <text x="120" y="80" font-size="14" fill="#39ff14">90 SEC</text>
+
+    <text x="120" y="115" font-size="13" fill="#ffffff" font-family="'VT323', monospace">► Competing teams type arguments on their phones</text>
+    <text x="120" y="138" font-size="13" fill="#ffffff" font-family="'VT323', monospace">► Multiple teammates can submit — all attacks accumulate</text>
+    <text x="120" y="161" font-size="13" fill="#ffffff" font-family="'VT323', monospace">► Live feed appears on the projector and on every other student's phone</text>
+    <text x="120" y="184" font-size="13" fill="#00fff0" font-family="'VT323', monospace">► When prep ends, AI judge analyzes ALL of each team's attacks</text>
+
+    <!-- chat bubble visual -->
+    <g transform="translate(1180, 100)">
+      <rect x="-70" y="-50" width="140" height="100" fill="#0a0a2e" stroke="#39ff14" stroke-width="2"/>
+      <text x="-58" y="-25" font-size="9" fill="#00fff0">P1: data risk</text>
+      <text x="-58" y="-5" font-size="9" fill="#00fff0">P2: censorship</text>
+      <text x="-58" y="15" font-size="9" fill="#00fff0">P3: kids attn</text>
+      <text x="-58" y="35" font-size="9" fill="#39ff14">|</text>
+    </g>
+  </g>
+  <line x1="800" y1="1400" x2="800" y2="1440" stroke="#ffcc00" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <!-- ===== STEP 6: DEBATE ===== -->
+  <g transform="translate(100, 1450)">
+    <rect x="0" y="0" width="1400" height="160" fill="#0f0f1e" stroke="#ff0040" stroke-width="3"/>
+    <rect x="-6" y="-6" width="1412" height="172" fill="none" stroke="#ff0040" stroke-width="2"/>
+    <circle cx="60" cy="60" r="28" fill="#ff0040"/>
+    <text x="60" y="68" font-size="22" fill="#ffffff" text-anchor="middle">6</text>
+    <text x="120" y="50" font-size="22" fill="#ff0040" filter="url(#glow-pink)">FREE DEBATE</text>
+    <text x="120" y="80" font-size="14" fill="#39ff14">120 SEC</text>
+
+    <text x="120" y="115" font-size="13" fill="#ffffff" font-family="'VT323', monospace">► Two teams stand at the front and debate the topic out loud</text>
+    <text x="120" y="138" font-size="13" fill="#ffffff" font-family="'VT323', monospace">► One single 2-minute timer · Free format, no rigid speaking order</text>
+
+    <!-- mic visual -->
+    <g transform="translate(1180, 80)">
+      <rect x="-15" y="-40" width="30" height="40" fill="#ff0040" stroke="#ffffff" stroke-width="2"/>
+      <line x1="0" y1="0" x2="0" y2="20" stroke="#ffffff" stroke-width="3"/>
+      <line x1="-20" y1="20" x2="20" y2="20" stroke="#ffffff" stroke-width="3"/>
+      <text x="0" y="50" font-size="11" fill="#ff0040" text-anchor="middle">SPEAK!</text>
+    </g>
+  </g>
+  <line x1="800" y1="1610" x2="800" y2="1650" stroke="#ffcc00" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <!-- ===== STEP 7: CHEER ===== -->
+  <g transform="translate(100, 1660)">
+    <rect x="0" y="0" width="1400" height="140" fill="#0f0f1e" stroke="#ffcc00" stroke-width="3"/>
+    <rect x="-6" y="-6" width="1412" height="152" fill="none" stroke="#ffcc00" stroke-width="2"/>
+    <circle cx="60" cy="60" r="28" fill="#ffcc00"/>
+    <text x="60" y="68" font-size="22" fill="#0a0a2e" text-anchor="middle">7</text>
+    <text x="120" y="50" font-size="22" fill="#ffcc00" filter="url(#glow-yellow)">AUDIENCE CHEER</text>
+    <text x="120" y="80" font-size="14" fill="#39ff14">20 SEC</text>
+
+    <text x="120" y="115" font-size="13" fill="#ffffff" font-family="'VT323', monospace">► Other 4 groups vote for their favorite — counts as 30% of final score</text>
+
+    <!-- bar visual -->
+    <g transform="translate(1180, 75)">
+      <rect x="-80" y="-15" width="60" height="30" fill="#ff0040"/>
+      <rect x="-20" y="-15" width="100" height="30" fill="#0080ff"/>
+      <text x="-50" y="40" font-size="10" fill="#ff0040" text-anchor="middle">A 38%</text>
+      <text x="30" y="40" font-size="10" fill="#0080ff" text-anchor="middle">B 62%</text>
+    </g>
+  </g>
+  <line x1="800" y1="1800" x2="800" y2="1840" stroke="#ffcc00" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <!-- ===== STEP 8: JUDGE ===== -->
+  <g transform="translate(100, 1850)">
+    <rect x="0" y="0" width="1400" height="180" fill="#0f0f1e" stroke="#ffcc00" stroke-width="3"/>
+    <rect x="-6" y="-6" width="1412" height="192" fill="none" stroke="#ffcc00" stroke-width="2"/>
+    <circle cx="60" cy="60" r="28" fill="#ffcc00"/>
+    <text x="60" y="68" font-size="22" fill="#0a0a2e" text-anchor="middle">8</text>
+    <text x="120" y="50" font-size="22" fill="#ffcc00" filter="url(#glow-yellow)">JUDGES SCORE</text>
+    <text x="120" y="80" font-size="14" fill="#39ff14">~ 30 SEC</text>
+
+    <text x="120" y="115" font-size="13" fill="#ffffff" font-family="'VT323', monospace">► Two judges score each team 1-10 on their phones</text>
+    <text x="120" y="138" font-size="13" fill="#ffffff" font-family="'VT323', monospace">► AI commentary appears as a private hint to help judges decide</text>
+    <text x="120" y="161" font-size="13" fill="#00fff0" font-family="'VT323', monospace">► Final score = (judge avg × 70%) + (audience cheer × 30%)</text>
+
+    <!-- scale visual -->
+    <g transform="translate(1180, 95)">
+      <line x1="0" y1="-30" x2="0" y2="30" stroke="#ffcc00" stroke-width="3"/>
+      <line x1="-50" y1="-15" x2="50" y2="-15" stroke="#ffcc00" stroke-width="3"/>
+      <circle cx="-50" cy="0" r="15" fill="none" stroke="#ff0040" stroke-width="2"/>
+      <circle cx="50" cy="0" r="15" fill="none" stroke="#0080ff" stroke-width="2"/>
+      <text x="0" y="55" font-size="10" fill="#ffcc00" text-anchor="middle">JUDGE</text>
+    </g>
+  </g>
+  <line x1="800" y1="2030" x2="800" y2="2070" stroke="#ffcc00" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <!-- ===== STEP 9: RESULT ===== -->
+  <g transform="translate(100, 2080)">
+    <rect x="0" y="0" width="1400" height="140" fill="#0f0f1e" stroke="#ff00aa" stroke-width="3"/>
+    <rect x="-6" y="-6" width="1412" height="152" fill="none" stroke="#ff00aa" stroke-width="2"/>
+    <circle cx="60" cy="60" r="28" fill="#ff00aa"/>
+    <text x="60" y="68" font-size="22" fill="#ffffff" text-anchor="middle">9</text>
+    <text x="120" y="50" font-size="22" fill="#ff00aa" filter="url(#glow-pink)">MATCH RESULT</text>
+    <text x="120" y="80" font-size="14" fill="#39ff14">~ 15 SEC</text>
+
+    <text x="120" y="115" font-size="13" fill="#ffffff" font-family="'VT323', monospace">► Winning team announced with confetti animation · Both scores shown</text>
+
+    <!-- crown -->
+    <g transform="translate(1180, 70)">
+      <polygon points="-30,15 -20,-15 -10,5 0,-25 10,5 20,-15 30,15" fill="#ffcc00" filter="url(#glow-yellow)"/>
+      <rect x="-30" y="15" width="60" height="10" fill="#ffcc00"/>
+      <text x="0" y="50" font-size="11" fill="#ffcc00" text-anchor="middle">WINNER</text>
+    </g>
+  </g>
+
+  <!-- Loop arrow back to step 3 -->
+  <g>
+    <path d="M 80 2150 L 30 2150 L 30 870 L 100 870" fill="none" stroke="#39ff14" stroke-width="3" stroke-dasharray="8 4" marker-end="url(#arrow)"/>
+    <text x="20" y="1500" font-size="11" fill="#39ff14" transform="rotate(-90, 20, 1500)" text-anchor="middle">LOOP BACK FOR NEXT MATCH</text>
+  </g>
+
+  <!-- Arrow down to step 10 (after all 3 matches) -->
+  <line x1="800" y1="2220" x2="800" y2="2260" stroke="#ffcc00" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <!-- ===== STEP 10: AWARDS ===== -->
+  <g transform="translate(100, 2270)">
+    <rect x="0" y="0" width="1400" height="120" fill="#0f0f1e" stroke="#ffcc00" stroke-width="3"/>
+    <rect x="-6" y="-6" width="1412" height="132" fill="none" stroke="#ffcc00" stroke-width="2"/>
+    <circle cx="60" cy="60" r="28" fill="#ffcc00"/>
+    <text x="60" y="63" font-size="20" fill="#0a0a2e" text-anchor="middle">10</text>
+    <text x="120" y="50" font-size="22" fill="#ffcc00" filter="url(#glow-yellow)">CROWN THE CHAMPION</text>
+    <text x="120" y="80" font-size="14" fill="#39ff14">~ 1 MIN</text>
+    <text x="120" y="105" font-size="13" fill="#ffffff" font-family="'VT323', monospace">► Leaderboard reveal · Team with most XP across all 3 matches wins</text>
+
+    <!-- trophy -->
+    <g transform="translate(1180, 60)">
+      <text x="0" y="20" font-size="60" fill="#ffcc00" text-anchor="middle" filter="url(#glow-yellow)">♛</text>
+    </g>
+  </g>
+</svg>

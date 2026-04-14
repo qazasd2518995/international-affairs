@@ -80,8 +80,10 @@ export interface DbMatch {
   team_b_stance: string
   team_a_arguments: string[]
   team_b_arguments: string[]
-  ai_analysis_a: { teamId: string; score: number; commentary: string } | null
-  ai_analysis_b: { teamId: string; score: number; commentary: string } | null
+  ai_analysis_a: { teamId: string; score: number; commentary: string; perspective?: string } | null
+  ai_analysis_b: { teamId: string; score: number; commentary: string; perspective?: string } | null
+  ai_analysis_a_judge2: { teamId: string; score: number; commentary: string; perspective?: string } | null
+  ai_analysis_b_judge2: { teamId: string; score: number; commentary: string; perspective?: string } | null
   winner: string | null
   completed: boolean
   created_at: string

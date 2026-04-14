@@ -61,6 +61,8 @@ export interface Match {
   teamBArguments: string[]
   aiAnalysisA?: AIAnalysis
   aiAnalysisB?: AIAnalysis
+  aiAnalysisAJudge2?: AIAnalysis
+  aiAnalysisBJudge2?: AIAnalysis
   judgeScores: JudgeScore[]
   audienceVotes: AudienceVote[]
   winner?: string     // team id
@@ -71,6 +73,7 @@ export interface AIAnalysis {
   teamId: string
   score: number       // 1-10
   commentary: string  // 6-8 sentences, conversational
+  perspective?: 'logic' | 'delivery'  // which lens this analysis used
 }
 
 export interface JudgeScore {

@@ -587,34 +587,40 @@ function JudgeContent() {
                   </div>
                 </div>
 
-                {/* AI commentary recap so judges can review what AI said */}
-                {(currentMatch.aiAnalysisA || currentMatch.aiAnalysisB) && (
-                  <div className="pixel-panel-sm pixel-panel">
-                    <p className="font-pixel text-pixel-sm text-neon-cyan mb-2">
-                      ► AI RECAP
-                    </p>
-                    {currentMatch.aiAnalysisA && (
-                      <div className="mb-3">
-                        <p className="font-pixel text-pixel-sm text-team-red mb-1">
-                          {game.teams[currentMatch.teamA]?.name} ({currentMatch.aiAnalysisA.score}/10)
-                        </p>
-                        <p className="font-terminal text-terminal-sm text-text-dim">
-                          &gt; {currentMatch.aiAnalysisA.commentary}
-                        </p>
-                      </div>
-                    )}
-                    {currentMatch.aiAnalysisB && (
-                      <div>
-                        <p className="font-pixel text-pixel-sm text-team-blue mb-1">
-                          {game.teams[currentMatch.teamB]?.name} ({currentMatch.aiAnalysisB.score}/10)
-                        </p>
-                        <p className="font-terminal text-terminal-sm text-text-dim">
-                          &gt; {currentMatch.aiAnalysisB.commentary}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
+                {/* AI commentary recap — only show the lens THIS judge used */}
+                {(() => {
+                  const analysisA = judgeId === 'judge1' ? currentMatch.aiAnalysisA : currentMatch.aiAnalysisAJudge2
+                  const analysisB = judgeId === 'judge1' ? currentMatch.aiAnalysisB : currentMatch.aiAnalysisBJudge2
+                  const lensLabel = judgeId === 'judge1' ? 'LOGIC LENS' : 'DELIVERY LENS'
+                  if (!analysisA && !analysisB) return null
+                  return (
+                    <div className="pixel-panel-sm pixel-panel">
+                      <p className="font-pixel text-pixel-sm text-neon-cyan mb-2">
+                        ► AI RECAP · {lensLabel}
+                      </p>
+                      {analysisA && (
+                        <div className="mb-3">
+                          <p className="font-pixel text-pixel-sm text-team-red mb-1">
+                            {game.teams[currentMatch.teamA]?.name} ({analysisA.score}/10)
+                          </p>
+                          <p className="font-terminal text-terminal-sm text-text-dim">
+                            &gt; {analysisA.commentary}
+                          </p>
+                        </div>
+                      )}
+                      {analysisB && (
+                        <div>
+                          <p className="font-pixel text-pixel-sm text-team-blue mb-1">
+                            {game.teams[currentMatch.teamB]?.name} ({analysisB.score}/10)
+                          </p>
+                          <p className="font-terminal text-terminal-sm text-text-dim">
+                            &gt; {analysisB.commentary}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })()}
               </motion.div>
             )
           })()}

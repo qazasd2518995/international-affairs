@@ -104,7 +104,12 @@ export function JudgePanel({ judgeId, match, teamA, teamB, onSubmit }: JudgePane
       >
         <div className="text-center mb-6">
           <p className="font-pixel text-pixel-base neon-glow-yellow">
-            ★ {judgeId === 'judge1' ? 'JUDGE 1' : 'JUDGE 2'} ★
+            ★ {judgeId === 'judge1' ? 'JUDGE 1 · LOGIC LENS' : 'JUDGE 2 · DELIVERY LENS'} ★
+          </p>
+          <p className="font-terminal text-terminal-base text-text-dim mt-1">
+            {judgeId === 'judge1'
+              ? '> Focus on reasoning, evidence, structure'
+              : '> Focus on clarity, confidence, persuasion'}
           </p>
         </div>
 
@@ -115,7 +120,7 @@ export function JudgePanel({ judgeId, match, teamA, teamB, onSubmit }: JudgePane
               value={scoreA}
               onChange={setScoreA}
               color="text-team-red"
-              analysis={match.aiAnalysisA}
+              analysis={judgeId === 'judge1' ? match.aiAnalysisA : match.aiAnalysisAJudge2}
             />
 
             <ScoreSection
@@ -123,7 +128,7 @@ export function JudgePanel({ judgeId, match, teamA, teamB, onSubmit }: JudgePane
               value={scoreB}
               onChange={setScoreB}
               color="text-team-blue"
-              analysis={match.aiAnalysisB}
+              analysis={judgeId === 'judge1' ? match.aiAnalysisB : match.aiAnalysisBJudge2}
             />
 
             <motion.button

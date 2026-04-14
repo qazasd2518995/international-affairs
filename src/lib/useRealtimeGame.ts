@@ -49,6 +49,8 @@ const toMatch = (db: DbMatch): Match => ({
   teamBArguments: db.team_b_arguments || [],
   aiAnalysisA: db.ai_analysis_a || undefined,
   aiAnalysisB: db.ai_analysis_b || undefined,
+  aiAnalysisAJudge2: db.ai_analysis_a_judge2 || undefined,
+  aiAnalysisBJudge2: db.ai_analysis_b_judge2 || undefined,
   judgeScores: [],
   audienceVotes: [],
   winner: db.winner || undefined,
@@ -719,8 +721,16 @@ export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & 
     const topicObj = TOPICS.find((t) => t.id === match.topicId)
     if (!topicObj) return
 
-    // Trigger AI analysis for each side in parallel (so both show up ~same time)
-    const analyze = async (teamId: string, args: string[], aiField: 'ai_analysis_a' | 'ai_analysis_b') => {
+    // Generate TWO analyses per team — Judge 1 sees a logic-focused critique,
+    // Judge 2 sees a persuasion/delivery-focused one. This way the two judges
+    // don't just copy the same AI suggestion, and the final scoring has more
+    // breadth.
+    const analyze = async (
+      teamId: string,
+      args: string[],
+      aiField: 'ai_analysis_a' | 'ai_analysis_b' | 'ai_analysis_a_judge2' | 'ai_analysis_b_judge2',
+      perspective: 'logic' | 'delivery',
+    ) => {
       if (args.length === 0) return
       const team = state.teams[teamId]
       const stance = match.teamA === teamId ? match.teamAStance : match.teamBStance
@@ -734,6 +744,7 @@ export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & 
             stance,
             arguments: args,
             teamName: team?.name || 'Team',
+            perspective,
           }),
         })
 
@@ -742,18 +753,27 @@ export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & 
           await supabase
             .from('matches')
             .update({
-              [aiField]: { teamId, score: analysis.score, commentary: analysis.commentary },
+              [aiField]: {
+                teamId,
+                score: analysis.score,
+                commentary: analysis.commentary,
+                perspective,
+              },
             })
             .eq('id', matchId)
         }
       } catch (err) {
-        console.error('AI analysis failed for', teamId, err)
+        console.error('AI analysis failed for', teamId, perspective, err)
       }
     }
 
     await Promise.all([
-      analyze(match.teamA, teamAArgs, 'ai_analysis_a'),
-      analyze(match.teamB, teamBArgs, 'ai_analysis_b'),
+      // Judge 1 = logic lens
+      analyze(match.teamA, teamAArgs, 'ai_analysis_a', 'logic'),
+      analyze(match.teamB, teamBArgs, 'ai_analysis_b', 'logic'),
+      // Judge 2 = delivery lens
+      analyze(match.teamA, teamAArgs, 'ai_analysis_a_judge2', 'delivery'),
+      analyze(match.teamB, teamBArgs, 'ai_analysis_b_judge2', 'delivery'),
     ])
   }, [state.matches, state.teams, state.liveArguments])
 
