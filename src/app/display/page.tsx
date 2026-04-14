@@ -42,6 +42,24 @@ function DisplayContent() {
 
   const game = useRealtimeGame(sessionId || undefined)
 
+  // If the host starts a fresh game while we were showing the previous one's
+  // final-awards, pick up the new session automatically.
+  useEffect(() => {
+    if (sessionIdParam) return // URL-pinned session shouldn't auto-swap
+    if (game.phase !== 'final-awards') return
+    if (!sessionId) return
+
+    const checkForNewer = async () => {
+      const latest = await findLatestSessionId()
+      if (latest && latest !== sessionId) {
+        setSessionId(latest)
+      }
+    }
+
+    const interval = setInterval(checkForNewer, 5000)
+    return () => clearInterval(interval)
+  }, [game.phase, sessionId, sessionIdParam])
+
   const currentTopic = game.currentTopicId ? TOPICS.find((t) => t.id === game.currentTopicId) : null
   const currentMatch = game.currentMatchId ? game.matches.find((m) => m.id === game.currentMatchId) : null
   const allMatches = [...game.matches].sort((a, b) => a.id.localeCompare(b.id))

@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { StageBackground, Logo, LoginForm, AudienceVoting, ArgumentInput, SyncedCountdown } from '@/components'
 import { useRealtimeGame } from '@/lib/useRealtimeGame'
+import { findLatestSessionId } from '@/lib/supabase'
 import { TOPICS } from '@/lib/types'
 
 function HomeContent() {
@@ -54,6 +55,29 @@ function HomeContent() {
       setIsLoggedIn(true)
     }
   }, [])
+
+  // If the host starts a NEW game while students still have the old session
+  // cached in localStorage, we'd be stuck showing "ENDING / Awards" forever.
+  // Poll for a newer session and, if one exists, drop the old identity so the
+  // student lands back on the LoginForm for the fresh game.
+  useEffect(() => {
+    if (game.phase !== 'final-awards') return
+    if (!sessionId) return
+
+    const checkForNewerSession = async () => {
+      const latest = await findLatestSessionId()
+      if (latest && latest !== sessionId) {
+        localStorage.removeItem('mda_player_id')
+        localStorage.removeItem('mda_team_id')
+        localStorage.removeItem('mda_session_id')
+        window.location.href = `/?session=${latest}`
+      }
+    }
+
+    checkForNewerSession()
+    const interval = setInterval(checkForNewerSession, 5000)
+    return () => clearInterval(interval)
+  }, [game.phase, sessionId])
 
   const handleAudienceVote = (votedFor: string) => {
     if (!playerId || !currentMatch) return
