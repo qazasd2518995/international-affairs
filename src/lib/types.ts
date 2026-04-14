@@ -125,82 +125,85 @@ export const CATEGORY_INFO: Record<TopicCategory, { label: string; labelZh: stri
 }
 
 // Pre-defined topics
+// Each question is phrased so that both AGREE and DISAGREE have strong,
+// balanced arguments — no loaded words ("forced", "banned", "disrespectful")
+// that push either side into a weaker position.
 export const TOPICS: Topic[] = [
-  // Difficulty 1 (Warm-up)
+  // Difficulty 1 (Warm-up) — everyday situations with room for both sides
   {
     id: 'topic-1',
-    question: 'Should you always finish everything on your plate when eating at a foreign host\'s home?',
+    question: 'When dining with a foreign host, guests should finish everything on their plate.',
     category: 'everyday-life',
     difficulty: 1,
   },
   {
     id: 'topic-2',
-    question: 'Is tipping culture in the US unfair to tourists who don\'t know the rules?',
+    question: 'Tipping should be included in the price, not left to customers to decide.',
     category: 'travel-etiquette',
     difficulty: 1,
   },
   {
     id: 'topic-3',
-    question: 'Should K-pop idols be forced to learn the language of every country they tour in?',
+    question: 'Celebrities touring abroad should learn basic greetings in the host country\'s language.',
     category: 'everyday-life',
     difficulty: 1,
   },
   {
     id: 'topic-4',
-    question: 'Is it rude to wear shorts when visiting temples or churches abroad?',
+    question: 'Tourists should follow strict dress codes when visiting religious sites abroad.',
     category: 'history-heritage',
     difficulty: 1,
   },
 
-  // Difficulty 2 (Medium)
+  // Difficulty 2 (Medium) — genuinely two-sided policy questions
   {
     id: 'topic-5',
-    question: 'Should TikTok be banned in your country, or is it just political theatre?',
+    question: 'Governments should be allowed to restrict foreign social media apps on national security grounds.',
     category: 'global-politics',
     difficulty: 2,
   },
   {
     id: 'topic-6',
-    question: 'If Google Translate is "good enough," are foreign language classes a waste of time?',
+    question: 'Schools should still require foreign language classes in the age of AI translation.',
     category: 'tech-future',
     difficulty: 2,
   },
   {
     id: 'topic-7',
-    question: 'Should tourists be charged double for visiting over-crowded places like Kyoto or Venice?',
+    question: 'Cities like Kyoto and Venice should charge higher fees to tourists to limit overcrowding.',
     category: 'travel-etiquette',
     difficulty: 2,
   },
   {
     id: 'topic-8',
-    question: 'Is it cultural appreciation or appropriation when foreign chefs "fix" Asian food for Western taste?',
+    question: 'Adapting traditional cuisines for foreign markets is cultural exchange, not disrespect.',
     category: 'everyday-life',
     difficulty: 2,
   },
 
-  // Difficulty 3 (Challenge)
+  // Difficulty 3 (Challenge) — harder ethical tradeoffs, still balanced
   {
     id: 'topic-9',
-    question: 'Should Western museums return looted artifacts even if they preserve them better?',
+    question: 'Museums should return culturally significant artifacts to their countries of origin.',
     category: 'global-politics',
     difficulty: 3,
   },
   {
     id: 'topic-10',
-    question: 'If AI deepfakes can start wars, should the UN regulate AI like nuclear weapons?',
+    question: 'Artificial intelligence should be regulated by an international treaty, like nuclear weapons.',
     category: 'tech-future',
     difficulty: 3,
   },
   {
     id: 'topic-11',
-    question: 'Is Taiwan\'s international status a "One China" issue, or a democracy issue the world avoids?',
+    question: 'Economic power matters more than cultural influence in shaping global affairs today.',
     category: 'history-heritage',
     difficulty: 3,
   },
   {
     id: 'topic-12',
-    question: 'Is "authentic food" a meaningful concept, or just marketing for tourists?',
-    category: 'everyday-life',
+    question: 'Wealthy countries have a duty to accept refugees from climate-affected nations.',
+    category: 'global-politics',
     difficulty: 3,
   },
 ]
