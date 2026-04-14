@@ -235,31 +235,25 @@ function AdminContent() {
 
   const handleCalculateResult = async () => {
     if (!currentMatch) return
-    // Missing judges default to 5/5 (matches the confirm-dialog warning).
-    // Without this fallback, a missing judge counted as 0, which meant a
-    // single audience vote could hand a team 3.0 points from thin air.
-    const JUDGE_DEFAULT = 5
     const judgeCount = currentMatch.judgeScores.length
-    const judgeScoreA = judgeCount > 0
-      ? currentMatch.judgeScores.reduce((sum, s) => sum + s.teamAScore, 0) / judgeCount
-      : JUDGE_DEFAULT
-    const judgeScoreB = judgeCount > 0
-      ? currentMatch.judgeScores.reduce((sum, s) => sum + s.teamBScore, 0) / judgeCount
-      : JUDGE_DEFAULT
-    const hasAudienceVotes = currentMatch.audienceVotes.length > 0
+    const audienceCount = currentMatch.audienceVotes.length
     const votesForA = currentMatch.audienceVotes.filter((v) => v.votedFor === currentMatch.teamA).length
     const votesForB = currentMatch.audienceVotes.filter((v) => v.votedFor === currentMatch.teamB).length
-    // No audience votes = split the audience weight 50/50 instead of giving
-    // it all to whoever happened to get the one stray vote.
-    const audiencePercentA = hasAudienceVotes
-      ? (votesForA / currentMatch.audienceVotes.length) * 100
-      : 50
-    const audiencePercentB = hasAudienceVotes
-      ? (votesForB / currentMatch.audienceVotes.length) * 100
-      : 50
+
+    // Missing data counts as 0 — no invented defaults. An unjudged +
+    // unvoted match simply scores 0/0 for both teams.
+    const judgeScoreA = judgeCount > 0
+      ? currentMatch.judgeScores.reduce((sum, s) => sum + s.teamAScore, 0) / judgeCount
+      : 0
+    const judgeScoreB = judgeCount > 0
+      ? currentMatch.judgeScores.reduce((sum, s) => sum + s.teamBScore, 0) / judgeCount
+      : 0
+    const audiencePercentA = audienceCount > 0 ? (votesForA / audienceCount) * 100 : 0
+    const audiencePercentB = audienceCount > 0 ? (votesForB / audienceCount) * 100 : 0
+
     const finalScoreA = judgeScoreA * 0.7 + (audiencePercentA / 10) * 0.3
     const finalScoreB = judgeScoreB * 0.7 + (audiencePercentB / 10) * 0.3
-    const winner = finalScoreA > finalScoreB ? currentMatch.teamA : currentMatch.teamB
+    const winner = finalScoreA >= finalScoreB ? currentMatch.teamA : currentMatch.teamB
     await game.updateMatchResult(currentMatch.id, winner)
     const teamA = game.teams[currentMatch.teamA]
     const teamB = game.teams[currentMatch.teamB]
@@ -282,22 +276,19 @@ function AdminContent() {
 
   const getMatchScores = () => {
     if (!currentMatch) return null
-    const JUDGE_DEFAULT = 5
     const judgeCount = currentMatch.judgeScores.length
-    const judgeScoreA = judgeCount > 0
-      ? currentMatch.judgeScores.reduce((sum, s) => sum + s.teamAScore, 0) / judgeCount
-      : JUDGE_DEFAULT
-    const judgeScoreB = judgeCount > 0
-      ? currentMatch.judgeScores.reduce((sum, s) => sum + s.teamBScore, 0) / judgeCount
-      : JUDGE_DEFAULT
-    const hasAudienceVotes = currentMatch.audienceVotes.length > 0
+    const audienceCount = currentMatch.audienceVotes.length
     const votesForA = currentMatch.audienceVotes.filter((v) => v.votedFor === currentMatch.teamA).length
     const votesForB = currentMatch.audienceVotes.filter((v) => v.votedFor === currentMatch.teamB).length
     return {
-      judgeScoreA,
-      judgeScoreB,
-      audiencePercentA: hasAudienceVotes ? (votesForA / currentMatch.audienceVotes.length) * 100 : 50,
-      audiencePercentB: hasAudienceVotes ? (votesForB / currentMatch.audienceVotes.length) * 100 : 50,
+      judgeScoreA: judgeCount > 0
+        ? currentMatch.judgeScores.reduce((sum, s) => sum + s.teamAScore, 0) / judgeCount
+        : 0,
+      judgeScoreB: judgeCount > 0
+        ? currentMatch.judgeScores.reduce((sum, s) => sum + s.teamBScore, 0) / judgeCount
+        : 0,
+      audiencePercentA: audienceCount > 0 ? (votesForA / audienceCount) * 100 : 0,
+      audiencePercentB: audienceCount > 0 ? (votesForB / audienceCount) * 100 : 0,
     }
   }
 
@@ -894,10 +885,9 @@ function AdminContent() {
                   onClick={async () => {
                     const scoreCount = currentMatch?.judgeScores.length ?? 0
                     if (scoreCount < 2) {
-                      const missing = 2 - scoreCount
                       const ok = window.confirm(
                         `Only ${scoreCount}/2 judges have scored.\n\n` +
-                        `Reveal the result anyway? ${missing === 2 ? 'Both' : 'The missing'} judge's score will default to 5.`
+                        `Reveal the result anyway? ${scoreCount === 0 ? 'Audience votes will decide the whole match.' : 'Only the submitted judge score counts.'}`
                       )
                       if (!ok) return
                     }
