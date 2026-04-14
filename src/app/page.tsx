@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { StageBackground, Logo, LoginForm, VotingPanel, AudienceVoting, ArgumentInput, SyncedCountdown } from '@/components'
+import { StageBackground, Logo, LoginForm, AudienceVoting, ArgumentInput, SyncedCountdown } from '@/components'
 import { useRealtimeGame } from '@/lib/useRealtimeGame'
 import { TOPICS } from '@/lib/types'
 
@@ -54,11 +54,6 @@ function HomeContent() {
       setIsLoggedIn(true)
     }
   }, [])
-
-  const handleVote = (stance: 'agree' | 'disagree' | 'not-sure') => {
-    if (!playerId || !playerTeamId || !game.currentTopicId) return
-    game.submitVote(playerId, playerTeamId, game.currentTopicId, stance)
-  }
 
   const handleAudienceVote = (votedFor: string) => {
     if (!playerId || !currentMatch) return
@@ -173,25 +168,6 @@ function HomeContent() {
                   &gt; Look at the big screen!
                 </p>
               </motion.div>
-            )}
-
-            {/* Voting */}
-            {game.phase === 'voting' && currentTopic && (
-              <div className="space-y-3">
-                <SyncedCountdown
-                  duration={30}
-                  startedAt={game.phaseStartedAt}
-                  label="VOTING"
-                  size="sm"
-                />
-                <VotingPanel
-                  topic={currentTopic}
-                  playerId={playerId!}
-                  teamId={playerTeamId!}
-                  onVote={handleVote}
-                  currentVote={game.votes.find((v) => v.playerId === playerId)?.stance}
-                />
-              </div>
             )}
 
             {/* Matchup reveal */}

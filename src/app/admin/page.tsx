@@ -7,7 +7,6 @@ import {
   StageBackground,
   Logo,
   TopicReveal,
-  VoteResults,
   AllMatchups,
   SyncedCountdown,
   SkipButton,
@@ -80,7 +79,7 @@ function AdminContent() {
     await game.setCurrentTopic(topic.id)
     setUsedTopicIds((prev) => [...prev, topic.id])
 
-    // Round 2/3: matches exist already, stamp the fresh topic onto the next
+    // If matches exist (rounds 2/3), stamp the fresh topic onto the next
     // un-played match so it shows the right question during prep/debate.
     if (game.matches.length > 0) {
       const nextMatch = allMatches.find((m) => !m.completed && m.id !== game.currentMatchId)
@@ -92,91 +91,64 @@ function AdminContent() {
     }
   }
 
-  // Round 1 flow  : lobby → topic-reveal → voting → matchup-reveal → prep → debate → audience-vote → scoring → result → leaderboard
-  // Round 2/3 flow:               topic-reveal            → matchup-reveal → prep → debate → audience-vote → scoring → result → leaderboard
-  //
-  // The only differences for R2/R3 are: skip voting (no re-vote) and
-  // matchup-reveal just flashes "next matchup" instead of pairing new teams.
+  // Unified flow for all 3 matches (no per-match voting, no re-pairing):
+  //   lobby → topic-reveal → matchup-reveal → prep → debate → audience-vote →
+  //   scoring → result → (back to topic-reveal if more matches, else leaderboard)
   const handleNextPhase = async () => {
-    const isFirstMatch = game.matches.length === 0
-    const transitions: Record<string, GamePhase> = isFirstMatch
-      ? {
-          'lobby': 'topic-reveal',
-          'topic-reveal': 'voting',
-          'voting': 'matchup-reveal',
-          'matchup-reveal': 'preparation',
-          'preparation': 'debate',
-          'debate': 'audience-vote',
-          'audience-vote': 'scoring',
-          'scoring': 'result',
-          'result': 'leaderboard',
-          'leaderboard': 'final-awards',
-        }
-      : {
-          // After round 1, voting is skipped — matchup-reveal just announces the next pair
-          'topic-reveal': 'matchup-reveal',
-          'matchup-reveal': 'preparation',
-          'preparation': 'debate',
-          'debate': 'audience-vote',
-          'audience-vote': 'scoring',
-          'scoring': 'result',
-          'result': 'leaderboard',
-          'leaderboard': 'final-awards',
-        }
+    const transitions: Record<string, GamePhase> = {
+      'lobby': 'topic-reveal',
+      'topic-reveal': 'matchup-reveal',
+      'matchup-reveal': 'preparation',
+      'preparation': 'debate',
+      'debate': 'audience-vote',
+      'audience-vote': 'scoring',
+      'scoring': 'result',
+      'result': 'leaderboard',
+      'leaderboard': 'final-awards',
+    }
 
     const nextPhase = transitions[game.phase]
     if (!nextPhase) return
 
-    // Building matchups only happens once, entering matchup-reveal in round 1
-    if (nextPhase === 'matchup-reveal' && isFirstMatch) {
-      await createMatchesFromVotes()
+    // Lock in the 3 matchups on first transition out of lobby — no class vote,
+    // just random pairing with random stance assignment so both sides feel fair.
+    if (game.phase === 'lobby' && game.matches.length === 0) {
+      await autoCreateMatches()
     }
 
     await game.updatePhase(nextPhase)
   }
 
-  // Round 1 only: build all 3 matchups from the class vote. Match 1 keeps the
-  // drawn topic; matches 2 and 3 get fresh topics when we enter their rounds.
-  const createMatchesFromVotes = async () => {
-    if (!game.currentTopicId) return
-    if (game.matches.length > 0) return // already created once
-    const teamStances: { teamId: string; agreePercent: number; disagreePercent: number }[] = []
+  // Auto-pair all 6 groups into 3 matches. Randomize team order and which side
+  // defends "agree" vs "disagree" so no one can argue the assignment was biased.
+  const autoCreateMatches = async () => {
+    if (game.matches.length > 0) return
+    const teamIds = Object.values(game.teams).map((t) => t.id)
+    if (teamIds.length < 2) return
 
-    Object.values(game.teams).forEach((team) => {
-      const teamVotes = game.votes.filter((v) => v.teamId === team.id)
-      const total = teamVotes.length || 1
-      const agreeCount = teamVotes.filter((v) => v.stance === 'agree').length
-      const disagreeCount = teamVotes.filter((v) => v.stance === 'disagree').length
-      teamStances.push({
-        teamId: team.id,
-        agreePercent: (agreeCount / total) * 100,
-        disagreePercent: (disagreeCount / total) * 100,
-      })
-    })
+    // Fisher-Yates shuffle
+    const shuffled = [...teamIds]
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+    }
 
-    const sortedByAgree = [...teamStances].sort((a, b) => b.agreePercent - a.agreePercent)
-    const sortedByDisagree = [...teamStances].sort((a, b) => b.disagreePercent - a.disagreePercent)
-
-    const paired: Set<string> = new Set()
     const now = Date.now()
+    for (let i = 0; i < Math.floor(shuffled.length / 2); i++) {
+      const firstTeam = shuffled[i * 2]
+      const secondTeam = shuffled[i * 2 + 1]
+      // Flip a coin for who gets "agree"
+      const firstIsAgree = Math.random() < 0.5
+      const teamAId = firstIsAgree ? firstTeam : secondTeam
+      const teamBId = firstIsAgree ? secondTeam : firstTeam
 
-    for (let i = 0; i < Math.floor(teamStances.length / 2); i++) {
-      const teamA = sortedByAgree.find((t) => !paired.has(t.teamId))
-      if (!teamA) break
-      paired.add(teamA.teamId)
-
-      const teamB = sortedByDisagree.find((t) => !paired.has(t.teamId))
-      if (!teamB) break
-      paired.add(teamB.teamId)
-
-      // Match IDs sort lexicographically in display order: match-01, match-02, match-03
       const matchNum = String(i + 1).padStart(2, '0')
       const match: Omit<Match, 'judgeScores' | 'audienceVotes'> = {
         id: `match-${matchNum}-${now}`,
         round: 1,
-        topicId: i === 0 ? game.currentTopicId : '', // only first match has topic yet
-        teamA: teamA.teamId,
-        teamB: teamB.teamId,
+        topicId: '', // stamped on by handleTopicReveal when each match begins
+        teamA: teamAId,
+        teamB: teamBId,
         teamAStance: 'agree',
         teamBStance: 'disagree',
         teamAArguments: [],
@@ -436,48 +408,6 @@ function AdminContent() {
                     </div>
                   </div>
                 )}
-              </motion.div>
-            )}
-
-            {game.phase === 'voting' && (
-              <motion.div
-                key="voting-content"
-                className="space-y-6"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
-                {currentTopic && (
-                  <div className="max-w-2xl mx-auto dialogue-box">
-                    <p className="font-terminal text-terminal-base md:text-terminal-lg">
-                      {currentTopic.question}
-                    </p>
-                  </div>
-                )}
-
-                <SyncedCountdown
-                  duration={30}
-                  startedAt={game.phaseStartedAt}
-                  label="VOTING"
-                  size="md"
-                  onComplete={handleNextPhase}
-                />
-
-                <div className="flex justify-center">
-                  <SkipButton onClick={handleNextPhase} label="Skip Voting" variant="skip" />
-                </div>
-
-                <VoteResults votes={game.votes} totalVoters={Object.keys(game.players).length} />
-
-                <div className="text-center">
-                  <motion.button
-                    className="pixel-btn pixel-btn-pink"
-                    onClick={handleNextPhase}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    ► REVEAL MATCHUPS ◄
-                  </motion.button>
-                </div>
               </motion.div>
             )}
 

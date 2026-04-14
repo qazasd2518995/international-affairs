@@ -227,33 +227,6 @@ function JudgeContent() {
             </motion.div>
           )}
 
-          {game.phase === 'voting' && currentTopic && (
-            <motion.div
-              key="voting"
-              className="max-w-2xl mx-auto space-y-4"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <div className="dialogue-box">
-                <p className="font-terminal text-terminal-base">
-                  {currentTopic.question}
-                </p>
-              </div>
-
-              <SyncedCountdown
-                duration={30}
-                startedAt={game.phaseStartedAt}
-                label="VOTING"
-                size="sm"
-              />
-
-              <p className="text-center font-pixel text-pixel-sm text-neon-cyan">
-                {game.votes.length} / {Object.keys(game.players).length} VOTED
-              </p>
-            </motion.div>
-          )}
-
           {game.phase === 'matchup-reveal' && (
             <motion.div
               key="matchup"

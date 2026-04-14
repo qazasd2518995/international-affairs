@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   StageBackground,
   Logo,
-  VoteResults,
   AllMatchups,
   SyncedCountdown,
   AudienceVoteResults,
@@ -253,37 +252,6 @@ function DisplayContent() {
                     </motion.div>
                   )}
                 </div>
-              </motion.div>
-            )}
-
-            {game.phase === 'voting' && (
-              <motion.div
-                key="voting"
-                className="w-full max-w-4xl space-y-6"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
-                {currentTopic && (
-                  <motion.div
-                    className="dialogue-box max-w-3xl mx-auto"
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                  >
-                    <p className="font-terminal text-terminal-xl md:text-terminal-2xl text-center">
-                      {currentTopic.question}
-                    </p>
-                  </motion.div>
-                )}
-
-                <SyncedCountdown
-                  duration={30}
-                  startedAt={game.phaseStartedAt}
-                  label="VOTING"
-                  size="md"
-                />
-
-                <VoteResults votes={game.votes} totalVoters={Object.keys(game.players).length} />
               </motion.div>
             )}
 
