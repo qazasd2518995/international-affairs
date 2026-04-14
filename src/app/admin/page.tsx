@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
+import { QRCodeSVG } from 'qrcode.react'
 import {
   StageBackground,
   Logo,
@@ -23,6 +24,62 @@ import {
 import { useRealtimeGame } from '@/lib/useRealtimeGame'
 import { findLatestSessionId } from '@/lib/supabase'
 import { TOPICS, type Topic, type GamePhase, type Match } from '@/lib/types'
+
+function PersistentJoinQR({ url }: { url: string }) {
+  const [expanded, setExpanded] = useState(false)
+
+  return (
+    <>
+      {/* Small persistent pill in bottom-left corner */}
+      <motion.button
+        className="fixed bottom-4 left-4 z-40 flex items-center gap-3 bg-panel-bg border-2 border-neon-green p-2"
+        onClick={() => setExpanded(true)}
+        style={{ boxShadow: '4px 4px 0 0 rgba(0, 0, 0, 0.8)' }}
+        whileTap={{ scale: 0.95 }}
+        whileHover={{ scale: 1.03 }}
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+      >
+        <div className="bg-white p-1">
+          <QRCodeSVG value={url} size={60} level="M" marginSize={0} fgColor="#0a0a2e" bgColor="#ffffff" />
+        </div>
+        <div className="text-left pr-2">
+          <p className="font-pixel text-pixel-sm text-neon-green">JOIN</p>
+          <p className="font-pixel text-pixel-sm text-text-dim">TAP!</p>
+        </div>
+      </motion.button>
+
+      {/* Full-screen big QR when expanded */}
+      <AnimatePresence>
+        {expanded && (
+          <motion.button
+            className="fixed inset-0 z-50 flex items-center justify-center bg-arcade-void bg-opacity-90"
+            onClick={() => setExpanded(false)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="pixel-panel pixel-panel-yellow text-center"
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+            >
+              <p className="font-pixel text-pixel-2xl neon-glow-yellow mb-4">
+                ★ SCAN TO JOIN ★
+              </p>
+              <div className="flex justify-center mb-4">
+                <QRCodeDisplay url={url} size={typeof window !== 'undefined' && window.innerWidth < 640 ? 240 : 380} />
+              </div>
+              <p className="font-terminal text-terminal-base text-text-dim">
+                &gt; Tap anywhere to close
+              </p>
+            </motion.div>
+          </motion.button>
+        )}
+      </AnimatePresence>
+    </>
+  )
+}
 
 function AdminContent() {
   const searchParams = useSearchParams()
@@ -835,6 +892,12 @@ function AdminContent() {
           <div className="fixed bottom-4 right-4 w-64 max-w-[calc(100vw-2rem)]">
             <MiniLeaderboard teams={Object.values(game.teams)} />
           </div>
+        )}
+
+        {/* Persistent join QR in bottom-left so late / dropped students can
+            rejoin mid-game. Click to enlarge for the back of the room. */}
+        {gameUrl && game.phase !== 'lobby' && (
+          <PersistentJoinQR url={gameUrl} />
         )}
       </div>
     </main>
