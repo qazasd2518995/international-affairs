@@ -17,6 +17,7 @@ export function TopicReveal({ onReveal, usedTopicIds = [] }: TopicRevealProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null)
   const [countdown, setCountdown] = useState(3)
+  const [shuffleProgress, setShuffleProgress] = useState(0) // 0..100 during shuffling
 
   const availableTopics = TOPICS.filter((t) => !usedTopicIds.includes(t.id))
 
@@ -38,32 +39,45 @@ export function TopicReveal({ onReveal, usedTopicIds = [] }: TopicRevealProps) {
   useEffect(() => {
     if (phase !== 'shuffling') return
 
-    let shuffleSpeed = 60
-    let elapsed = 0
-    const totalDuration = 3000
+    // Decide the final topic up-front so the animation lands on it predictably.
+    const finalIndex = Math.floor(Math.random() * availableTopics.length)
 
-    const shuffleTick = () => {
-      elapsed += shuffleSpeed
-      setCurrentIndex((prev) => (prev + 1) % availableTopics.length)
+    // Shuffle timing: fast ramp-up, slow-down with decreasing frequency so
+    // the audience can feel each card slot in. Final 3 slots are clearly
+    // spaced 400ms / 550ms / 700ms apart, no long silent hang.
+    const schedule = [
+      // phase 1: fast shuffle (32 ticks × 50ms ≈ 1.6s)
+      ...Array(32).fill(50),
+      // phase 2: ease out (8 ticks with increasing delay)
+      80, 110, 150, 200, 260, 330, 400, 550,
+      // phase 3: final dramatic beat before reveal
+      700,
+    ]
+    const totalTicks = schedule.length
 
-      if (elapsed > totalDuration * 0.6) {
-        shuffleSpeed = Math.min(shuffleSpeed + 25, 250)
-      }
+    let tick = 0
+    let timeoutId: ReturnType<typeof setTimeout>
 
-      if (elapsed >= totalDuration) {
-        const finalIndex = Math.floor(Math.random() * availableTopics.length)
-        const topic = availableTopics[finalIndex]
-        setSelectedTopic(topic)
-        setPhase('revealed')
-        onReveal(topic)
+    const runTick = () => {
+      if (tick >= totalTicks) {
+        setShuffleProgress(100)
+        setCurrentIndex(finalIndex)
+        timeoutId = setTimeout(() => {
+          const topic = availableTopics[finalIndex]
+          setSelectedTopic(topic)
+          setPhase('revealed')
+          onReveal(topic)
+        }, 400)
         return
       }
-
-      setTimeout(shuffleTick, shuffleSpeed)
+      setCurrentIndex((prev) => (prev + 1) % availableTopics.length)
+      tick++
+      setShuffleProgress(Math.round((tick / totalTicks) * 100))
+      timeoutId = setTimeout(runTick, schedule[tick - 1])
     }
 
-    const initTimer = setTimeout(shuffleTick, shuffleSpeed)
-    return () => clearTimeout(initTimer)
+    timeoutId = setTimeout(runTick, 50)
+    return () => clearTimeout(timeoutId)
   }, [phase, availableTopics, onReveal])
 
   const displayTopic = phase === 'revealed' ? selectedTopic : availableTopics[currentIndex]
@@ -134,40 +148,67 @@ export function TopicReveal({ onReveal, usedTopicIds = [] }: TopicRevealProps) {
           </motion.div>
         )}
 
-        {phase === 'shuffling' && displayTopic && (
-          <motion.div
-            key="shuffling"
-            className="text-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            <div className="pixel-panel pixel-panel-pink">
-              <div className="text-center mb-4">
-                <p className="font-pixel text-pixel-sm text-neon-pink animate-glitch">
-                  [ SHUFFLING ]
-                </p>
-              </div>
+        {phase === 'shuffling' && displayTopic && (() => {
+          const nearEnd = shuffleProgress >= 80
+          const locking = shuffleProgress >= 97
+          const label = locking ? '[ LOCKING IN... ]' : nearEnd ? '[ SLOWING DOWN ]' : '[ SHUFFLING ]'
 
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={currentIndex}
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: -20, opacity: 0 }}
-                  transition={{ duration: 0.05, ease: 'linear' }}
-                >
-                  <div className="flex justify-center gap-3 mb-4 flex-wrap">
-                    <CategoryTag category={displayTopic.category} />
-                    <DifficultyStars difficulty={displayTopic.difficulty} animate={false} />
+          return (
+            <motion.div
+              key="shuffling"
+              className="text-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <div className="pixel-panel pixel-panel-pink">
+                <div className="text-center mb-4">
+                  <motion.p
+                    key={label}
+                    className="font-pixel text-pixel-base text-neon-pink animate-glitch"
+                    initial={{ scale: 1.2 }}
+                    animate={{ scale: 1 }}
+                  >
+                    {label}
+                  </motion.p>
+                </div>
+
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentIndex}
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: -20, opacity: 0 }}
+                    transition={{ duration: 0.05, ease: 'linear' }}
+                  >
+                    <div className="flex justify-center gap-3 mb-4 flex-wrap">
+                      <CategoryTag category={displayTopic.category} />
+                      <DifficultyStars difficulty={displayTopic.difficulty} animate={false} />
+                    </div>
+                    <p className="font-terminal text-terminal-base md:text-terminal-lg text-text-white min-h-[60px] px-4">
+                      {displayTopic.question}
+                    </p>
+                  </motion.div>
+                </AnimatePresence>
+
+                {/* Progress bar so audience always knows roughly where we are */}
+                <div className="mt-6 max-w-md mx-auto">
+                  <div className="pixel-bar-container">
+                    <div className="pixel-bar flex-1 h-4">
+                      <motion.div
+                        className={`pixel-bar-fill ${locking ? 'pixel-bar-red' : 'pixel-bar-hp'}`}
+                        style={{ width: `${shuffleProgress}%` }}
+                        transition={{ duration: 0.1, ease: 'linear' }}
+                      />
+                    </div>
                   </div>
-                  <p className="font-terminal text-terminal-base md:text-terminal-lg text-text-white min-h-[60px] px-4">
-                    {displayTopic.question}
+                  <p className="font-pixel text-pixel-sm text-neon-yellow mt-2">
+                    {shuffleProgress}%
                   </p>
-                </motion.div>
-              </AnimatePresence>
-            </div>
-          </motion.div>
-        )}
+                </div>
+              </div>
+            </motion.div>
+          )
+        })()}
 
         {phase === 'revealed' && selectedTopic && (
           <motion.div

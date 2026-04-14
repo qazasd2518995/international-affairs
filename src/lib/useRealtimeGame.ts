@@ -319,17 +319,23 @@ export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & 
         (payload) => {
           if (payload.eventType === 'INSERT') {
             const player = toPlayer(payload.new as DbPlayer)
-            setState((prev) => ({
-              ...prev,
-              players: { ...prev.players, [player.id]: player },
-              teams: {
-                ...prev.teams,
-                [player.teamId]: {
-                  ...prev.teams[player.teamId],
-                  members: [...(prev.teams[player.teamId]?.members || []), player],
+            setState((prev) => {
+              // Skip if we already have this player (polling may race with realtime)
+              if (prev.players[player.id]) return prev
+              const team = prev.teams[player.teamId]
+              if (!team) return prev // team not loaded yet — polling will pick it up
+              return {
+                ...prev,
+                players: { ...prev.players, [player.id]: player },
+                teams: {
+                  ...prev.teams,
+                  [player.teamId]: {
+                    ...team,
+                    members: [...team.members, player],
+                  },
                 },
-              },
-            }))
+              }
+            })
           }
         }
       )
@@ -493,8 +499,17 @@ export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & 
       )
       .subscribe()
 
+    // Polling fallback: realtime subscriptions occasionally miss INSERT
+    // events (channel reconnects, transient disconnects on phones waking up,
+    // or the subscription being attached a few ms after the insert landed).
+    // A cheap 3s re-fetch patches those gaps without adding perceivable lag.
+    const pollInterval = setInterval(() => {
+      if (state.sessionId) loadSession(state.sessionId, () => cancelled)
+    }, 3000)
+
     return () => {
       cancelled = true
+      clearInterval(pollInterval)
       supabase.removeChannel(sessionChannel)
     }
   }, [state.sessionId, loadSession])
