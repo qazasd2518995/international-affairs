@@ -39,7 +39,16 @@ function AdminContent() {
 
   const currentTopic = game.currentTopicId ? TOPICS.find((t) => t.id === game.currentTopicId) : null
   const currentMatch = game.currentMatchId ? game.matches.find((m) => m.id === game.currentMatchId) : null
-  const currentRoundMatches = game.matches.filter((m) => m.round === game.currentRound)
+  // All matches are created in round 1 and reused across rounds — currentRound
+  // is now the "which match number (1/2/3) we're playing", not a DB round group.
+  const allMatches = [...game.matches].sort((a, b) => a.id.localeCompare(b.id))
+  // Round 1 matchup-reveal: show all three pairings at once. Round 2/3: the
+  // pairings are already known, so matchup-reveal only highlights the upcoming
+  // match so it feels like a "next up" announcement instead of a re-pairing.
+  const isFirstMatchReveal = allMatches.length > 0 && allMatches.every((m) => !m.completed)
+  const currentRoundMatches = isFirstMatchReveal
+    ? allMatches
+    : allMatches.filter((m) => m.id === game.currentMatchId)
 
   useEffect(() => {
     if (sessionId && typeof window !== 'undefined') {
@@ -70,26 +79,67 @@ function AdminContent() {
   const handleTopicReveal = async (topic: Topic) => {
     await game.setCurrentTopic(topic.id)
     setUsedTopicIds((prev) => [...prev, topic.id])
-  }
 
-  const handleNextPhase = async () => {
-    const phases: GamePhase[] = [
-      'lobby', 'topic-reveal', 'voting', 'matchup-reveal',
-      'preparation', 'debate', 'audience-vote', 'scoring',
-      'result', 'leaderboard', 'final-awards',
-    ]
-    const currentIndex = phases.indexOf(game.phase)
-    if (currentIndex < phases.length - 1) {
-      const nextPhase = phases[currentIndex + 1]
-      await game.updatePhase(nextPhase)
-      if (nextPhase === 'matchup-reveal') {
-        await createMatchesFromVotes()
+    // Round 2/3: matches exist already, stamp the fresh topic onto the next
+    // un-played match so it shows the right question during prep/debate.
+    if (game.matches.length > 0) {
+      const nextMatch = allMatches.find((m) => !m.completed && m.id !== game.currentMatchId)
+        || allMatches.find((m) => !m.completed)
+      if (nextMatch) {
+        await game.updateMatchTopic(nextMatch.id, topic.id)
+        await game.setCurrentMatch(nextMatch.id)
       }
     }
   }
 
+  // Round 1 flow  : lobby → topic-reveal → voting → matchup-reveal → prep → debate → audience-vote → scoring → result → leaderboard
+  // Round 2/3 flow:               topic-reveal            → matchup-reveal → prep → debate → audience-vote → scoring → result → leaderboard
+  //
+  // The only differences for R2/R3 are: skip voting (no re-vote) and
+  // matchup-reveal just flashes "next matchup" instead of pairing new teams.
+  const handleNextPhase = async () => {
+    const isFirstMatch = game.matches.length === 0
+    const transitions: Record<string, GamePhase> = isFirstMatch
+      ? {
+          'lobby': 'topic-reveal',
+          'topic-reveal': 'voting',
+          'voting': 'matchup-reveal',
+          'matchup-reveal': 'preparation',
+          'preparation': 'debate',
+          'debate': 'audience-vote',
+          'audience-vote': 'scoring',
+          'scoring': 'result',
+          'result': 'leaderboard',
+          'leaderboard': 'final-awards',
+        }
+      : {
+          // After round 1, voting is skipped — matchup-reveal just announces the next pair
+          'topic-reveal': 'matchup-reveal',
+          'matchup-reveal': 'preparation',
+          'preparation': 'debate',
+          'debate': 'audience-vote',
+          'audience-vote': 'scoring',
+          'scoring': 'result',
+          'result': 'leaderboard',
+          'leaderboard': 'final-awards',
+        }
+
+    const nextPhase = transitions[game.phase]
+    if (!nextPhase) return
+
+    // Building matchups only happens once, entering matchup-reveal in round 1
+    if (nextPhase === 'matchup-reveal' && isFirstMatch) {
+      await createMatchesFromVotes()
+    }
+
+    await game.updatePhase(nextPhase)
+  }
+
+  // Round 1 only: build all 3 matchups from the class vote. Match 1 keeps the
+  // drawn topic; matches 2 and 3 get fresh topics when we enter their rounds.
   const createMatchesFromVotes = async () => {
     if (!game.currentTopicId) return
+    if (game.matches.length > 0) return // already created once
     const teamStances: { teamId: string; agreePercent: number; disagreePercent: number }[] = []
 
     Object.values(game.teams).forEach((team) => {
@@ -108,7 +158,7 @@ function AdminContent() {
     const sortedByDisagree = [...teamStances].sort((a, b) => b.disagreePercent - a.disagreePercent)
 
     const paired: Set<string> = new Set()
-    const newRound = game.currentRound + 1
+    const now = Date.now()
 
     for (let i = 0; i < Math.floor(teamStances.length / 2); i++) {
       const teamA = sortedByAgree.find((t) => !paired.has(t.teamId))
@@ -119,10 +169,12 @@ function AdminContent() {
       if (!teamB) break
       paired.add(teamB.teamId)
 
+      // Match IDs sort lexicographically in display order: match-01, match-02, match-03
+      const matchNum = String(i + 1).padStart(2, '0')
       const match: Omit<Match, 'judgeScores' | 'audienceVotes'> = {
-        id: `match-${newRound}-${i + 1}-${Date.now()}`,
-        round: newRound,
-        topicId: game.currentTopicId,
+        id: `match-${matchNum}-${now}`,
+        round: 1,
+        topicId: i === 0 ? game.currentTopicId : '', // only first match has topic yet
         teamA: teamA.teamId,
         teamB: teamB.teamId,
         teamAStance: 'agree',
@@ -159,10 +211,10 @@ function AdminContent() {
   }
 
   const handleNextMatch = async () => {
-    const matchIndex = currentRoundMatches.findIndex((m) => m.id === game.currentMatchId)
-    if (matchIndex < currentRoundMatches.length - 1) {
-      await game.setCurrentMatch(currentRoundMatches[matchIndex + 1].id)
-      await game.updatePhase('preparation')
+    const matchIndex = allMatches.findIndex((m) => m.id === game.currentMatchId)
+    if (matchIndex < allMatches.length - 1) {
+      // Go draw a fresh topic for the next match — admin then sets it via handleTopicReveal
+      await game.updatePhase('topic-reveal')
     } else {
       await game.updatePhase('leaderboard')
     }
@@ -249,7 +301,7 @@ function AdminContent() {
     <main className="min-h-screen relative overflow-hidden">
       <StageBackground />
 
-      {showPhaseTransition && <PhaseTransition phase={game.phase} round={game.currentRound} />}
+      {showPhaseTransition && <PhaseTransition phase={game.phase} round={Math.max(1, allMatches.findIndex((m) => m.id === game.currentMatchId) + 1)} />}
 
       <div className="relative z-10 min-h-screen">
         <header className="p-4 flex items-center justify-between border-b-2 border-panel-border">
@@ -258,7 +310,7 @@ function AdminContent() {
           </div>
           <div className="flex items-center gap-3">
             <span className="pixel-tag pixel-tag-cyan">
-              ROUND {game.currentRound}/3
+              MATCH {Math.max(1, allMatches.findIndex((m) => m.id === game.currentMatchId) + 1)}/3
             </span>
             <motion.span
               key={game.phase}
@@ -731,7 +783,7 @@ function AdminContent() {
                     onClick={handleNextMatch}
                     whileTap={{ scale: 0.95 }}
                   >
-                    ► {currentRoundMatches.findIndex((m) => m.id === game.currentMatchId) < currentRoundMatches.length - 1 ? 'NEXT BATTLE' : 'HI-SCORE'} ◄
+                    ► {allMatches.findIndex((m) => m.id === game.currentMatchId) < allMatches.length - 1 ? 'NEXT MATCH' : 'HI-SCORE'} ◄
                   </motion.button>
                 </div>
               </motion.div>
@@ -746,22 +798,13 @@ function AdminContent() {
                 exit={{ opacity: 0 }}
               >
                 <Leaderboard teams={Object.values(game.teams)} />
-                <div className="text-center flex justify-center gap-3 flex-wrap">
-                  {game.currentRound < 3 && (
-                    <motion.button
-                      className="pixel-btn pixel-btn-green"
-                      onClick={async () => await game.updatePhase('topic-reveal')}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      ► NEXT ROUND ◄
-                    </motion.button>
-                  )}
+                <div className="text-center">
                   <motion.button
                     className="pixel-btn pixel-btn-pink"
                     onClick={() => game.updatePhase('final-awards')}
                     whileTap={{ scale: 0.95 }}
                   >
-                    ► AWARDS ◄
+                    ► CROWN CHAMPION ◄
                   </motion.button>
                 </div>
               </motion.div>

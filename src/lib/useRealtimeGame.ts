@@ -86,6 +86,7 @@ interface RealtimeGameActions {
   submitAudienceVote: (matchId: string, playerId: string, votedFor: string) => Promise<void>
   updateTeamScore: (teamId: string, score: number, matchesPlayed: number) => Promise<void>
   updateMatchResult: (matchId: string, winner: string) => Promise<void>
+  updateMatchTopic: (matchId: string, topicId: string) => Promise<void>
   updateDebateSubPhase: (subPhase: DebateSubPhase) => Promise<void>
 }
 
@@ -637,6 +638,13 @@ export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & 
       .eq('id', teamId)
   }, [])
 
+  const updateMatchTopic = useCallback(async (matchId: string, topicId: string) => {
+    await supabase
+      .from('matches')
+      .update({ topic_id: topicId })
+      .eq('id', matchId)
+  }, [])
+
   const updateMatchResult = useCallback(async (matchId: string, winner: string) => {
     await supabase
       .from('matches')
@@ -671,6 +679,7 @@ export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & 
     submitAudienceVote,
     updateTeamScore,
     updateMatchResult,
+    updateMatchTopic,
     updateDebateSubPhase,
   }
 }

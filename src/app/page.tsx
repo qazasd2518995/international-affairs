@@ -370,7 +370,7 @@ function HomeContent() {
                 {game.phase.toUpperCase().replace(/-/g, ' ')}
               </span>
               <span className="text-text-dim">
-                R{game.currentRound}/3
+                M{Math.max(1, [...game.matches].sort((a, b) => a.id.localeCompare(b.id)).findIndex((m) => m.id === game.currentMatchId) + 1)}/3
               </span>
             </div>
           </motion.div>

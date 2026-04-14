@@ -43,7 +43,11 @@ function JudgeContent() {
 
   const currentMatch = game.currentMatchId ? game.matches.find((m) => m.id === game.currentMatchId) : null
   const currentTopic = game.currentTopicId ? TOPICS.find((t) => t.id === game.currentTopicId) : null
-  const currentRoundMatches = game.matches.filter((m) => m.round === game.currentRound)
+  const allMatches = [...game.matches].sort((a, b) => a.id.localeCompare(b.id))
+  const isFirstMatchReveal = allMatches.length > 0 && allMatches.every((m) => !m.completed)
+  const currentRoundMatches = isFirstMatchReveal
+    ? allMatches
+    : allMatches.filter((m) => m.id === game.currentMatchId)
 
   const hasScored = currentMatch?.judgeScores.some((s) => s.judgeId === judgeId)
 
@@ -162,7 +166,7 @@ function JudgeContent() {
     <main className="min-h-screen relative overflow-hidden">
       <StageBackground />
 
-      {showPhaseTransition && <PhaseTransition phase={game.phase} round={game.currentRound} />}
+      {showPhaseTransition && <PhaseTransition phase={game.phase} round={Math.max(1, allMatches.findIndex((m) => m.id === game.currentMatchId) + 1)} />}
 
       <div className="relative z-10 min-h-screen p-4 md:p-6">
         <header className="flex items-center justify-between mb-6 border-b-2 border-panel-border pb-4">

@@ -45,7 +45,13 @@ function DisplayContent() {
 
   const currentTopic = game.currentTopicId ? TOPICS.find((t) => t.id === game.currentTopicId) : null
   const currentMatch = game.currentMatchId ? game.matches.find((m) => m.id === game.currentMatchId) : null
-  const currentRoundMatches = game.matches.filter((m) => m.round === game.currentRound)
+  const allMatches = [...game.matches].sort((a, b) => a.id.localeCompare(b.id))
+  // In round 1 we show all 3 matchups at once. In rounds 2/3 only the current
+  // matchup is shown (since it was already revealed at its round-1 pairing).
+  const isFirstMatchReveal = allMatches.length > 0 && allMatches.every((m) => !m.completed)
+  const currentRoundMatches = isFirstMatchReveal
+    ? allMatches
+    : allMatches.filter((m) => m.id === game.currentMatchId)
 
   useEffect(() => {
     if (game.phase !== 'lobby') {
@@ -113,14 +119,14 @@ function DisplayContent() {
     <main className="min-h-screen relative overflow-hidden">
       <StageBackground />
 
-      {showPhaseTransition && <PhaseTransition phase={game.phase} round={game.currentRound} />}
+      {showPhaseTransition && <PhaseTransition phase={game.phase} round={Math.max(1, allMatches.findIndex((m) => m.id === game.currentMatchId) + 1)} />}
 
       <div className="relative z-10 min-h-screen flex flex-col">
         <header className="p-6 flex items-center justify-between border-b-2 border-panel-border">
           <Logo size="sm" animate={false} />
           <div className="flex items-center gap-4">
             <span className="pixel-tag pixel-tag-cyan">
-              ROUND {game.currentRound}/3
+              MATCH {Math.max(1, allMatches.findIndex((m) => m.id === game.currentMatchId) + 1)}/3
             </span>
             <motion.span
               key={game.phase}
