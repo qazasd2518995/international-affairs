@@ -119,8 +119,9 @@ export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & 
     setState((prev) => (prev.sessionId === initialSessionId ? prev : { ...prev, sessionId: initialSessionId }))
   }, [initialSessionId])
 
-  // Load initial data
-  const loadSession = useCallback(async (sessionId: string) => {
+  // Load initial data. Accepts an abort signal so stale in-flight loads from
+  // a previous session don't overwrite fresh state after the user switches.
+  const loadSession = useCallback(async (sessionId: string, isCancelled?: () => boolean) => {
     try {
       // Load session
       const { data: session } = await supabase
@@ -206,6 +207,8 @@ export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & 
         return match
       })
 
+      if (isCancelled && isCancelled()) return
+
       setState((prev) => ({
         ...prev,
         sessionId,
@@ -241,7 +244,8 @@ export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & 
   useEffect(() => {
     if (!state.sessionId) return
 
-    loadSession(state.sessionId)
+    let cancelled = false
+    loadSession(state.sessionId, () => cancelled)
 
     // Subscribe to game_sessions changes
     const sessionChannel = supabase
@@ -375,6 +379,9 @@ export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & 
         (payload) => {
           const score = payload.new as DbJudgeScore
           setState((prev) => {
+            // judge_scores has no session_id column, so filter client-side:
+            // if the match isn't in our session, ignore the event entirely.
+            if (!prev.matches.some((m) => m.id === score.match_id)) return prev
             const newJudgeScores = { ...prev.judgeScores }
             if (!newJudgeScores[score.match_id]) newJudgeScores[score.match_id] = []
             newJudgeScores[score.match_id] = [
@@ -405,6 +412,8 @@ export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & 
         (payload) => {
           const vote = payload.new as DbAudienceVote
           setState((prev) => {
+            // Same as judge_scores — scope by known match IDs in our session.
+            if (!prev.matches.some((m) => m.id === vote.match_id)) return prev
             const newAudienceVotes = { ...prev.audienceVotes }
             if (!newAudienceVotes[vote.match_id]) newAudienceVotes[vote.match_id] = []
             newAudienceVotes[vote.match_id] = [
@@ -424,6 +433,7 @@ export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & 
       .subscribe()
 
     return () => {
+      cancelled = true
       supabase.removeChannel(sessionChannel)
     }
   }, [state.sessionId, loadSession])

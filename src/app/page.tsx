@@ -48,13 +48,23 @@ function HomeContent() {
     const storedTeamId = localStorage.getItem('mda_team_id')
     const storedSessionId = localStorage.getItem('mda_session_id')
 
+    // URL session takes precedence: if student scanned a QR for a different
+    // game than the one they last joined, honor the QR (new game), not the
+    // stale localStorage entry.
+    if (sessionIdParam && storedSessionId && sessionIdParam !== storedSessionId) {
+      localStorage.removeItem('mda_player_id')
+      localStorage.removeItem('mda_team_id')
+      localStorage.removeItem('mda_session_id')
+      return
+    }
+
     if (storedPlayerId && storedTeamId && storedSessionId) {
       setPlayerId(storedPlayerId)
       setPlayerTeamId(storedTeamId)
       setSessionId(storedSessionId)
       setIsLoggedIn(true)
     }
-  }, [])
+  }, [sessionIdParam])
 
   // If the host starts a NEW game while students still have the old session
   // cached in localStorage, we'd be stuck showing "ENDING / Awards" forever.

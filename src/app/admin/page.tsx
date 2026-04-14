@@ -29,7 +29,6 @@ function AdminContent() {
   const sessionIdParam = searchParams.get('session')
 
   const [sessionId, setSessionId] = useState<string | null>(sessionIdParam)
-  const [usedTopicIds, setUsedTopicIds] = useState<string[]>([])
   const [gameUrl, setGameUrl] = useState<string>('')
   const [showPhaseTransition, setShowPhaseTransition] = useState(false)
   const [latestSessionId, setLatestSessionId] = useState<string | null>(null)
@@ -38,6 +37,14 @@ function AdminContent() {
 
   const currentTopic = game.currentTopicId ? TOPICS.find((t) => t.id === game.currentTopicId) : null
   const currentMatch = game.currentMatchId ? game.matches.find((m) => m.id === game.currentMatchId) : null
+
+  // Derive used topics from DB — survives page reload and stays correct across
+  // admin sessions. Also include the currently-drawn topic so the draw animation
+  // doesn't re-pick it before it's stamped onto a match.
+  const usedTopicIds = [
+    ...game.matches.map((m) => m.topicId).filter(Boolean),
+    ...(game.currentTopicId ? [game.currentTopicId] : []),
+  ]
   // All matches are created in round 1 and reused across rounds — currentRound
   // is now the "which match number (1/2/3) we're playing", not a DB round group.
   const allMatches = [...game.matches].sort((a, b) => a.id.localeCompare(b.id))
@@ -77,7 +84,6 @@ function AdminContent() {
 
   const handleTopicReveal = async (topic: Topic) => {
     await game.setCurrentTopic(topic.id)
-    setUsedTopicIds((prev) => [...prev, topic.id])
 
     // If matches exist (rounds 2/3), stamp the fresh topic onto the next
     // un-played match so it shows the right question during prep/debate.
@@ -674,6 +680,15 @@ function AdminContent() {
                 <motion.button
                   className="pixel-btn pixel-btn-green"
                   onClick={async () => {
+                    const scoreCount = currentMatch?.judgeScores.length ?? 0
+                    if (scoreCount < 2) {
+                      const missing = 2 - scoreCount
+                      const ok = window.confirm(
+                        `Only ${scoreCount}/2 judges have scored.\n\n` +
+                        `Reveal the result anyway? ${missing === 2 ? 'Both' : 'The missing'} judge's score will default to 5.`
+                      )
+                      if (!ok) return
+                    }
                     await handleCalculateResult()
                     await game.updatePhase('result')
                   }}
