@@ -220,112 +220,179 @@ function JudgeContent() {
             </motion.div>
           )}
 
-          {game.phase === 'topic-reveal' && currentTopic && (
-            <motion.div
-              key="topic"
-              className="max-w-2xl mx-auto"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <div className="pixel-panel pixel-panel-neon text-center">
-                <p className="font-pixel text-pixel-base text-neon-green mb-4">
-                  ★ NEW QUEST ★
-                </p>
-                <div className="flex justify-center gap-3 mb-4 flex-wrap">
-                  <CategoryTag category={currentTopic.category} />
-                  <DifficultyStars difficulty={currentTopic.difficulty} />
+          {game.phase === 'topic-reveal' && (
+            currentTopic ? (
+              <motion.div
+                key="topic"
+                className="max-w-2xl mx-auto"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <div className="pixel-panel pixel-panel-neon text-center">
+                  <p className="font-pixel text-pixel-base text-neon-green mb-4">
+                    ★ NEW QUEST ★
+                  </p>
+                  <div className="flex justify-center gap-3 mb-4 flex-wrap">
+                    <CategoryTag category={currentTopic.category} />
+                    <DifficultyStars difficulty={currentTopic.difficulty} />
+                  </div>
+                  <div className="dialogue-box">
+                    <p className="font-terminal text-terminal-base md:text-terminal-lg">
+                      {currentTopic.question}
+                    </p>
+                  </div>
                 </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="topic-drawing"
+                className="max-w-md mx-auto pixel-panel text-center"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                <motion.div
+                  className="font-pixel text-pixel-4xl neon-glow-yellow mb-3"
+                  animate={{ rotate: [0, 360] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                >
+                  ?
+                </motion.div>
+                <p className="font-pixel text-pixel-base text-neon-yellow mb-2">
+                  HOST IS DRAWING
+                </p>
+                <p className="font-terminal text-terminal-base text-text-dim">
+                  &gt; Watch the big screen!
+                </p>
+              </motion.div>
+            )
+          )}
+
+          {game.phase === 'matchup-reveal' && (() => {
+            const isUpcomingOnly = currentRoundMatches.length === 1 && allMatches.length > 1
+            const headerLabel = isUpcomingOnly ? 'NEXT BATTLE' : 'MATCHUPS'
+
+            return (
+              <motion.div
+                key="matchup"
+                className="max-w-2xl mx-auto space-y-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <p className="font-pixel text-pixel-xl text-center neon-glow-pink">
+                  × {headerLabel} ×
+                </p>
+                {currentRoundMatches.map((match, idx) => {
+                  const realNum = allMatches.findIndex((m) => m.id === match.id) + 1
+                  return (
+                    <motion.div
+                      key={match.id}
+                      className="pixel-panel-sm pixel-panel"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: idx * 0.2, ease: 'linear' }}
+                    >
+                      <p className="font-pixel text-pixel-sm text-neon-yellow text-center mb-2">
+                        {isUpcomingOnly ? '★ NOW PLAYING ★' : `★ STAGE ${realNum} ★`}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <span className="font-pixel text-pixel-base text-team-red">
+                          {game.teams[match.teamA]?.name.toUpperCase()}
+                        </span>
+                        <span className="vs-pixel text-pixel-lg">VS</span>
+                        <span className="font-pixel text-pixel-base text-team-blue">
+                          {game.teams[match.teamB]?.name.toUpperCase()}
+                        </span>
+                      </div>
+                    </motion.div>
+                  )
+                })}
+              </motion.div>
+            )
+          })()}
+
+          {game.phase === 'preparation' && currentMatch && currentTopic && (() => {
+            const allLive = game.liveArguments[currentMatch.id] || []
+            const teamAArgs = allLive.filter((a) => a.teamId === currentMatch.teamA)
+            const teamBArgs = allLive.filter((a) => a.teamId === currentMatch.teamB)
+            const teamAName = game.teams[currentMatch.teamA]?.name || 'Team A'
+            const teamBName = game.teams[currentMatch.teamB]?.name || 'Team B'
+
+            return (
+              <motion.div
+                key="prep"
+                className="max-w-3xl mx-auto space-y-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <p className="font-pixel text-pixel-xl text-center neon-glow-yellow">
+                  ♪ PREP TIME ♪
+                </p>
+
                 <div className="dialogue-box">
-                  <p className="font-terminal text-terminal-base md:text-terminal-lg">
+                  <p className="font-terminal text-terminal-base">
                     {currentTopic.question}
                   </p>
                 </div>
-              </div>
-            </motion.div>
-          )}
 
-          {game.phase === 'matchup-reveal' && (
-            <motion.div
-              key="matchup"
-              className="max-w-2xl mx-auto space-y-4"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <p className="font-pixel text-pixel-xl text-center neon-glow-pink">
-                × MATCHUPS ×
-              </p>
-              {currentRoundMatches.map((match, idx) => (
-                <motion.div
-                  key={match.id}
-                  className="pixel-panel-sm pixel-panel flex items-center justify-between"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * 0.2, ease: 'linear' }}
-                >
-                  <span className="font-pixel text-pixel-base text-team-red">
-                    {game.teams[match.teamA]?.name.toUpperCase()}
-                  </span>
-                  <span className="vs-pixel text-pixel-lg">VS</span>
-                  <span className="font-pixel text-pixel-base text-team-blue">
-                    {game.teams[match.teamB]?.name.toUpperCase()}
-                  </span>
-                </motion.div>
-              ))}
-            </motion.div>
-          )}
+                <SyncedCountdown
+                  duration={90}
+                  startedAt={game.phaseStartedAt}
+                  label="PREP"
+                  size="sm"
+                />
 
-          {game.phase === 'preparation' && currentMatch && currentTopic && (
-            <motion.div
-              key="prep"
-              className="max-w-2xl mx-auto space-y-4"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <p className="font-pixel text-pixel-xl text-center neon-glow-yellow">
-                ♪ PREP TIME ♪
-              </p>
+                {/* Live attack feed so judges can start forming opinions */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="pixel-panel-sm pixel-panel">
+                    <p className="font-pixel text-pixel-sm text-team-red mb-2">
+                      ◆ {teamAName.toUpperCase()} · {teamAArgs.length}
+                    </p>
+                    <div className="max-h-40 overflow-y-auto space-y-1">
+                      {teamAArgs.length === 0 ? (
+                        <p className="font-terminal text-terminal-sm text-text-muted italic">
+                          &gt; Writing...
+                        </p>
+                      ) : teamAArgs.map((arg) => (
+                        <p key={arg.id} className="font-terminal text-terminal-sm">
+                          <span className="text-neon-cyan">{arg.playerName || '...'}:</span>{' '}
+                          <span className="text-text-white">{arg.content}</span>
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="pixel-panel-sm pixel-panel">
+                    <p className="font-pixel text-pixel-sm text-team-blue mb-2">
+                      ◆ {teamBName.toUpperCase()} · {teamBArgs.length}
+                    </p>
+                    <div className="max-h-40 overflow-y-auto space-y-1">
+                      {teamBArgs.length === 0 ? (
+                        <p className="font-terminal text-terminal-sm text-text-muted italic">
+                          &gt; Writing...
+                        </p>
+                      ) : teamBArgs.map((arg) => (
+                        <p key={arg.id} className="font-terminal text-terminal-sm">
+                          <span className="text-neon-cyan">{arg.playerName || '...'}:</span>{' '}
+                          <span className="text-text-white">{arg.content}</span>
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                </div>
 
-              <div className="dialogue-box">
-                <p className="font-terminal text-terminal-base">
-                  {currentTopic.question}
+                <p className="text-center font-terminal text-terminal-base text-text-dim">
+                  &gt; AI will analyze both teams when prep ends. Get ready to score!
                 </p>
-              </div>
-
-              <div className="flex justify-center gap-3 flex-wrap">
-                <div className="battle-card battle-card-red">
-                  <p className="font-pixel text-pixel-sm text-team-red">◆ A ◆</p>
-                  <p className="font-pixel text-pixel-base text-text-white">
-                    {game.teams[currentMatch.teamA]?.name.toUpperCase()}
-                  </p>
-                </div>
-                <div className="battle-card battle-card-blue">
-                  <p className="font-pixel text-pixel-sm text-team-blue">◆ B ◆</p>
-                  <p className="font-pixel text-pixel-base text-text-white">
-                    {game.teams[currentMatch.teamB]?.name.toUpperCase()}
-                  </p>
-                </div>
-              </div>
-
-              <SyncedCountdown
-                duration={90}
-                startedAt={game.phaseStartedAt}
-                label="PREP"
-                size="sm"
-              />
-
-              <p className="text-center font-terminal text-terminal-base text-text-dim">
-                &gt; AI will suggest scores soon...
-              </p>
-            </motion.div>
-          )}
+              </motion.div>
+            )
+          })()}
 
           {game.phase === 'debate' && currentMatch && currentTopic && (
             <motion.div
               key="debate"
-              className="max-w-2xl mx-auto space-y-4"
+              className="max-w-3xl mx-auto space-y-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -334,28 +401,48 @@ function JudgeContent() {
                 ♪ FREE DEBATE ♪
               </p>
 
-              <div className="flex justify-center items-center gap-3 flex-wrap">
-                <div className="battle-card battle-card-red">
-                  <p className="font-pixel text-pixel-sm text-team-red">◆ A ◆</p>
-                  <p className="font-pixel text-pixel-base text-text-white mt-1">
-                    {game.teams[currentMatch.teamA]?.name.toUpperCase()}
-                  </p>
-                </div>
-                <div className="vs-pixel text-pixel-lg">VS</div>
-                <div className="battle-card battle-card-blue">
-                  <p className="font-pixel text-pixel-sm text-team-blue">◆ B ◆</p>
-                  <p className="font-pixel text-pixel-base text-text-white mt-1">
-                    {game.teams[currentMatch.teamB]?.name.toUpperCase()}
-                  </p>
-                </div>
-              </div>
-
               <SyncedCountdown
                 duration={120}
                 startedAt={game.phaseStartedAt}
                 label="BATTLE TIME"
                 size="sm"
               />
+
+              {/* Show the prepared attacks so judges can reference them while listening */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="pixel-panel-sm pixel-panel">
+                  <p className="font-pixel text-pixel-sm text-team-red mb-2">
+                    ◆ {game.teams[currentMatch.teamA]?.name.toUpperCase()} · AGREE
+                  </p>
+                  <div className="max-h-40 overflow-y-auto space-y-1">
+                    {currentMatch.teamAArguments.length === 0 ? (
+                      <p className="font-terminal text-terminal-sm text-text-muted italic">
+                        &gt; No prepared attacks
+                      </p>
+                    ) : currentMatch.teamAArguments.map((arg, i) => (
+                      <p key={i} className="font-terminal text-terminal-sm text-text-white">
+                        &gt; {arg}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+                <div className="pixel-panel-sm pixel-panel">
+                  <p className="font-pixel text-pixel-sm text-team-blue mb-2">
+                    ◆ {game.teams[currentMatch.teamB]?.name.toUpperCase()} · DISAGREE
+                  </p>
+                  <div className="max-h-40 overflow-y-auto space-y-1">
+                    {currentMatch.teamBArguments.length === 0 ? (
+                      <p className="font-terminal text-terminal-sm text-text-muted italic">
+                        &gt; No prepared attacks
+                      </p>
+                    ) : currentMatch.teamBArguments.map((arg, i) => (
+                      <p key={i} className="font-terminal text-terminal-sm text-text-white">
+                        &gt; {arg}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              </div>
 
               <p className="text-center font-terminal text-terminal-base text-text-dim">
                 &gt; Listen carefully — scoring soon!
@@ -499,6 +586,35 @@ function JudgeContent() {
                     </p>
                   </div>
                 </div>
+
+                {/* AI commentary recap so judges can review what AI said */}
+                {(currentMatch.aiAnalysisA || currentMatch.aiAnalysisB) && (
+                  <div className="pixel-panel-sm pixel-panel">
+                    <p className="font-pixel text-pixel-sm text-neon-cyan mb-2">
+                      ► AI RECAP
+                    </p>
+                    {currentMatch.aiAnalysisA && (
+                      <div className="mb-3">
+                        <p className="font-pixel text-pixel-sm text-team-red mb-1">
+                          {game.teams[currentMatch.teamA]?.name} ({currentMatch.aiAnalysisA.score}/10)
+                        </p>
+                        <p className="font-terminal text-terminal-sm text-text-dim">
+                          &gt; {currentMatch.aiAnalysisA.commentary}
+                        </p>
+                      </div>
+                    )}
+                    {currentMatch.aiAnalysisB && (
+                      <div>
+                        <p className="font-pixel text-pixel-sm text-team-blue mb-1">
+                          {game.teams[currentMatch.teamB]?.name} ({currentMatch.aiAnalysisB.score}/10)
+                        </p>
+                        <p className="font-terminal text-terminal-sm text-text-dim">
+                          &gt; {currentMatch.aiAnalysisB.commentary}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </motion.div>
             )
           })()}
