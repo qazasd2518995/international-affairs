@@ -285,60 +285,95 @@ function DisplayContent() {
               </motion.div>
             )}
 
-            {game.phase === 'preparation' && (
-              <motion.div
-                key="prep"
-                className="text-center space-y-6"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
-                <motion.p
-                  className="font-pixel text-pixel-3xl md:text-pixel-4xl neon-glow-yellow animate-glitch"
+            {game.phase === 'preparation' && currentMatch && (() => {
+              const allLive = game.liveArguments[currentMatch.id] || []
+              const teamAArgs = allLive.filter((a) => a.teamId === currentMatch.teamA)
+              const teamBArgs = allLive.filter((a) => a.teamId === currentMatch.teamB)
+              const teamAName = game.teams[currentMatch.teamA]?.name || 'Team A'
+              const teamBName = game.teams[currentMatch.teamB]?.name || 'Team B'
+
+              return (
+                <motion.div
+                  key="prep"
+                  className="w-full max-w-5xl space-y-4"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
                 >
-                  ♪ CHARGING MP ♪
-                </motion.p>
+                  <motion.p
+                    className="font-pixel text-pixel-2xl md:text-pixel-3xl neon-glow-yellow text-center animate-glitch"
+                  >
+                    ♪ TEAMS WRITING ATTACKS ♪
+                  </motion.p>
 
-                <SyncedCountdown
-                  duration={90}
-                  startedAt={game.phaseStartedAt}
-                  label="TEAMS PREPARING"
-                  size="lg"
-                />
+                  <SyncedCountdown
+                    duration={90}
+                    startedAt={game.phaseStartedAt}
+                    label="PREP TIME"
+                    size="md"
+                  />
 
-                <motion.p
-                  className="font-terminal text-terminal-xl text-text-dim"
-                  animate={{ opacity: [0.5, 1, 0.5] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-                >
-                  &gt; Heroes are writing their attacks...
-                </motion.p>
-
-                {currentMatch && (
-                  <div className="flex justify-center gap-6 mt-8 flex-wrap">
-                    <div className="battle-card battle-card-red">
-                      <div className="text-center">
-                        <p className="font-pixel text-pixel-sm text-team-red mb-1">◆ A ◆</p>
-                        <p className="font-pixel text-pixel-lg text-text-white">
-                          {game.teams[currentMatch.teamA]?.name.toUpperCase()}
-                        </p>
-                        <p className="font-pixel text-pixel-sm text-neon-green mt-2">AGREE</p>
+                  {/* Live feed — both teams side by side */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="battle-card battle-card-red p-4">
+                      <div className="text-center mb-3">
+                        <p className="font-pixel text-pixel-sm text-team-red">◆ {teamAName.toUpperCase()} ◆</p>
+                        <p className="font-pixel text-pixel-sm text-neon-green mt-1">AGREE · {teamAArgs.length} attacks</p>
+                      </div>
+                      <div className="max-h-64 overflow-y-auto space-y-2">
+                        {teamAArgs.length === 0 ? (
+                          <p className="font-terminal text-terminal-base text-text-muted text-center italic">
+                            &gt; Writing...
+                          </p>
+                        ) : (
+                          <AnimatePresence initial={false}>
+                            {teamAArgs.map((arg) => (
+                              <motion.div
+                                key={arg.id}
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                className="font-terminal text-terminal-base"
+                              >
+                                <span className="text-neon-cyan">{arg.playerName || '...'}:</span>{' '}
+                                <span className="text-text-white">{arg.content}</span>
+                              </motion.div>
+                            ))}
+                          </AnimatePresence>
+                        )}
                       </div>
                     </div>
-                    <div className="vs-pixel">VS</div>
-                    <div className="battle-card battle-card-blue">
-                      <div className="text-center">
-                        <p className="font-pixel text-pixel-sm text-team-blue mb-1">◆ B ◆</p>
-                        <p className="font-pixel text-pixel-lg text-text-white">
-                          {game.teams[currentMatch.teamB]?.name.toUpperCase()}
-                        </p>
-                        <p className="font-pixel text-pixel-sm text-neon-red mt-2">DISAGREE</p>
+
+                    <div className="battle-card battle-card-blue p-4">
+                      <div className="text-center mb-3">
+                        <p className="font-pixel text-pixel-sm text-team-blue">◆ {teamBName.toUpperCase()} ◆</p>
+                        <p className="font-pixel text-pixel-sm text-neon-red mt-1">DISAGREE · {teamBArgs.length} attacks</p>
+                      </div>
+                      <div className="max-h-64 overflow-y-auto space-y-2">
+                        {teamBArgs.length === 0 ? (
+                          <p className="font-terminal text-terminal-base text-text-muted text-center italic">
+                            &gt; Writing...
+                          </p>
+                        ) : (
+                          <AnimatePresence initial={false}>
+                            {teamBArgs.map((arg) => (
+                              <motion.div
+                                key={arg.id}
+                                initial={{ opacity: 0, x: 10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                className="font-terminal text-terminal-base"
+                              >
+                                <span className="text-neon-cyan">{arg.playerName || '...'}:</span>{' '}
+                                <span className="text-text-white">{arg.content}</span>
+                              </motion.div>
+                            ))}
+                          </AnimatePresence>
+                        )}
                       </div>
                     </div>
                   </div>
-                )}
-              </motion.div>
-            )}
+                </motion.div>
+              )
+            })()}
 
             {game.phase === 'debate' && currentMatch && (
               <motion.div

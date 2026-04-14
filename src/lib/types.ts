@@ -84,6 +84,16 @@ export interface AudienceVote {
   votedFor: string    // team id
 }
 
+export interface LiveArgument {
+  id: string
+  matchId: string
+  playerId: string
+  teamId: string
+  playerName?: string
+  content: string
+  createdAt: number
+}
+
 export interface MatchResult {
   matchId: string
   teamAFinalScore: number

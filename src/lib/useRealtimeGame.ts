@@ -10,8 +10,9 @@ import type {
   DbMatch,
   DbJudgeScore,
   DbAudienceVote,
+  DbLiveArgument,
 } from './supabase'
-import type { GamePhase, Team, Player, Vote, Match, JudgeScore, AudienceVote } from './types'
+import type { GamePhase, Team, Player, Vote, Match, JudgeScore, AudienceVote, LiveArgument } from './types'
 
 export type DebateSubPhase = 'team-a-opening' | 'team-b-opening' | 'host-challenge' | 'team-a-response' | 'team-b-response' | 'done'
 
@@ -69,6 +70,7 @@ interface RealtimeGameState {
   matches: Match[]
   judgeScores: Record<string, JudgeScore[]>
   audienceVotes: Record<string, AudienceVote[]>
+  liveArguments: Record<string, LiveArgument[]>  // keyed by match id
   isLoading: boolean
   error: string | null
 }
@@ -82,6 +84,8 @@ interface RealtimeGameActions {
   createMatch: (match: Omit<Match, 'judgeScores' | 'audienceVotes'>) => Promise<void>
   setCurrentMatch: (matchId: string) => Promise<void>
   submitArguments: (matchId: string, teamId: string, args: string[]) => Promise<void>
+  addLiveArgument: (matchId: string, playerId: string, teamId: string, content: string) => Promise<void>
+  finalizeLiveArguments: (matchId: string) => Promise<void>
   submitJudgeScore: (matchId: string, score: JudgeScore) => Promise<void>
   submitAudienceVote: (matchId: string, playerId: string, votedFor: string) => Promise<void>
   updateTeamScore: (teamId: string, score: number, matchesPlayed: number) => Promise<void>
@@ -106,6 +110,7 @@ export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & 
     matches: [],
     judgeScores: {},
     audienceVotes: {},
+    liveArguments: {},
     isLoading: true,
     error: null,
   })
@@ -166,6 +171,15 @@ export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & 
         .from('audience_votes')
         .select('*')
 
+      // Load live arguments — joined on match_id so we only get ones for our session's matches
+      const matchIds = (matchesData || []).map((m) => m.id)
+      const { data: liveArgsData } = matchIds.length
+        ? await supabase
+            .from('live_arguments')
+            .select('*')
+            .in('match_id', matchIds)
+        : { data: [] }
+
       const teams: Record<string, Team> = {}
       const players: Record<string, Player> = {}
 
@@ -207,6 +221,21 @@ export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & 
         return match
       })
 
+      const liveArguments: Record<string, LiveArgument[]> = {}
+      ;(liveArgsData || []).forEach((a: DbLiveArgument) => {
+        if (!liveArguments[a.match_id]) liveArguments[a.match_id] = []
+        liveArguments[a.match_id].push({
+          id: a.id,
+          matchId: a.match_id,
+          playerId: a.player_id,
+          teamId: a.team_id,
+          playerName: players[a.player_id]?.name,
+          content: a.content,
+          createdAt: new Date(a.created_at).getTime(),
+        })
+      })
+      Object.values(liveArguments).forEach((arr) => arr.sort((a, b) => a.createdAt - b.createdAt))
+
       if (isCancelled && isCancelled()) return
 
       setState((prev) => ({
@@ -229,6 +258,7 @@ export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & 
         matches,
         judgeScores,
         audienceVotes,
+        liveArguments,
         isLoading: false,
       }))
     } catch (err) {
@@ -430,6 +460,37 @@ export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & 
           })
         }
       )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'live_arguments',
+        },
+        (payload) => {
+          const row = payload.new as DbLiveArgument
+          setState((prev) => {
+            // Scope by known match IDs in our session (live_arguments has no session_id column)
+            if (!prev.matches.some((m) => m.id === row.match_id)) return prev
+            const entry: LiveArgument = {
+              id: row.id,
+              matchId: row.match_id,
+              playerId: row.player_id,
+              teamId: row.team_id,
+              playerName: prev.players[row.player_id]?.name,
+              content: row.content,
+              createdAt: new Date(row.created_at).getTime(),
+            }
+            const existing = prev.liveArguments[row.match_id] || []
+            if (existing.some((a) => a.id === entry.id)) return prev
+            const newList = [...existing, entry].sort((a, b) => a.createdAt - b.createdAt)
+            return {
+              ...prev,
+              liveArguments: { ...prev.liveArguments, [row.match_id]: newList },
+            }
+          })
+        }
+      )
       .subscribe()
 
     return () => {
@@ -565,6 +626,82 @@ export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & 
     [state.sessionId]
   )
 
+  // Add one live argument — a single student's submission. Appears instantly
+  // on all screens (display, admin, teammates) via the realtime subscription.
+  const addLiveArgument = useCallback(async (matchId: string, playerId: string, teamId: string, content: string) => {
+    if (!content.trim()) return
+    await supabase.from('live_arguments').insert({
+      match_id: matchId,
+      player_id: playerId,
+      team_id: teamId,
+      content: content.trim(),
+    })
+  }, [])
+
+  // Called by admin when prep time ends: collects every live_argument for
+  // both sides of this match, stamps them onto matches.team_{a,b}_arguments,
+  // and triggers AI analysis with the full collected corpus (not just one
+  // student's submission).
+  const finalizeLiveArguments = useCallback(async (matchId: string) => {
+    const match = state.matches.find((m) => m.id === matchId)
+    if (!match) return
+
+    const allArgs = state.liveArguments[matchId] || []
+    const teamAArgs = allArgs.filter((a) => a.teamId === match.teamA).map((a) => a.content)
+    const teamBArgs = allArgs.filter((a) => a.teamId === match.teamB).map((a) => a.content)
+
+    await supabase
+      .from('matches')
+      .update({
+        team_a_arguments: teamAArgs,
+        team_b_arguments: teamBArgs,
+      })
+      .eq('id', matchId)
+
+    const { TOPICS } = await import('./types')
+    const topicObj = TOPICS.find((t) => t.id === match.topicId)
+    if (!topicObj) return
+
+    // Trigger AI analysis for each side in parallel (so both show up ~same time)
+    const analyze = async (teamId: string, args: string[], aiField: 'ai_analysis_a' | 'ai_analysis_b') => {
+      if (args.length === 0) return
+      const team = state.teams[teamId]
+      const stance = match.teamA === teamId ? match.teamAStance : match.teamBStance
+
+      try {
+        const response = await fetch('/api/ai-analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            topic: topicObj.question,
+            stance,
+            arguments: args,
+            teamName: team?.name || 'Team',
+          }),
+        })
+
+        if (response.ok) {
+          const analysis = await response.json()
+          await supabase
+            .from('matches')
+            .update({
+              [aiField]: { teamId, score: analysis.score, commentary: analysis.commentary },
+            })
+            .eq('id', matchId)
+        }
+      } catch (err) {
+        console.error('AI analysis failed for', teamId, err)
+      }
+    }
+
+    await Promise.all([
+      analyze(match.teamA, teamAArgs, 'ai_analysis_a'),
+      analyze(match.teamB, teamBArgs, 'ai_analysis_b'),
+    ])
+  }, [state.matches, state.teams, state.liveArguments])
+
+  // DEPRECATED: kept for backward compat. New code should use addLiveArgument
+  // during prep and finalizeLiveArguments after prep ends.
   const submitArguments = useCallback(async (matchId: string, teamId: string, args: string[]) => {
     const match = state.matches.find((m) => m.id === matchId)
     if (!match) return
@@ -576,13 +713,11 @@ export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & 
       .update({ [updateField]: args })
       .eq('id', matchId)
 
-    // Trigger AI analysis in background
     try {
       const team = state.teams[teamId]
       const topic = match.topicId
       const stance = match.teamA === teamId ? match.teamAStance : match.teamBStance
 
-      // Find topic question from local topics
       const { TOPICS } = await import('./types')
       const topicObj = TOPICS.find((t) => t.id === topic)
       if (!topicObj) return
@@ -685,6 +820,8 @@ export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & 
     createMatch,
     setCurrentMatch,
     submitArguments,
+    addLiveArgument,
+    finalizeLiveArguments,
     submitJudgeScore,
     submitAudienceVote,
     updateTeamScore,

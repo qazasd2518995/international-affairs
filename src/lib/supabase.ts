@@ -103,3 +103,12 @@ export interface DbAudienceVote {
   voted_for: string
   created_at: string
 }
+
+export interface DbLiveArgument {
+  id: string
+  match_id: string
+  player_id: string
+  team_id: string
+  content: string
+  created_at: string
+}

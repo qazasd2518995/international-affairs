@@ -94,9 +94,9 @@ function HomeContent() {
     game.submitAudienceVote(currentMatch.id, playerId, votedFor)
   }
 
-  const handleArgumentSubmit = (args: string[]) => {
-    if (!currentMatch || !playerTeamId) return
-    game.submitArguments(currentMatch.id, playerTeamId, args)
+  const handleAddLiveArgument = (content: string) => {
+    if (!currentMatch || !playerTeamId || !playerId) return
+    game.addLiveArgument(currentMatch.id, playerId, playerTeamId, content)
   }
 
   // No session - landing
@@ -236,12 +236,16 @@ function HomeContent() {
                   label="PREP TIME"
                   size="sm"
                 />
-                {isCompeting ? (
+                {isCompeting && currentMatch ? (
                   <ArgumentInput
                     topic={currentTopic}
                     stance={playerStance as 'agree' | 'disagree'}
                     teamName={game.teams[playerTeamId!]?.name || ''}
-                    onSubmit={handleArgumentSubmit}
+                    playerId={playerId!}
+                    teamId={playerTeamId!}
+                    matchId={currentMatch.id}
+                    liveArguments={(game.liveArguments[currentMatch.id] || []).filter((a) => a.teamId === playerTeamId)}
+                    onSubmit={handleAddLiveArgument}
                   />
                 ) : (
                   <motion.div

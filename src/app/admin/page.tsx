@@ -442,38 +442,45 @@ function AdminContent() {
             )}
 
             {game.phase === 'preparation' && currentMatch && (() => {
-              const teamASubmitted = currentMatch.teamAArguments.length > 0
-              const teamBSubmitted = currentMatch.teamBArguments.length > 0
-              const bothSubmitted = teamASubmitted && teamBSubmitted
+              const allLive = game.liveArguments[currentMatch.id] || []
+              const teamAArgs = allLive.filter((a) => a.teamId === currentMatch.teamA)
+              const teamBArgs = allLive.filter((a) => a.teamId === currentMatch.teamB)
               const teamAName = game.teams[currentMatch.teamA]?.name || 'Team A'
               const teamBName = game.teams[currentMatch.teamB]?.name || 'Team B'
+              const bothHave = teamAArgs.length > 0 && teamBArgs.length > 0
 
-              const handleForceSkip = () => {
-                if (!bothSubmitted) {
+              // Finalize live arguments + call AI, then move to debate
+              const advanceToDebate = async () => {
+                await game.finalizeLiveArguments(currentMatch.id)
+                await game.updatePhase('debate')
+              }
+
+              const handleForceSkip = async () => {
+                if (!bothHave) {
                   const missing = [
-                    !teamASubmitted && teamAName,
-                    !teamBSubmitted && teamBName,
+                    teamAArgs.length === 0 && teamAName,
+                    teamBArgs.length === 0 && teamBName,
                   ].filter(Boolean).join(' and ')
                   const ok = window.confirm(
-                    `${missing} hasn't submitted arguments yet.\n\n` +
+                    `${missing} has no attacks yet.\n\n` +
                     `If you skip now, AI judges won't have commentary for them.\n\n` +
                     `Skip anyway?`
                   )
                   if (!ok) return
                 }
-                handleNextPhase()
+                await advanceToDebate()
               }
 
               return (
                 <motion.div
                   key="prep-content"
-                  className="space-y-6 text-center"
+                  className="space-y-4"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                 >
                   <motion.p
-                    className="font-pixel text-pixel-2xl md:text-pixel-3xl neon-glow-yellow"
+                    className="font-pixel text-pixel-2xl md:text-pixel-3xl neon-glow-yellow text-center"
                     animate={{ scale: [1, 1.02, 1] }}
                     transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
                   >
@@ -485,49 +492,59 @@ function AdminContent() {
                     startedAt={game.phaseStartedAt}
                     label="PREPARATION"
                     size="lg"
-                    onComplete={bothSubmitted ? handleNextPhase : undefined}
+                    onComplete={bothHave ? advanceToDebate : undefined}
                   />
 
-                  {/* Submission status */}
-                  <div className="flex justify-center gap-4 flex-wrap">
-                    <motion.div
-                      className={`pixel-panel-sm pixel-panel ${teamASubmitted ? 'pixel-panel-neon' : ''}`}
-                      animate={{ scale: teamASubmitted ? [1, 1.05, 1] : 1 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <p className="font-pixel text-pixel-sm text-team-red">
-                        {teamASubmitted ? '✓' : '...'} {teamAName.toUpperCase()}
+                  {/* Live feed of arguments as they come in */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-4xl mx-auto">
+                    <div className="pixel-panel-sm pixel-panel">
+                      <p className="font-pixel text-pixel-sm text-team-red mb-2">
+                        ◆ {teamAName.toUpperCase()} · {teamAArgs.length} attacks
                       </p>
-                      <p className="font-terminal text-terminal-sm text-text-dim mt-1">
-                        {teamASubmitted ? 'Ready!' : 'Writing attacks...'}
+                      <div className="max-h-40 overflow-y-auto space-y-1">
+                        {teamAArgs.length === 0 ? (
+                          <p className="font-terminal text-terminal-sm text-text-muted italic">
+                            &gt; Waiting...
+                          </p>
+                        ) : teamAArgs.map((arg) => (
+                          <p key={arg.id} className="font-terminal text-terminal-sm">
+                            <span className="text-neon-cyan">{arg.playerName || '...'}:</span>{' '}
+                            <span className="text-text-white">{arg.content}</span>
+                          </p>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="pixel-panel-sm pixel-panel">
+                      <p className="font-pixel text-pixel-sm text-team-blue mb-2">
+                        ◆ {teamBName.toUpperCase()} · {teamBArgs.length} attacks
                       </p>
-                    </motion.div>
-                    <motion.div
-                      className={`pixel-panel-sm pixel-panel ${teamBSubmitted ? 'pixel-panel-neon' : ''}`}
-                      animate={{ scale: teamBSubmitted ? [1, 1.05, 1] : 1 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <p className="font-pixel text-pixel-sm text-team-blue">
-                        {teamBSubmitted ? '✓' : '...'} {teamBName.toUpperCase()}
-                      </p>
-                      <p className="font-terminal text-terminal-sm text-text-dim mt-1">
-                        {teamBSubmitted ? 'Ready!' : 'Writing attacks...'}
-                      </p>
-                    </motion.div>
+                      <div className="max-h-40 overflow-y-auto space-y-1">
+                        {teamBArgs.length === 0 ? (
+                          <p className="font-terminal text-terminal-sm text-text-muted italic">
+                            &gt; Waiting...
+                          </p>
+                        ) : teamBArgs.map((arg) => (
+                          <p key={arg.id} className="font-terminal text-terminal-sm">
+                            <span className="text-neon-cyan">{arg.playerName || '...'}:</span>{' '}
+                            <span className="text-text-white">{arg.content}</span>
+                          </p>
+                        ))}
+                      </div>
+                    </div>
                   </div>
 
-                  {!bothSubmitted && (
-                    <p className="font-terminal text-terminal-base text-neon-pink">
-                      &gt; Waiting for both teams to submit before starting debate.
+                  {!bothHave && (
+                    <p className="font-terminal text-terminal-base text-neon-pink text-center">
+                      &gt; Waiting for both teams to submit at least one attack before starting debate.
                     </p>
                   )}
 
                   <div className="flex justify-center gap-3 flex-wrap">
-                    <SkipButton onClick={handleForceSkip} label={bothSubmitted ? 'Skip Prep' : 'Force Skip'} variant="skip" />
-                    {bothSubmitted && (
+                    <SkipButton onClick={handleForceSkip} label={bothHave ? 'Skip Prep' : 'Force Skip'} variant="skip" />
+                    {bothHave && (
                       <motion.button
                         className="pixel-btn pixel-btn-red"
-                        onClick={handleNextPhase}
+                        onClick={advanceToDebate}
                         whileTap={{ scale: 0.95 }}
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
