@@ -181,50 +181,118 @@ function HomeContent() {
               </motion.div>
             )}
 
-            {/* Topic reveal */}
+            {/* Topic reveal — show the topic if drawn, else show drawing animation */}
             {game.phase === 'topic-reveal' && (
-              <motion.div
-                className="pixel-panel pixel-panel-yellow text-center"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-              >
+              currentTopic ? (
                 <motion.div
-                  className="font-pixel text-pixel-4xl neon-glow-yellow mb-3"
-                  animate={{ rotate: [0, 360] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                  className="pixel-panel pixel-panel-neon"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
                 >
-                  ?
+                  <p className="font-pixel text-pixel-base text-neon-green text-center mb-3">
+                    ★ NEW QUEST ★
+                  </p>
+                  <div className="dialogue-box">
+                    <p className="font-terminal text-terminal-base">
+                      {currentTopic.question}
+                    </p>
+                  </div>
+                  {currentTopic.difficulty === 3 && (
+                    <p className="font-pixel text-pixel-sm text-neon-yellow text-center mt-3">
+                      ★ BOSS LEVEL ★
+                    </p>
+                  )}
                 </motion.div>
-                <p className="font-pixel text-pixel-base text-neon-yellow mb-3">
-                  DRAWING QUEST
-                </p>
-                <p className="font-terminal text-terminal-base text-text-dim">
-                  &gt; Look at the big screen!
-                </p>
-              </motion.div>
+              ) : (
+                <motion.div
+                  className="pixel-panel pixel-panel-yellow text-center"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                >
+                  <motion.div
+                    className="font-pixel text-pixel-4xl neon-glow-yellow mb-3"
+                    animate={{ rotate: [0, 360] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                  >
+                    ?
+                  </motion.div>
+                  <p className="font-pixel text-pixel-base text-neon-yellow mb-3">
+                    DRAWING QUEST
+                  </p>
+                  <p className="font-terminal text-terminal-base text-text-dim">
+                    &gt; Watch the big screen!
+                  </p>
+                </motion.div>
+              )
             )}
 
-            {/* Matchup reveal */}
+            {/* Matchup reveal — show this student's match (or "not your turn" message) */}
             {game.phase === 'matchup-reveal' && (
-              <motion.div
-                className="pixel-panel pixel-panel-pink text-center"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-              >
+              isCompeting && currentMatch ? (
                 <motion.div
-                  className="font-pixel text-pixel-4xl neon-glow-pink mb-3"
-                  animate={{ x: [-4, 4, -4] }}
-                  transition={{ duration: 0.3, repeat: Infinity, ease: 'linear' }}
+                  className={`pixel-panel ${playerStance === 'agree' ? 'pixel-panel-neon' : 'pixel-panel-pink'} text-center`}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
                 >
-                  ×
+                  <p className="font-pixel text-pixel-base neon-glow-yellow mb-3">
+                    ★ YOU&apos;RE UP! ★
+                  </p>
+                  <div className="flex items-center justify-center gap-2 flex-wrap mb-3">
+                    <span className="pixel-tag pixel-tag-red">
+                      {game.teams[currentMatch.teamA]?.name.toUpperCase()}
+                    </span>
+                    <span className="font-pixel text-pixel-sm text-neon-yellow">VS</span>
+                    <span className="pixel-tag pixel-tag-blue">
+                      {game.teams[currentMatch.teamB]?.name.toUpperCase()}
+                    </span>
+                  </div>
+                  <p className="font-pixel text-pixel-base mb-2" style={{ color: playerStance === 'agree' ? 'var(--neon-green)' : 'var(--neon-red)' }}>
+                    YOUR STANCE: {playerStance === 'agree' ? 'AGREE' : 'DISAGREE'}
+                  </p>
+                  <p className="font-terminal text-terminal-base text-text-dim">
+                    &gt; Get ready to write attacks!
+                  </p>
                 </motion.div>
-                <p className="font-pixel text-pixel-base neon-glow-pink mb-3">
-                  MATCHUPS!
-                </p>
-                <p className="font-terminal text-terminal-base text-text-dim">
-                  &gt; Check the big screen!
-                </p>
-              </motion.div>
+              ) : currentMatch ? (
+                <motion.div
+                  className="pixel-panel pixel-panel-pink text-center"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                >
+                  <p className="font-pixel text-pixel-base neon-glow-pink mb-3">
+                    × NEXT MATCH ×
+                  </p>
+                  <div className="flex items-center justify-center gap-2 flex-wrap mb-3">
+                    <span className="pixel-tag pixel-tag-red">
+                      {game.teams[currentMatch.teamA]?.name.toUpperCase()}
+                    </span>
+                    <span className="font-pixel text-pixel-sm text-neon-yellow">VS</span>
+                    <span className="pixel-tag pixel-tag-blue">
+                      {game.teams[currentMatch.teamB]?.name.toUpperCase()}
+                    </span>
+                  </div>
+                  <p className="font-terminal text-terminal-base text-text-dim">
+                    &gt; You&apos;ll get to vote and cheer later!
+                  </p>
+                </motion.div>
+              ) : (
+                <motion.div
+                  className="pixel-panel pixel-panel-pink text-center"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                >
+                  <motion.div
+                    className="font-pixel text-pixel-4xl neon-glow-pink mb-3"
+                    animate={{ x: [-4, 4, -4] }}
+                    transition={{ duration: 0.3, repeat: Infinity, ease: 'linear' }}
+                  >
+                    ×
+                  </motion.div>
+                  <p className="font-pixel text-pixel-base neon-glow-pink">
+                    MATCHUPS!
+                  </p>
+                </motion.div>
+              )
             )}
 
             {/* Preparation */}
@@ -343,28 +411,160 @@ function HomeContent() {
               </motion.div>
             )}
 
-            {/* Result / Leaderboard / Awards */}
-            {(game.phase === 'result' || game.phase === 'leaderboard' || game.phase === 'final-awards') && (
-              <motion.div
-                className="pixel-panel pixel-panel-yellow text-center"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-              >
+            {/* Result — show win/lose for competing teams, neutral for others */}
+            {game.phase === 'result' && currentMatch && (() => {
+              const isWinner = isCompeting && currentMatch.winner === playerTeamId
+              const isLoser = isCompeting && currentMatch.winner && currentMatch.winner !== playerTeamId
+
+              if (isWinner) {
+                return (
+                  <motion.div
+                    className="pixel-panel pixel-panel-yellow text-center"
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                  >
+                    <motion.div
+                      className="font-pixel text-[80px] neon-glow-yellow leading-none mb-3"
+                      animate={{ rotate: [0, -10, 10, 0], scale: [1, 1.2, 1] }}
+                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                    >
+                      ♛
+                    </motion.div>
+                    <p className="font-pixel text-pixel-2xl neon-glow-yellow mb-2">
+                      VICTORY!
+                    </p>
+                    <p className="font-terminal text-terminal-base text-text-white">
+                      &gt; Your team won this match!
+                    </p>
+                  </motion.div>
+                )
+              }
+
+              if (isLoser) {
+                return (
+                  <motion.div
+                    className="pixel-panel pixel-panel-pink text-center"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                  >
+                    <p className="font-pixel text-[60px] neon-glow-pink leading-none mb-3">×</p>
+                    <p className="font-pixel text-pixel-2xl neon-glow-pink mb-2">
+                      DEFEATED
+                    </p>
+                    <p className="font-terminal text-terminal-base text-text-dim">
+                      &gt; Good fight! Watch the big screen for scores.
+                    </p>
+                  </motion.div>
+                )
+              }
+
+              return (
                 <motion.div
-                  className="font-pixel text-pixel-4xl neon-glow-yellow mb-3"
-                  animate={{ y: [0, -4, 0] }}
-                  transition={{ duration: 0.5, repeat: Infinity, ease: 'linear' }}
+                  className="pixel-panel pixel-panel-yellow text-center"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
                 >
-                  {game.phase === 'result' ? '♛' : game.phase === 'leaderboard' ? '▲' : '★'}
+                  <motion.div
+                    className="font-pixel text-pixel-4xl neon-glow-yellow mb-3"
+                    animate={{ y: [0, -4, 0] }}
+                    transition={{ duration: 0.5, repeat: Infinity, ease: 'linear' }}
+                  >
+                    ♛
+                  </motion.div>
+                  <p className="font-pixel text-pixel-lg neon-glow-yellow mb-2">
+                    RESULT!
+                  </p>
+                  <p className="font-terminal text-terminal-base text-text-dim">
+                    &gt; Watch the big screen!
+                  </p>
                 </motion.div>
-                <p className="font-pixel text-pixel-lg neon-glow-yellow mb-2">
-                  {game.phase === 'result' ? 'RESULT!' : game.phase === 'leaderboard' ? 'RANKS!' : 'ENDING!'}
-                </p>
-                <p className="font-terminal text-terminal-base text-text-dim">
-                  &gt; Watch the big screen!
-                </p>
-              </motion.div>
-            )}
+              )
+            })()}
+
+            {/* Leaderboard — show student's team rank */}
+            {game.phase === 'leaderboard' && (() => {
+              const sorted = [...Object.values(game.teams)].sort((a, b) => b.totalScore - a.totalScore)
+              const myRank = playerTeamId ? sorted.findIndex((t) => t.id === playerTeamId) + 1 : 0
+              const myTeam = playerTeamId ? game.teams[playerTeamId] : null
+
+              return (
+                <motion.div
+                  className="pixel-panel pixel-panel-yellow text-center"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                >
+                  <p className="font-pixel text-pixel-base neon-glow-yellow mb-3">
+                    ▲ HI-SCORE ▲
+                  </p>
+                  {myTeam && myRank > 0 && (
+                    <>
+                      <p className="font-pixel text-pixel-3xl neon-glow-yellow mb-2">
+                        #{myRank}
+                      </p>
+                      <p className="font-terminal text-terminal-base text-text-white">
+                        {myTeam.name.toUpperCase()} · {myTeam.totalScore.toFixed(1)} XP
+                      </p>
+                    </>
+                  )}
+                  <p className="font-terminal text-terminal-base text-text-dim mt-3">
+                    &gt; Watch the big screen for full ranks!
+                  </p>
+                </motion.div>
+              )
+            })()}
+
+            {/* Final awards — celebrate or commiserate */}
+            {game.phase === 'final-awards' && (() => {
+              const sorted = [...Object.values(game.teams)].sort((a, b) => b.totalScore - a.totalScore)
+              const champion = sorted[0]
+              const isChampion = playerTeamId && champion?.id === playerTeamId
+
+              if (isChampion) {
+                return (
+                  <motion.div
+                    className="pixel-panel pixel-panel-yellow text-center"
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                  >
+                    <motion.div
+                      className="font-pixel text-[100px] neon-glow-yellow leading-none mb-3"
+                      animate={{ y: [0, -8, 0], rotate: [0, -5, 5, 0] }}
+                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                    >
+                      ♛
+                    </motion.div>
+                    <p className="font-pixel text-pixel-2xl neon-glow-yellow mb-2">
+                      CHAMPIONS!
+                    </p>
+                    <p className="font-terminal text-terminal-base text-text-white">
+                      &gt; Your team won the whole tournament!
+                    </p>
+                  </motion.div>
+                )
+              }
+
+              return (
+                <motion.div
+                  className="pixel-panel pixel-panel-yellow text-center"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                >
+                  <motion.div
+                    className="font-pixel text-pixel-4xl neon-glow-yellow mb-3"
+                    animate={{ y: [0, -4, 0] }}
+                    transition={{ duration: 0.5, repeat: Infinity, ease: 'linear' }}
+                  >
+                    ★
+                  </motion.div>
+                  <p className="font-pixel text-pixel-base neon-glow-yellow mb-2">
+                    GG!
+                  </p>
+                  <p className="font-terminal text-terminal-base text-text-dim">
+                    &gt; Champion: {champion?.name.toUpperCase() || '...'}
+                  </p>
+                </motion.div>
+              )
+            })()}
           </div>
         )}
 
