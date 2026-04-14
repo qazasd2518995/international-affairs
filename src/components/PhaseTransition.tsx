@@ -10,6 +10,7 @@ interface PhaseTransitionProps {
 
 const PHASE_INFO: Record<GamePhase, { title: string; subtitle: string; symbol: string; color: string }> = {
   'lobby': { title: 'LOBBY', subtitle: '> Awaiting heroes...', symbol: '◆', color: 'var(--neon-yellow)' },
+  'bracket-reveal': { title: 'BRACKET', subtitle: '> Pairings drawn', symbol: '★', color: 'var(--neon-pink)' },
   'topic-reveal': { title: 'QUEST', subtitle: '> New topic drawn', symbol: '?', color: 'var(--neon-yellow)' },
   'voting': { title: 'VOTE!', subtitle: '> Cast your spell', symbol: '✦', color: 'var(--neon-cyan)' },
   'matchup-reveal': { title: 'MATCHUP', subtitle: '> Parties collide', symbol: '×', color: 'var(--neon-pink)' },

@@ -62,10 +62,9 @@ function JudgeContent() {
   const currentMatch = game.currentMatchId ? game.matches.find((m) => m.id === game.currentMatchId) : null
   const currentTopic = game.currentTopicId ? TOPICS.find((t) => t.id === game.currentTopicId) : null
   const allMatches = [...game.matches].sort((a, b) => a.id.localeCompare(b.id))
-  const isFirstMatchReveal = allMatches.length > 0 && allMatches.every((m) => !m.completed)
-  const currentRoundMatches = isFirstMatchReveal
-    ? allMatches
-    : allMatches.filter((m) => m.id === game.currentMatchId)
+  // matchup-reveal always highlights just the current match — the full 3-match
+  // bracket is shown separately in the bracket-reveal phase that comes before.
+  const currentRoundMatches = allMatches.filter((m) => m.id === game.currentMatchId)
 
   const hasScored = currentMatch?.judgeScores.some((s) => s.judgeId === judgeId)
 
@@ -216,6 +215,27 @@ function JudgeContent() {
               <p className="font-terminal text-terminal-base text-text-dim">
                 &gt; {Object.keys(game.players).length} heroes joined<br/>
                 &gt; Waiting for battle...
+              </p>
+            </motion.div>
+          )}
+
+          {game.phase === 'bracket-reveal' && (
+            <motion.div
+              key="bracket"
+              className="max-w-md mx-auto pixel-panel pixel-panel-pink text-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <motion.div
+                className="font-pixel text-pixel-3xl neon-glow-pink mb-3"
+                animate={{ scale: [1, 1.05, 1] }}
+                transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
+              >
+                ★ BRACKET ★
+              </motion.div>
+              <p className="font-terminal text-terminal-base text-text-dim">
+                &gt; Matchups are being revealed.<br />
+                &gt; Watch the big screen!
               </p>
             </motion.div>
           )}

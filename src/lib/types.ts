@@ -2,6 +2,7 @@
 
 export type GamePhase =
   | 'lobby'           // 等待登入
+  | 'bracket-reveal'  // 抽配對 + 顯示 3 場排程
   | 'topic-reveal'    // 抽題揭曉
   | 'voting'          // 全班投票立場
   | 'matchup-reveal'  // 配對揭曉

@@ -105,13 +105,9 @@ function AdminContent() {
   // All matches are created in round 1 and reused across rounds — currentRound
   // is now the "which match number (1/2/3) we're playing", not a DB round group.
   const allMatches = [...game.matches].sort((a, b) => a.id.localeCompare(b.id))
-  // Round 1 matchup-reveal: show all three pairings at once. Round 2/3: the
-  // pairings are already known, so matchup-reveal only highlights the upcoming
-  // match so it feels like a "next up" announcement instead of a re-pairing.
-  const isFirstMatchReveal = allMatches.length > 0 && allMatches.every((m) => !m.completed)
-  const currentRoundMatches = isFirstMatchReveal
-    ? allMatches
-    : allMatches.filter((m) => m.id === game.currentMatchId)
+  // matchup-reveal always highlights just the current match — the full 3-match
+  // bracket is shown separately in the bracket-reveal phase that comes before.
+  const currentRoundMatches = allMatches.filter((m) => m.id === game.currentMatchId)
 
   useEffect(() => {
     if (sessionId && typeof window !== 'undefined') {
@@ -168,7 +164,8 @@ function AdminContent() {
   //   scoring → result → (back to topic-reveal if more matches, else leaderboard)
   const handleNextPhase = async () => {
     const transitions: Record<string, GamePhase> = {
-      'lobby': 'topic-reveal',
+      'lobby': 'bracket-reveal',
+      'bracket-reveal': 'topic-reveal',
       'topic-reveal': 'matchup-reveal',
       'matchup-reveal': 'preparation',
       'preparation': 'debate',
@@ -184,6 +181,7 @@ function AdminContent() {
 
     // Lock in the 3 matchups on first transition out of lobby — no class vote,
     // just random pairing with random stance assignment so both sides feel fair.
+    // Happens on lobby → bracket-reveal so the schedule screen can show them.
     if (game.phase === 'lobby' && game.matches.length === 0) {
       await autoCreateMatches()
     }
@@ -442,6 +440,30 @@ function AdminContent() {
                       ► START GAME ◄
                     </motion.button>
                   </div>
+                </div>
+              </motion.div>
+            )}
+
+            {game.phase === 'bracket-reveal' && (
+              <motion.div
+                key="bracket-content"
+                className="space-y-6"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <AllMatchups matches={allMatches} teams={game.teams} allMatchesOrdered={allMatches} />
+                <div className="text-center">
+                  <motion.button
+                    className="pixel-btn pixel-btn-green"
+                    onClick={handleNextPhase}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 2 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    ► DRAW TOPIC ◄
+                  </motion.button>
                 </div>
               </motion.div>
             )}

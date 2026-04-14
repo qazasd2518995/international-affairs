@@ -182,6 +182,26 @@ function HomeContent() {
             )}
 
             {/* Topic reveal — show the topic if drawn, else show drawing animation */}
+            {game.phase === 'bracket-reveal' && (
+              <motion.div
+                className="pixel-panel pixel-panel-pink text-center"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                <motion.div
+                  className="font-pixel text-pixel-3xl neon-glow-pink mb-3"
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
+                >
+                  ★ BATTLE BRACKET ★
+                </motion.div>
+                <p className="font-terminal text-terminal-base text-text-dim">
+                  &gt; The 3 matchups are being revealed.<br />
+                  &gt; Watch the big screen to see your match!
+                </p>
+              </motion.div>
+            )}
+
             {game.phase === 'topic-reveal' && (
               currentTopic ? (
                 <motion.div
