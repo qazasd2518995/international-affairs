@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { Topic } from '@/lib/types'
 import { TOPICS } from '@/lib/types'
@@ -19,7 +19,19 @@ export function TopicReveal({ onReveal, usedTopicIds = [] }: TopicRevealProps) {
   const [countdown, setCountdown] = useState(3)
   const [shuffleProgress, setShuffleProgress] = useState(0) // 0..100 during shuffling
 
-  const availableTopics = TOPICS.filter((t) => !usedTopicIds.includes(t.id))
+  // Memoize so the shuffle effect's dependency doesn't change every render
+  // (which would cancel and restart the animation forever).
+  const usedKey = usedTopicIds.join(',')
+  const availableTopics = useMemo(
+    () => TOPICS.filter((t) => !usedTopicIds.includes(t.id)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [usedKey],
+  )
+
+  // Keep a ref to onReveal so the shuffle effect doesn't restart when parent
+  // re-renders give it a new function instance.
+  const onRevealRef = useRef(onReveal)
+  useEffect(() => { onRevealRef.current = onReveal }, [onReveal])
 
   const startShuffle = () => {
     setPhase('countdown')
@@ -38,47 +50,48 @@ export function TopicReveal({ onReveal, usedTopicIds = [] }: TopicRevealProps) {
 
   useEffect(() => {
     if (phase !== 'shuffling') return
+    if (availableTopics.length === 0) return
 
-    // Decide the final topic up-front so the animation lands on it predictably.
     const finalIndex = Math.floor(Math.random() * availableTopics.length)
 
-    // Shuffle timing: fast ramp-up, slow-down with decreasing frequency so
-    // the audience can feel each card slot in. Final 3 slots are clearly
-    // spaced 400ms / 550ms / 700ms apart, no long silent hang.
     const schedule = [
-      // phase 1: fast shuffle (32 ticks × 50ms ≈ 1.6s)
       ...Array(32).fill(50),
-      // phase 2: ease out (8 ticks with increasing delay)
       80, 110, 150, 200, 260, 330, 400, 550,
-      // phase 3: final dramatic beat before reveal
       700,
-    ]
+    ] as number[]
     const totalTicks = schedule.length
 
     let tick = 0
-    let timeoutId: ReturnType<typeof setTimeout>
+    let timeoutId: ReturnType<typeof setTimeout> | null = null
+    let cancelled = false
 
     const runTick = () => {
+      if (cancelled) return
       if (tick >= totalTicks) {
         setShuffleProgress(100)
         setCurrentIndex(finalIndex)
         timeoutId = setTimeout(() => {
+          if (cancelled) return
           const topic = availableTopics[finalIndex]
           setSelectedTopic(topic)
           setPhase('revealed')
-          onReveal(topic)
+          onRevealRef.current(topic)
         }, 400)
         return
       }
+      const nextDelay = schedule[tick]
       setCurrentIndex((prev) => (prev + 1) % availableTopics.length)
       tick++
       setShuffleProgress(Math.round((tick / totalTicks) * 100))
-      timeoutId = setTimeout(runTick, schedule[tick - 1])
+      timeoutId = setTimeout(runTick, nextDelay)
     }
 
     timeoutId = setTimeout(runTick, 50)
-    return () => clearTimeout(timeoutId)
-  }, [phase, availableTopics, onReveal])
+    return () => {
+      cancelled = true
+      if (timeoutId) clearTimeout(timeoutId)
+    }
+  }, [phase, availableTopics])
 
   const displayTopic = phase === 'revealed' ? selectedTopic : availableTopics[currentIndex]
 
