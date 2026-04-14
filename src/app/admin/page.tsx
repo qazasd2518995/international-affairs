@@ -282,10 +282,8 @@ function AdminContent() {
       {showPhaseTransition && <PhaseTransition phase={game.phase} round={Math.max(1, allMatches.findIndex((m) => m.id === game.currentMatchId) + 1)} />}
 
       <div className="relative z-10 min-h-screen">
-        <header className="p-4 flex items-center justify-between border-b-2 border-panel-border">
-          <div className="font-pixel text-pixel-base neon-glow-yellow">
-            ♚ HOST MODE
-          </div>
+        <header className="p-4 md:p-6 flex items-center justify-between border-b-2 border-panel-border">
+          <Logo size="sm" animate={false} />
           <div className="flex items-center gap-3">
             <span className="pixel-tag pixel-tag-cyan">
               MATCH {Math.max(1, allMatches.findIndex((m) => m.id === game.currentMatchId) + 1)}/3
@@ -306,38 +304,34 @@ function AdminContent() {
             {game.phase === 'lobby' && (
               <motion.div
                 key="lobby-content"
-                className="max-w-3xl mx-auto"
+                className="max-w-5xl mx-auto text-center"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
               >
-                <div className="pixel-panel pixel-panel-neon">
-                  <div className="text-center mb-6">
-                    <p className="font-pixel text-pixel-xl md:text-pixel-2xl neon-glow-green">
-                      ★ WAITING FOR PLAYERS ★
-                    </p>
-                  </div>
+                <div className="pixel-panel pixel-panel-yellow">
+                  <p className="font-pixel text-pixel-3xl md:text-pixel-4xl neon-glow-yellow mb-6">
+                    ★ SCAN TO JOIN ★
+                  </p>
 
-                  <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-6">
-                    {gameUrl && <QRCodeDisplay url={gameUrl} size={200} />}
-                    <div className="pixel-panel-sm pixel-panel max-w-xs w-full">
-                      <p className="font-pixel text-pixel-sm text-neon-yellow mb-2">
-                        ► GAME URL
-                      </p>
-                      <p className="font-terminal text-terminal-sm text-neon-cyan break-all mb-3">
-                        {gameUrl}
-                      </p>
-                      <motion.button
-                        className="pixel-btn pixel-btn-cyan w-full text-pixel-sm"
-                        onClick={() => navigator.clipboard.writeText(gameUrl)}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        COPY
-                      </motion.button>
+                  {gameUrl && (
+                    <div className="flex justify-center mb-6">
+                      <QRCodeDisplay
+                        url={gameUrl}
+                        size={typeof window !== 'undefined' && window.innerWidth < 640 ? 200 : 320}
+                      />
                     </div>
-                  </div>
+                  )}
 
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+                  <motion.p
+                    className="font-pixel text-pixel-2xl neon-glow-pink mb-6"
+                    animate={{ scale: [1, 1.05, 1] }}
+                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                  >
+                    {Object.keys(game.players).length} HEROES JOINED
+                  </motion.p>
+
+                  <div className="grid grid-cols-3 gap-3 max-w-2xl mx-auto mb-6">
                     {Object.values(game.teams).map((team) => (
                       <motion.div
                         key={team.id}
@@ -353,8 +347,8 @@ function AdminContent() {
                         </p>
                         <motion.p
                           key={team.members.length}
-                          className="font-pixel text-pixel-lg neon-glow-green"
-                          initial={{ scale: 1.3 }}
+                          className="font-pixel text-pixel-xl neon-glow-green"
+                          initial={{ scale: 1.5 }}
                           animate={{ scale: 1 }}
                         >
                           {team.members.length}
@@ -363,11 +357,14 @@ function AdminContent() {
                     ))}
                   </div>
 
-                  <p className="text-center font-pixel text-pixel-base text-neon-yellow mb-4">
-                    TOTAL: {Object.keys(game.players).length} HEROES
-                  </p>
-
-                  <div className="text-center">
+                  <div className="flex justify-center gap-3 flex-wrap mb-4">
+                    <motion.button
+                      className="pixel-btn pixel-btn-ghost text-pixel-sm"
+                      onClick={() => navigator.clipboard.writeText(gameUrl)}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      COPY URL
+                    </motion.button>
                     <motion.button
                       className="pixel-btn pixel-btn-green"
                       onClick={handleNextPhase}
@@ -391,17 +388,52 @@ function AdminContent() {
                 {!game.currentTopicId ? (
                   <TopicReveal onReveal={handleTopicReveal} usedTopicIds={usedTopicIds} />
                 ) : currentTopic && (
-                  <div className="max-w-3xl mx-auto">
+                  <div className="max-w-5xl mx-auto crt-on">
                     <div className="pixel-panel pixel-panel-neon">
-                      <div className="flex justify-center gap-4 mb-4 flex-wrap">
-                        <CategoryTag category={currentTopic.category} size="lg" />
-                        <DifficultyStars difficulty={currentTopic.difficulty} size="lg" />
-                      </div>
-                      <div className="dialogue-box">
-                        <p className="font-terminal text-terminal-lg md:text-terminal-xl">
-                          {currentTopic.question}
+                      <div className="text-center mb-6">
+                        <p className="font-pixel text-pixel-base text-neon-yellow">
+                          ★ NEW QUEST ★
                         </p>
                       </div>
+
+                      <motion.div
+                        className="flex justify-center items-center gap-4 mb-6 flex-wrap"
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                      >
+                        <CategoryTag category={currentTopic.category} size="lg" />
+                        <span className="font-pixel text-neon-yellow">|</span>
+                        <DifficultyStars difficulty={currentTopic.difficulty} size="lg" />
+                      </motion.div>
+
+                      <div className="dialogue-box">
+                        <motion.p
+                          className="font-terminal text-terminal-xl md:text-terminal-2xl"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 0.6 }}
+                        >
+                          {currentTopic.question}
+                        </motion.p>
+                      </div>
+
+                      {currentTopic.difficulty === 3 && (
+                        <motion.div
+                          className="text-center mt-6"
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ delay: 1, ease: 'linear' }}
+                        >
+                          <motion.div
+                            className="pixel-tag pixel-tag-yellow inline-flex"
+                            animate={{ scale: [1, 1.1, 1] }}
+                            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                          >
+                            ★ BOSS LEVEL · BONUS XP ★
+                          </motion.div>
+                        </motion.div>
+                      )}
                     </div>
                     <div className="text-center mt-6">
                       <motion.button
@@ -409,7 +441,7 @@ function AdminContent() {
                         onClick={handleNextPhase}
                         whileTap={{ scale: 0.95 }}
                       >
-                        ► START VOTING ◄
+                        ► REVEAL MATCHUP ◄
                       </motion.button>
                     </div>
                   </div>
@@ -621,9 +653,11 @@ function AdminContent() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
               >
-                <p className="font-pixel text-pixel-2xl md:text-pixel-3xl text-center neon-glow-yellow">
-                  ♪ CROWD CHEERS ♪
-                </p>
+                <motion.p
+                  className="font-pixel text-pixel-3xl md:text-pixel-4xl text-center neon-glow-yellow animate-glitch"
+                >
+                  ♪ CHEER! ♪
+                </motion.p>
 
                 <SyncedCountdown
                   duration={20}
