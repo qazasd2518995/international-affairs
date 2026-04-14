@@ -315,25 +315,66 @@ function HomeContent() {
                     liveArguments={(game.liveArguments[currentMatch.id] || []).filter((a) => a.teamId === playerTeamId)}
                     onSubmit={handleAddLiveArgument}
                   />
-                ) : (
+                ) : currentMatch ? (
                   <motion.div
-                    className="pixel-panel text-center"
+                    className="pixel-panel"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                   >
-                    <p className="font-pixel text-pixel-base text-neon-yellow mb-3">
+                    <p className="font-pixel text-pixel-base text-neon-yellow text-center mb-3">
                       ♪ CHARGING MP ♪
                     </p>
-                    <div className="dialogue-box">
+                    <div className="dialogue-box mb-4">
                       <p className="font-terminal text-terminal-base">
-                        &gt; {currentTopic.question}
+                        {currentTopic.question}
                       </p>
                     </div>
-                    <p className="font-terminal text-terminal-base text-text-dim mt-3">
-                      &gt; Teams are preparing moves...
-                    </p>
+                    {/* Live attack feed for non-competing students */}
+                    {(() => {
+                      const allLive = game.liveArguments[currentMatch.id] || []
+                      const teamAArgs = allLive.filter((a) => a.teamId === currentMatch.teamA)
+                      const teamBArgs = allLive.filter((a) => a.teamId === currentMatch.teamB)
+                      return (
+                        <div className="space-y-3">
+                          <div className="pixel-panel-sm pixel-panel">
+                            <p className="font-pixel text-pixel-sm text-team-red mb-2">
+                              ◆ {game.teams[currentMatch.teamA]?.name.toUpperCase()} · {teamAArgs.length}
+                            </p>
+                            <div className="max-h-32 overflow-y-auto space-y-1">
+                              {teamAArgs.length === 0 ? (
+                                <p className="font-terminal text-terminal-sm text-text-muted italic">
+                                  &gt; Writing...
+                                </p>
+                              ) : teamAArgs.map((arg) => (
+                                <p key={arg.id} className="font-terminal text-terminal-sm">
+                                  <span className="text-neon-cyan">{arg.playerName || '...'}:</span>{' '}
+                                  <span className="text-text-white">{arg.content}</span>
+                                </p>
+                              ))}
+                            </div>
+                          </div>
+                          <div className="pixel-panel-sm pixel-panel">
+                            <p className="font-pixel text-pixel-sm text-team-blue mb-2">
+                              ◆ {game.teams[currentMatch.teamB]?.name.toUpperCase()} · {teamBArgs.length}
+                            </p>
+                            <div className="max-h-32 overflow-y-auto space-y-1">
+                              {teamBArgs.length === 0 ? (
+                                <p className="font-terminal text-terminal-sm text-text-muted italic">
+                                  &gt; Writing...
+                                </p>
+                              ) : teamBArgs.map((arg) => (
+                                <p key={arg.id} className="font-terminal text-terminal-sm">
+                                  <span className="text-neon-cyan">{arg.playerName || '...'}:</span>{' '}
+                                  <span className="text-text-white">{arg.content}</span>
+                                </p>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })()}
                   </motion.div>
-                )}
+                ) : null}
               </div>
             )}
 
