@@ -499,17 +499,59 @@ export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & 
       )
       .subscribe()
 
-    // Polling fallback: realtime subscriptions occasionally miss INSERT
-    // events (channel reconnects, transient disconnects on phones waking up,
-    // or the subscription being attached a few ms after the insert landed).
-    // A cheap 3s re-fetch patches those gaps without adding perceivable lag.
-    const pollInterval = setInterval(() => {
+    // Polling fallback in two tiers:
+    //
+    //   Fast (1s): just the session row — phase, current_match_id,
+    //   timers. This is the user-visible "the host clicked next" lag,
+    //   so we want it tight. Only 1 small row, very cheap.
+    //
+    //   Slow (3s): full session reload — teams/players/matches/votes/etc.
+    //   Realtime usually delivers these instantly; this just catches
+    //   dropped events (phone WiFi blip, websocket reconnect).
+    const fastPoll = setInterval(async () => {
+      if (!state.sessionId || cancelled) return
+      const { data: session } = await supabase
+        .from('game_sessions')
+        .select('phase, phase_started_at, current_round, current_topic_id, current_match_id, debate_sub_phase, debate_sub_phase_started_at')
+        .eq('id', state.sessionId)
+        .single()
+      if (cancelled || !session) return
+      setState((prev) => {
+        // Only patch fields that actually changed
+        const newPhase = session.phase as GamePhase
+        const newPhaseStarted = session.phase_started_at ? new Date(session.phase_started_at).getTime() : null
+        const newSubPhase = (session.debate_sub_phase as DebateSubPhase) || 'team-a-opening'
+        const newSubStarted = session.debate_sub_phase_started_at ? new Date(session.debate_sub_phase_started_at).getTime() : null
+        if (
+          prev.phase === newPhase &&
+          prev.phaseStartedAt === newPhaseStarted &&
+          prev.currentRound === session.current_round &&
+          prev.currentTopicId === session.current_topic_id &&
+          prev.currentMatchId === session.current_match_id &&
+          prev.debateSubPhase === newSubPhase &&
+          prev.debateSubPhaseStartedAt === newSubStarted
+        ) return prev
+        return {
+          ...prev,
+          phase: newPhase,
+          phaseStartedAt: newPhaseStarted,
+          currentRound: session.current_round,
+          currentTopicId: session.current_topic_id,
+          currentMatchId: session.current_match_id,
+          debateSubPhase: newSubPhase,
+          debateSubPhaseStartedAt: newSubStarted,
+        }
+      })
+    }, 1000)
+
+    const slowPoll = setInterval(() => {
       if (state.sessionId) loadSession(state.sessionId, () => cancelled)
     }, 3000)
 
     return () => {
       cancelled = true
-      clearInterval(pollInterval)
+      clearInterval(fastPoll)
+      clearInterval(slowPoll)
       supabase.removeChannel(sessionChannel)
     }
   }, [state.sessionId, loadSession])
