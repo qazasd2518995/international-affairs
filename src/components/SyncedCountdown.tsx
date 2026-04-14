@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 
 interface SyncedCountdownProps {
   duration: number
@@ -67,29 +67,19 @@ export function SyncedCountdown({
     <div className={`${containerSizes[size]} mx-auto w-full`}>
       <div className="pixel-panel pixel-panel-sm">
         {/* Label bar */}
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-center mb-3">
           <span className="font-pixel text-pixel-sm text-neon-yellow">
             {label.toUpperCase()}
-          </span>
-          <span className="font-pixel text-pixel-sm text-text-dim">
-            {seconds}s
           </span>
         </div>
 
         {/* Big timer */}
         <div className="text-center my-3">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={seconds}
-              className={`pixel-timer font-pixel ${sizeClasses[size]} ${isUrgent ? 'timer-danger neon-glow-pink' : isWarning ? 'neon-glow-yellow' : 'neon-glow-cyan'}`}
-              initial={{ scale: 1.2, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              transition={{ duration: 0.1, ease: 'linear' }}
-            >
-              {minutes > 0 ? `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}` : String(secs).padStart(2, '0')}
-            </motion.div>
-          </AnimatePresence>
+          <div
+            className={`pixel-timer font-pixel ${sizeClasses[size]} ${isUrgent ? 'timer-danger neon-glow-pink' : isWarning ? 'neon-glow-yellow' : 'neon-glow-cyan'}`}
+          >
+            {minutes > 0 ? `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}` : String(secs).padStart(2, '0')}
+          </div>
         </div>
 
         {/* Pixel HP bar */}
