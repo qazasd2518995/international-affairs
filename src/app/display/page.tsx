@@ -152,7 +152,7 @@ function DisplayContent() {
                     <div className="flex justify-center mb-6">
                       <QRCodeDisplay
                         url={`${window.location.origin}?session=${sessionId}`}
-                        size={320}
+                        size={typeof window !== 'undefined' && window.innerWidth < 640 ? 200 : 320}
                       />
                     </div>
                   )}

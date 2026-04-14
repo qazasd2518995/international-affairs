@@ -17,8 +17,10 @@ export function StageBackground() {
 
   useEffect(() => {
     const colors = ['#39ff14', '#ff00aa', '#ffcc00', '#00fff0', '#ff0040', '#0080ff']
+    // Keep sparkles safely inside the viewport (3-95%) so their box-shadow
+    // glow doesn't trigger horizontal overflow on narrow phones.
     const newPixels: Pixel[] = Array.from({ length: 30 }, () => ({
-      left: Math.random() * 100,
+      left: 3 + Math.random() * 92,
       top: Math.random() * 100,
       size: [2, 3, 4, 6][Math.floor(Math.random() * 4)],
       color: colors[Math.floor(Math.random() * colors.length)],

@@ -248,6 +248,8 @@ body {
   justify-content: center;
   gap: 8px;
   padding: 12px 24px;
+  min-height: 44px;
+  line-height: 1.2;
   font-family: var(--font-press-start), monospace;
   font-size: 12px;
   letter-spacing: 0.05em;
