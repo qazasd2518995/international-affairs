@@ -33,23 +33,21 @@ export function BackgroundMusic() {
 
     start()
 
-    // First user interaction (anywhere on the page) starts the music
+    // First user interaction (anywhere on the page) starts the music.
+    // Cover every interaction type browsers accept as a "user gesture":
+    // pointer/mouse/touch presses, key presses, AND focus changes
+    // (tapping into an input on iOS Safari counts as focusin).
     const onFirstInteraction = () => {
       if (audio && !muted) {
         audio.play().then(() => setPrimed(true)).catch(() => {})
       }
-      window.removeEventListener('pointerdown', onFirstInteraction)
-      window.removeEventListener('keydown', onFirstInteraction)
-      window.removeEventListener('touchstart', onFirstInteraction)
+      events.forEach((e) => window.removeEventListener(e, onFirstInteraction, true))
     }
-    window.addEventListener('pointerdown', onFirstInteraction)
-    window.addEventListener('keydown', onFirstInteraction)
-    window.addEventListener('touchstart', onFirstInteraction)
+    const events = ['pointerdown', 'mousedown', 'keydown', 'touchstart', 'touchend', 'focusin', 'click'] as const
+    events.forEach((e) => window.addEventListener(e, onFirstInteraction, true))
 
     return () => {
-      window.removeEventListener('pointerdown', onFirstInteraction)
-      window.removeEventListener('keydown', onFirstInteraction)
-      window.removeEventListener('touchstart', onFirstInteraction)
+      events.forEach((e) => window.removeEventListener(e, onFirstInteraction, true))
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
