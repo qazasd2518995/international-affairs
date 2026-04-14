@@ -264,7 +264,7 @@ export function TopicReveal({ onReveal, usedTopicIds = [] }: TopicRevealProps) {
                 >
                   <div className="pixel-tag pixel-tag-yellow animate-float">
                     <span>★</span>
-                    <span>BOSS LEVEL · BONUS XP</span>
+                    <span>BOSS LEVEL</span>
                     <span>★</span>
                   </div>
                 </motion.div>

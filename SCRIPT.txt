@@ -130,7 +130,7 @@ BENJAMIN:
    [CATEGORY] category."
 
   [NOTE: If it's a 3-star ★★★ BOSS LEVEL, add:]
-  *"Oooh, BOSS LEVEL — that means bonus XP if you handle it well."*
+  *"Oooh, BOSS LEVEL — this one's going to be a real test."*
 
 JUSTIN:
   [DO: Click REVEAL MATCHUP.]

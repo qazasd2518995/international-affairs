@@ -235,13 +235,28 @@ function AdminContent() {
 
   const handleCalculateResult = async () => {
     if (!currentMatch) return
-    const judgeScoreA = currentMatch.judgeScores.reduce((sum, s) => sum + s.teamAScore, 0) / (currentMatch.judgeScores.length || 1)
-    const judgeScoreB = currentMatch.judgeScores.reduce((sum, s) => sum + s.teamBScore, 0) / (currentMatch.judgeScores.length || 1)
-    const totalAudienceVotes = currentMatch.audienceVotes.length || 1
+    // Missing judges default to 5/5 (matches the confirm-dialog warning).
+    // Without this fallback, a missing judge counted as 0, which meant a
+    // single audience vote could hand a team 3.0 points from thin air.
+    const JUDGE_DEFAULT = 5
+    const judgeCount = currentMatch.judgeScores.length
+    const judgeScoreA = judgeCount > 0
+      ? currentMatch.judgeScores.reduce((sum, s) => sum + s.teamAScore, 0) / judgeCount
+      : JUDGE_DEFAULT
+    const judgeScoreB = judgeCount > 0
+      ? currentMatch.judgeScores.reduce((sum, s) => sum + s.teamBScore, 0) / judgeCount
+      : JUDGE_DEFAULT
+    const hasAudienceVotes = currentMatch.audienceVotes.length > 0
     const votesForA = currentMatch.audienceVotes.filter((v) => v.votedFor === currentMatch.teamA).length
     const votesForB = currentMatch.audienceVotes.filter((v) => v.votedFor === currentMatch.teamB).length
-    const audiencePercentA = (votesForA / totalAudienceVotes) * 100
-    const audiencePercentB = (votesForB / totalAudienceVotes) * 100
+    // No audience votes = split the audience weight 50/50 instead of giving
+    // it all to whoever happened to get the one stray vote.
+    const audiencePercentA = hasAudienceVotes
+      ? (votesForA / currentMatch.audienceVotes.length) * 100
+      : 50
+    const audiencePercentB = hasAudienceVotes
+      ? (votesForB / currentMatch.audienceVotes.length) * 100
+      : 50
     const finalScoreA = judgeScoreA * 0.7 + (audiencePercentA / 10) * 0.3
     const finalScoreB = judgeScoreB * 0.7 + (audiencePercentB / 10) * 0.3
     const winner = finalScoreA > finalScoreB ? currentMatch.teamA : currentMatch.teamB
@@ -267,16 +282,22 @@ function AdminContent() {
 
   const getMatchScores = () => {
     if (!currentMatch) return null
-    const judgeScoreA = currentMatch.judgeScores.reduce((sum, s) => sum + s.teamAScore, 0) / (currentMatch.judgeScores.length || 1)
-    const judgeScoreB = currentMatch.judgeScores.reduce((sum, s) => sum + s.teamBScore, 0) / (currentMatch.judgeScores.length || 1)
-    const totalAudienceVotes = currentMatch.audienceVotes.length || 1
+    const JUDGE_DEFAULT = 5
+    const judgeCount = currentMatch.judgeScores.length
+    const judgeScoreA = judgeCount > 0
+      ? currentMatch.judgeScores.reduce((sum, s) => sum + s.teamAScore, 0) / judgeCount
+      : JUDGE_DEFAULT
+    const judgeScoreB = judgeCount > 0
+      ? currentMatch.judgeScores.reduce((sum, s) => sum + s.teamBScore, 0) / judgeCount
+      : JUDGE_DEFAULT
+    const hasAudienceVotes = currentMatch.audienceVotes.length > 0
     const votesForA = currentMatch.audienceVotes.filter((v) => v.votedFor === currentMatch.teamA).length
     const votesForB = currentMatch.audienceVotes.filter((v) => v.votedFor === currentMatch.teamB).length
     return {
       judgeScoreA,
       judgeScoreB,
-      audiencePercentA: (votesForA / totalAudienceVotes) * 100,
-      audiencePercentB: (votesForB / totalAudienceVotes) * 100,
+      audiencePercentA: hasAudienceVotes ? (votesForA / currentMatch.audienceVotes.length) * 100 : 50,
+      audiencePercentB: hasAudienceVotes ? (votesForB / currentMatch.audienceVotes.length) * 100 : 50,
     }
   }
 
@@ -521,7 +542,7 @@ function AdminContent() {
                             animate={{ scale: [1, 1.1, 1] }}
                             transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                           >
-                            ★ BOSS LEVEL · BONUS XP ★
+                            ★ BOSS LEVEL ★
                           </motion.div>
                         </motion.div>
                       )}
