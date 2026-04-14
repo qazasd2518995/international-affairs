@@ -79,7 +79,7 @@ interface RealtimeGameActions {
   createSession: () => Promise<string>
   joinSession: (sessionId: string, playerName: string, teamId: string) => Promise<string>
   updatePhase: (phase: GamePhase) => Promise<void>
-  setCurrentTopic: (topicId: string) => Promise<void>
+  setCurrentTopic: (topicId: string | null) => Promise<void>
   submitVote: (playerId: string, teamId: string, topicId: string, stance: Vote['stance']) => Promise<void>
   createMatch: (match: Omit<Match, 'judgeScores' | 'audienceVotes'>) => Promise<void>
   setCurrentMatch: (matchId: string) => Promise<void>
@@ -616,12 +616,12 @@ export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & 
   )
 
   const setCurrentTopic = useCallback(
-    async (topicId: string) => {
+    async (topicId: string | null) => {
       if (!state.sessionId) return
 
       await supabase
         .from('game_sessions')
-        .update({ current_topic_id: topicId, updated_at: new Date().toISOString() })
+        .update({ current_topic_id: topicId || null, updated_at: new Date().toISOString() })
         .eq('id', state.sessionId)
     },
     [state.sessionId]

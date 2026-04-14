@@ -200,7 +200,10 @@ function AdminContent() {
   const handleNextMatch = async () => {
     const matchIndex = allMatches.findIndex((m) => m.id === game.currentMatchId)
     if (matchIndex < allMatches.length - 1) {
-      // Go draw a fresh topic for the next match — admin then sets it via handleTopicReveal
+      // Clear the previous match's topic so topic-reveal shows the draw card,
+      // not the previous question. handleTopicReveal will set the new topic
+      // and advance currentMatchId to the next un-completed match.
+      await game.setCurrentTopic(null)
       await game.updatePhase('topic-reveal')
     } else {
       await game.updatePhase('leaderboard')
