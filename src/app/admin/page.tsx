@@ -85,15 +85,24 @@ function AdminContent() {
   const handleTopicReveal = async (topic: Topic) => {
     await game.setCurrentTopic(topic.id)
 
-    // If matches exist (rounds 2/3), stamp the fresh topic onto the next
-    // un-played match so it shows the right question during prep/debate.
-    if (game.matches.length > 0) {
-      const nextMatch = allMatches.find((m) => !m.completed && m.id !== game.currentMatchId)
-        || allMatches.find((m) => !m.completed)
-      if (nextMatch) {
-        await game.updateMatchTopic(nextMatch.id, topic.id)
-        await game.setCurrentMatch(nextMatch.id)
-      }
+    if (game.matches.length === 0) return
+
+    // Find the match this topic belongs to:
+    //   - Round 1: currentMatchId is already match-01 (set by autoCreateMatches);
+    //     the current match has no topic yet, so stamp it.
+    //   - Round 2+: previous match completed, so currentMatchId still points
+    //     to it. Find the first non-completed match (in id-sorted order) to
+    //     advance to.
+    const current = currentMatch
+    const target = current && !current.completed
+      ? current
+      : allMatches.find((m) => !m.completed)
+
+    if (!target) return
+
+    await game.updateMatchTopic(target.id, topic.id)
+    if (target.id !== game.currentMatchId) {
+      await game.setCurrentMatch(target.id)
     }
   }
 
