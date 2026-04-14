@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Press_Start_2P, VT323 } from "next/font/google";
 import "./globals.css";
+import { BackgroundMusic } from "@/components/BackgroundMusic";
 
 const pressStart = Press_Start_2P({
   variable: "--font-press-start",
@@ -36,6 +37,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         {children}
+        <BackgroundMusic />
       </body>
     </html>
   );
