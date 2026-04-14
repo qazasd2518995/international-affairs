@@ -593,7 +593,6 @@ function AdminContent() {
                     startedAt={game.phaseStartedAt}
                     label="PREPARATION"
                     size="lg"
-                    onComplete={bothHave ? advanceToDebate : undefined}
                   />
 
                   {/* Live feed of arguments as they come in */}
@@ -705,8 +704,59 @@ function AdminContent() {
                   startedAt={game.phaseStartedAt}
                   label="BATTLE TIME"
                   size="lg"
-                  onComplete={handleNextPhase}
                 />
+
+                {(() => {
+                  const liveA = game.liveArguments[currentMatch.id]?.filter((a) => a.teamId === currentMatch.teamA) || []
+                  const liveB = game.liveArguments[currentMatch.id]?.filter((a) => a.teamId === currentMatch.teamB) || []
+                  const teamAArgs = currentMatch.teamAArguments?.length
+                    ? currentMatch.teamAArguments.map((content, i) => ({ id: `a-${i}`, content, playerName: liveA[i]?.playerName }))
+                    : liveA
+                  const teamBArgs = currentMatch.teamBArguments?.length
+                    ? currentMatch.teamBArguments.map((content, i) => ({ id: `b-${i}`, content, playerName: liveB[i]?.playerName }))
+                    : liveB
+                  const teamAName = game.teams[currentMatch.teamA]?.name || 'Team A'
+                  const teamBName = game.teams[currentMatch.teamB]?.name || 'Team B'
+
+                  return (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-4xl mx-auto">
+                      <div className="pixel-panel-sm pixel-panel">
+                        <p className="font-pixel text-pixel-sm text-team-red mb-2">
+                          ◆ {teamAName.toUpperCase()} · {teamAArgs.length} points
+                        </p>
+                        <div className="max-h-48 overflow-y-auto space-y-1">
+                          {teamAArgs.length === 0 ? (
+                            <p className="font-terminal text-terminal-sm text-text-muted italic">
+                              &gt; No prep arguments submitted
+                            </p>
+                          ) : teamAArgs.map((arg) => (
+                            <p key={arg.id} className="font-terminal text-terminal-sm">
+                              {arg.playerName && <span className="text-neon-cyan">{arg.playerName}: </span>}
+                              <span className="text-text-white">{arg.content}</span>
+                            </p>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="pixel-panel-sm pixel-panel">
+                        <p className="font-pixel text-pixel-sm text-team-blue mb-2">
+                          ◆ {teamBName.toUpperCase()} · {teamBArgs.length} points
+                        </p>
+                        <div className="max-h-48 overflow-y-auto space-y-1">
+                          {teamBArgs.length === 0 ? (
+                            <p className="font-terminal text-terminal-sm text-text-muted italic">
+                              &gt; No prep arguments submitted
+                            </p>
+                          ) : teamBArgs.map((arg) => (
+                            <p key={arg.id} className="font-terminal text-terminal-sm">
+                              {arg.playerName && <span className="text-neon-cyan">{arg.playerName}: </span>}
+                              <span className="text-text-white">{arg.content}</span>
+                            </p>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })()}
 
                 <div className="flex justify-center gap-3 flex-wrap">
                   <SkipButton onClick={handleNextPhase} label="End Debate" variant="next" />
@@ -733,7 +783,6 @@ function AdminContent() {
                   startedAt={game.phaseStartedAt}
                   label="CHEERING"
                   size="md"
-                  onComplete={handleNextPhase}
                 />
 
                 <div className="flex justify-center">

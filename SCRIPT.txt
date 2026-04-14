@@ -1,0 +1,494 @@
+================================================================================
+                 MINI DEBATE ARENA — FULL MC SCRIPT
+                         (English, 4 speakers)
+================================================================================
+
+CAST
+  JUSTIN    — Platform / Tech guide. Operates the app from the laptop.
+  BENJAMIN  — Main MC / Host. Runs the flow, warms up the room, leads debate.
+  TIFFANY   — Judge 1 (Logic Lens). Scores + delivers short feedback per match.
+  VINCENT   — Judge 2 (Delivery Lens). Scores + delivers short feedback per match.
+
+TOTAL RUNTIME
+  ~15-18 minutes end to end.
+
+NOTES
+  • [DO:] = an on-stage / on-screen action
+  • [NOTE:] = an invisible reminder for the speaker
+  • Lines in italics (marked *...*) are optional / improv hooks
+  • Prize at the end: NT$500 7-ELEVEN voucher for the champion team
+
+
+================================================================================
+  PART 0 — PRE-SHOW SETUP  (BEFORE CLASS STARTS)
+================================================================================
+
+JUSTIN:
+  [DO: Laptop connected to projector. Open Chrome. Go to
+   https://international-affairs.vercel.app/admin. Click "START NEW GAME".]
+  [DO: The SCAN TO JOIN screen + QR code is now projected.]
+  [DO: Open /judge on Tiffany's phone → she taps JUDGE 2.]
+  [DO: Open /judge on Vincent's phone → he taps JUDGE 1.]
+  [DO: Sound check on background music (♪ ON in bottom-right).]
+
+
+================================================================================
+  PART 1 — OPENING & LOBBY  (≈ 2 minutes)
+================================================================================
+
+BENJAMIN:
+  "Alright everyone, welcome! Today we are doing something a little
+   different. Instead of a normal class activity, you are about to play
+   a live game — it's called MINI DEBATE ARENA.
+
+   Think of it like a mix between Pokemon battles, game shows, and a
+   real debate club. Six teams. Three matches. One champion.
+
+   And yes — the winning team walks away with a 500-dollar 7-ELEVEN
+   voucher. *(pause for reaction)* So let's make this count."
+
+JUSTIN:
+  [DO: Point at projector]
+  "Okay, here's how you join. Everyone take out your phones right now.
+   You'll see a big QR code on the screen. Scan it with your camera.
+
+   Once it opens, type your name, and pick your group — you should
+   already know if you're Group 1 through Group 6. Then hit START
+   BATTLE.
+
+   If you run into any problem, raise your hand. If you close the tab
+   by accident later, don't worry — there's always a small QR code in
+   the bottom-left of the screen you can re-scan."
+
+BENJAMIN:
+  [DO: While students are joining]
+  "While you're all scanning in, let me set the vibe. In this game,
+   there's no 'right' answer. Every topic has two sides, and whichever
+   side you end up defending is decided by the computer — randomly —
+   so no one gets to cherry-pick. You might AGREE with something you
+   personally disagree with. That's the challenge. That's the fun.
+
+   *(glance at Tiffany and Vincent)* And we have two judges today —
+   Tiffany and Vincent — who will score every match. Plus, the rest
+   of you in the audience also get to vote. Your votes count for 30%
+   of the final score. So even if you're not on stage, you still
+   decide who wins."
+
+JUSTIN:
+  [NOTE: Wait until roughly all 29-30 students have joined. Watch the
+   "X HEROES JOINED" counter on the projector.]
+  "Looks like we've got… [say the number shown] players in. Great.
+   Once everyone's ready, I'll click START GAME."
+
+BENJAMIN:
+  "Everybody in? Ready? Let's GO!"
+
+JUSTIN:
+  [DO: Click START GAME.]
+
+
+================================================================================
+  PART 2 — AUTO-PAIRING REVEAL  (≈ 30 seconds)
+================================================================================
+
+JUSTIN:
+  [DO: The system instantly shuffles 6 groups into 3 pairs and flips
+   coins for sides. A big MATCHUPS screen appears.]
+  "So the system has just done two things — it randomly paired the
+   groups into 3 matchups, and then it flipped a coin to decide who
+   argues AGREE and who argues DISAGREE. Here's how it shook out."
+
+BENJAMIN:
+  [DO: Point at screen as each pair is named]
+  "Alright! Match 1 — Group [X] versus Group [Y]. Match 2 —
+   [Z] versus [W]. Match 3 — [P] versus [Q].
+
+   Before we start Match 1… let's look at the topic."
+
+
+================================================================================
+  PART 3 — MATCH 1  (≈ 4 minutes)
+================================================================================
+
+--- 3A. Topic Draw ---
+
+JUSTIN:
+  [DO: Click the DRAW A TOPIC card.]
+  "Okay, drawing Match 1's topic now. Watch the screen…"
+
+BENJAMIN:
+  [DO: Narrate the countdown + shuffle animation with energy]
+  "Three… two… one… SHUFFLE! *(follow the progress bar)* It's
+   slowing down… locking in…"
+
+  [DO: Once revealed, read the topic out loud, slowly and clearly]
+  "Our first topic is…  *(pause, read)*
+
+   [TOPIC SHOWN ON SCREEN]
+
+   And look at this — it's a [1-star / 2-star / 3-star] level, in the
+   [CATEGORY] category."
+
+  [NOTE: If it's a 3-star ★★★ BOSS LEVEL, add:]
+  *"Oooh, BOSS LEVEL — that means bonus XP if you handle it well."*
+
+JUSTIN:
+  [DO: Click REVEAL MATCHUP.]
+
+
+--- 3B. Matchup Spotlight ---
+
+BENJAMIN:
+  [DO: Read the pairing dramatically]
+  "So for this first round we have…
+
+   Group [X] — you're arguing AGREE. Your job is to convince us this
+   statement is TRUE.
+
+   Group [Y] — you're arguing DISAGREE. Your job is to tear it apart.
+
+   Whether you personally believe it or not doesn't matter — pretend
+   you do. That's the game."
+
+JUSTIN:
+  [DO: Click START PREP.]
+
+
+--- 3C. Preparation  (90 seconds) ---
+
+BENJAMIN:
+  "90 seconds on the clock. Prep teams — open your phones right now.
+   You will see an INPUT BOX where you type arguments. Here's the
+   trick: EVERY teammate on your side can type. And every line you
+   submit stays on the record — the AI judge sees all of them.
+
+   So don't all type the same thing. SPLIT UP. One person handles
+   evidence, another does examples, another does the 'why does this
+   matter' angle. Punch out as many solid points as you can.
+
+   The other four groups — you'll see the live feed on your phones
+   too. You're watching both sides build their case. Start forming
+   your own opinion about who's going to win, because you'll vote
+   later."
+
+JUSTIN:
+  [DO: Watch the admin screen. Both teams' attack counters should be
+   climbing in real time.]
+  [NOTE: If one team hasn't submitted anything with 20s left, whisper
+   to Benjamin to prompt them.]
+
+BENJAMIN:
+  [NOTE: At the 10-second mark, call out time]
+  "Ten seconds left — get those last ideas in!"
+
+  [NOTE: When timer hits 0 OR when both teams have 2-3 attacks each,
+   Justin will click BATTLE START.]
+
+
+--- 3D. Free Debate  (120 seconds) ---
+
+BENJAMIN:
+  [DO: Wave both teams up to the front of the room]
+  "Okay Group [X], Group [Y] — come up here. Stand up, face the class.
+
+   Two minutes. Free debate. Go back and forth — one speaks, the other
+   responds, then flip. Use the arguments you just typed. Don't just
+   read them, PITCH them.
+
+   On my go… *(Justin clicks BATTLE START)*
+
+   GO!"
+
+JUSTIN:
+  [DO: Click BATTLE START. Big 2:00 timer appears.]
+
+BENJAMIN:
+  [NOTE: During the 2 minutes, Benjamin is the debate moderator. If
+   one team dominates, cut in with:]
+  *"Let's hear a response from the other side."*
+  *"Can Group [X] answer that directly?"*
+  *"30 seconds left — best final point wins this round."*
+
+  [NOTE: If debate dies early, throw in a provocation:]
+  *"But what about [counterpoint the other side hasn't raised]?"*
+
+
+--- 3E. Audience Cheer Vote  (20 seconds) ---
+
+JUSTIN:
+  [DO: Timer hits 0 automatically, or click End Debate early. Phase
+   advances to AUDIENCE CHEER.]
+  "Okay, who won the room? The four groups who weren't on stage — open
+   your phones, you'll see a voting screen. Tap the team you found
+   more convincing. You have 20 seconds."
+
+BENJAMIN:
+  [DO: While audience votes, keep it lively]
+  "This is your moment, audience. Think about who actually made you
+   rethink the issue — not who yelled the loudest. Who had the
+   example that stuck? Who stayed on topic? That's who you vote for."
+
+
+--- 3F. Judges Score ---
+
+JUSTIN:
+  [DO: Voting timer ends. Phase auto-advances to SCORING.]
+  "Judges are scoring now."
+
+BENJAMIN:
+  "While Tiffany and Vincent lock in their scores — quick note to
+   everyone: our judges each look at things differently. Tiffany is
+   the LOGIC judge — reasoning, evidence, structure. Vincent is the
+   DELIVERY judge — clarity, confidence, persuasion. Same debate, two
+   lenses. That's why a good team wins both."
+
+TIFFANY:
+  [DO: On her phone, she sees 1-10 sliders for both teams + an AI
+   suggestion with a logic-focused commentary. She picks her scores
+   and taps SUBMIT.]
+  [NOTE: Wait for Justin to advance phase before speaking]
+
+VINCENT:
+  [DO: Same on his phone, but AI commentary focuses on delivery.]
+  [NOTE: Wait for Justin to advance phase before speaking]
+
+JUSTIN:
+  [NOTE: Once both judges are ✓ ready — the screen shows two green
+   ticks — click REVEAL RESULT.]
+
+
+--- 3G. Result Reveal ---
+
+JUSTIN:
+  [DO: MatchResult animation plays with confetti.]
+
+BENJAMIN:
+  [DO: Wait for the winner name to appear on screen, then read with
+   drama]
+  "And the winner of Match 1… is…  [WINNING GROUP NAME]!
+
+   Congratulations! Round of applause!"
+
+TIFFANY:
+  [DO: Deliver a 15-20 second feedback as Judge 1, Logic lens]
+  "Quick note from me as the logic judge —
+   [EXAMPLE feedback — improvise based on what actually happened:]
+   *Group [X], your opening argument about [Y] was really tight. I
+   liked that you gave a concrete example. Group [Z], your reasoning
+   was a bit looser — you made a strong claim but didn't back it up
+   with evidence. Both sides, strong effort.*"
+
+VINCENT:
+  [DO: Deliver a 15-20 second feedback as Judge 2, Delivery lens]
+  "And from the delivery side —
+   [EXAMPLE feedback:]
+   *Group [X], you sounded confident, your voice was clear, you stayed
+   on topic. Group [Z], your energy was higher but you interrupted a
+   few times. Remember, persuasion is also about letting the other
+   side finish. Nice work, both of you.*"
+
+BENJAMIN:
+  "Great first match! Alright, grab some water, breathe — next match
+   coming up."
+
+JUSTIN:
+  [DO: Click NEXT MATCH. The flow loops back to TOPIC DRAW for the
+   next pair.]
+
+
+================================================================================
+  PART 4 — MATCH 2  (≈ 4 minutes, same flow)
+================================================================================
+
+BENJAMIN:
+  "Alright, Match 2 time. Different topic, different teams, same
+   rules. Let's go."
+
+JUSTIN:
+  [DO: Click DRAW A TOPIC.]
+
+[REPEAT the entire Match 1 sequence:
+   Topic Draw → Matchup Spotlight → Prep → Debate → Cheer → Score → Result.
+   All the same beats, but adjust the "first match" language — say
+   things like "round two", "second battle", etc.]
+
+BENJAMIN (Match 2 intro line variant):
+  "Round two. Now we know how this works. Let's see who learned from
+   Match 1."
+
+TIFFANY & VINCENT:
+  [NOTE: Again give 15-20s feedback each after the result reveal.
+   Try to build on what you said in Match 1, e.g.]
+  TIFFANY: *"Much sharper structure this time — you clearly absorbed
+   the feedback from last round."*
+  VINCENT: *"I loved when Group [X] said [specific phrase] — that's
+   exactly the kind of clear pitch that wins audiences."*
+
+
+================================================================================
+  PART 5 — MATCH 3  (≈ 4 minutes, final match)
+================================================================================
+
+BENJAMIN:
+  "Last match! Groups [P] and [Q] — you're up. And this is where
+   things get spicy, because after this match we tally the XP from
+   all three matches and crown our champion. So if you're one of the
+   teams who already won, a good showing here could seal it. If
+   you're the underdog… this is your comeback moment."
+
+JUSTIN:
+  [DO: Click DRAW A TOPIC.]
+
+[REPEAT full sequence as before.]
+
+BENJAMIN (during Match 3 debate):
+  *"This is your last shot at XP — leave it all out here!"*
+
+TIFFANY & VINCENT:
+  [NOTE: Final match feedback — be a little more generous, it's the
+   last time they'll hear from you]
+
+
+================================================================================
+  PART 6 — LEADERBOARD + CHAMPION CROWNING  (≈ 2 minutes)
+================================================================================
+
+JUSTIN:
+  [DO: After Match 3 result, click CROWN CHAMPION.]
+  [DO: Leaderboard appears, sorted by total XP across 3 matches.]
+
+BENJAMIN:
+  [DO: Look at the leaderboard, then build the tension]
+  "Okay. All three matches are done. The leaderboard is LIVE on
+   screen, and the math has been done — 70% judge score, 30%
+   audience cheer, across all three matches.
+
+   Before we crown the champion, let me just say —
+   *(look at the room)*
+   Everyone who stood up and debated today, you did something hard.
+   You took a position, you defended it, you listened, you
+   responded. That's not easy, and most adults never practice it.
+   So even if your team didn't win, you actually won.
+
+   Now… the fun part."
+
+JUSTIN:
+  [DO: Click into the final-awards screen. Big drumroll animation
+   with "WHO IS THE CHAMPION?" flashing.]
+
+BENJAMIN:
+  [DO: Let the animation build. Read the screen when the crown +
+   team name appears]
+  "And the CHAMPION of Mini Debate Arena is…
+
+   *(read name)*
+
+   GROUP [X] !!!  *(huge applause, hand it off to the winners)*"
+
+  [DO: Hand the 500-dollar 7-ELEVEN voucher to the winning team.]
+
+TIFFANY:
+  [DO: Short closing]
+  "Congrats Group [X]! Spend the voucher well — maybe share some
+   snacks with the rest of the class."
+
+VINCENT:
+  "Real talk though — every team today had moments that would win a
+   real debate round. This wasn't close because one team was weak.
+   It was close because you all showed up."
+
+BENJAMIN:
+  [DO: Wrap up]
+  "That's Mini Debate Arena. Thank you to our judges Tiffany and
+   Vincent, thank you Justin for running the tech, and thank you
+   all for playing.
+
+   Remember — good debate isn't about being loud or being right.
+   It's about thinking sharper and listening harder. Do that, and
+   you'll win every argument you actually care about.
+
+   See you next class!"
+
+JUSTIN:
+  [DO: Fade music out. Close the projector.]
+
+
+================================================================================
+  APPENDIX A — QUICK REFERENCE CHEAT SHEETS
+================================================================================
+
+JUSTIN'S CLICK ORDER (the tech spine of the whole show)
+  1. START NEW GAME         → lobby with QR
+  2. START GAME             → matchups auto-reveal
+  3. DRAW A TOPIC           → topic shuffle animation
+  4. REVEAL MATCHUP         → pair announcement
+  5. START PREP             → 90s timer, students type
+  6. BATTLE START!          → 120s debate timer
+  7. (timer auto-advances)  → audience vote (20s)
+  8. (timer auto-advances)  → judges score
+  9. REVEAL RESULT          → winner + confetti
+ 10. NEXT MATCH             → loop back to step 3 (2 more times)
+ 11. CROWN CHAMPION         → final awards screen
+
+If something lags: the left-bottom JOIN QR pill is always there.
+If students drop off: they can re-scan the QR and rejoin mid-game.
+
+
+BENJAMIN'S ENERGY CHECKPOINTS
+  ● Opening      → hype + set prize stakes
+  ● Prep phase   → push multiple teammates to type
+  ● Debate       → moderate, don't let one team dominate
+  ● Result       → drama + genuine applause
+  ● Final        → gracious, credit everyone
+
+
+TIFFANY'S JUDGE-1 FEEDBACK TEMPLATE (Logic lens)
+  "Group [X], your [specific argument] was well-structured because
+   [reason]. Group [Y], the weak spot was [specific claim] — you
+   needed [evidence / example / logical connection]. Overall, [win
+   condition]."
+
+
+VINCENT'S JUDGE-2 FEEDBACK TEMPLATE (Delivery lens)
+  "Group [X], your delivery stood out because [specific moment —
+   confident opening, great example, good eye contact, clean
+   pitch]. Group [Y], you had energy but [specific thing — got
+   tangled in long sentences / interrupted / lost the thread].
+   Nice work both."
+
+
+================================================================================
+  APPENDIX B — IF THINGS GO WRONG
+================================================================================
+
+SCENARIO                            FIX
+---------                           ---
+A team doesn't submit attacks       Justin clicks FORCE SKIP, confirms
+                                    "yes, skip anyway" — AI will score
+                                    with whatever was submitted.
+
+Student phone dies mid-game         They re-scan the bottom-left QR on
+                                    the projector and log back in.
+
+Wifi hiccup, phones out of sync     Wait 3-5 seconds — the polling
+                                    fallback catches up automatically.
+
+Debate runs long                    Justin clicks "End Debate" — jumps
+                                    straight to audience vote.
+
+Judges haven't scored when Justin   A confirm dialog asks "only X of 2
+tries to REVEAL RESULT              scored, reveal anyway?" — Justin
+                                    checks with Tiffany/Vincent first.
+
+Wrong topic drawn / want to redraw  No in-game redraw. Benjamin covers
+                                    it: "Okay, this is the topic,
+                                    let's roll with it."
+
+Nobody is winning the debate        Benjamin throws in a provocation
+                                    ("but what about X?") to spark it
+                                    back up.
+
+
+================================================================================
+                                 — END OF SCRIPT —
+================================================================================
