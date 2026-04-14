@@ -466,7 +466,7 @@ function AdminContent() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
               >
-                <AllMatchups matches={currentRoundMatches} teams={game.teams} />
+                <AllMatchups matches={currentRoundMatches} teams={game.teams} allMatchesOrdered={allMatches} />
                 <div className="text-center">
                   <motion.button
                     className="pixel-btn pixel-btn-green"

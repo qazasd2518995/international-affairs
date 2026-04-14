@@ -9,9 +9,12 @@ interface MatchupRevealProps {
   teamA: Team
   teamB: Team
   index: number
+  matchNumber?: number  // explicit "this is match X of 3" — falls back to index+1
+  upcoming?: boolean    // true → show "NOW PLAYING" badge instead of stage label
 }
 
-export function MatchupReveal({ match, teamA, teamB, index }: MatchupRevealProps) {
+export function MatchupReveal({ match, teamA, teamB, index, matchNumber, upcoming }: MatchupRevealProps) {
+  const stageNum = matchNumber ?? index + 1
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.8 }}
@@ -25,7 +28,7 @@ export function MatchupReveal({ match, teamA, teamB, index }: MatchupRevealProps
       <div className="pixel-panel">
         <div className="text-center mb-4">
           <p className="font-pixel text-pixel-sm text-neon-yellow">
-            ★ STAGE {match.round}-{index + 1} ★
+            {upcoming ? '★ NOW PLAYING ★' : `★ STAGE ${match.round}-${stageNum} ★`}
           </p>
         </div>
 
@@ -89,15 +92,24 @@ export function MatchupReveal({ match, teamA, teamB, index }: MatchupRevealProps
 interface AllMatchupsProps {
   matches: Match[]
   teams: Record<string, Team>
+  // Full ordered list of all matches — used to compute the real STAGE number
+  // when `matches` is filtered down to just the upcoming one for round 2/3.
+  allMatchesOrdered?: Match[]
 }
 
-export function AllMatchups({ matches, teams }: AllMatchupsProps) {
+export function AllMatchups({ matches, teams, allMatchesOrdered }: AllMatchupsProps) {
   const [showMatches, setShowMatches] = useState(false)
 
   useEffect(() => {
     const timer = setTimeout(() => setShowMatches(true), 600)
     return () => clearTimeout(timer)
   }, [])
+
+  // Round 2/3: only one match is shown; mark it as "NOW PLAYING" instead of
+  // "STAGE 1-1" (which would be misleading since this is actually match 2 or 3).
+  const isUpcomingOnly = matches.length === 1 && (allMatchesOrdered?.length ?? matches.length) > 1
+  const headerLabel = isUpcomingOnly ? 'NEXT BATTLE!' : 'BATTLES!'
+  const headerSub = isUpcomingOnly ? '> The next pair takes the stage' : '> Preparing arena...'
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
@@ -107,10 +119,10 @@ export function AllMatchups({ matches, teams }: AllMatchupsProps) {
         animate={{ opacity: 1, y: 0 }}
       >
         <div className="font-pixel text-pixel-3xl md:text-pixel-4xl neon-glow-pink animate-glitch">
-          BATTLES!
+          {headerLabel}
         </div>
         <p className="font-terminal text-terminal-lg text-text-dim mt-2">
-          &gt; Preparing arena...
+          {headerSub}
         </p>
       </motion.div>
 
@@ -119,6 +131,10 @@ export function AllMatchups({ matches, teams }: AllMatchupsProps) {
           const teamA = teams[match.teamA]
           const teamB = teams[match.teamB]
           if (!teamA || !teamB) return null
+          // Real match number = its position in allMatchesOrdered (1..3)
+          const realNum = allMatchesOrdered
+            ? allMatchesOrdered.findIndex((m) => m.id === match.id) + 1
+            : index + 1
           return (
             <MatchupReveal
               key={match.id}
@@ -126,6 +142,8 @@ export function AllMatchups({ matches, teams }: AllMatchupsProps) {
               teamA={teamA}
               teamB={teamB}
               index={index}
+              matchNumber={realNum}
+              upcoming={isUpcomingOnly}
             />
           )
         })}
