@@ -4,11 +4,13 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 
 interface LoginFormProps {
-  teamCount: number
+  // Real class-group numbers (e.g. [1, 3, 4, 5, 6, 7]). We skip our own
+  // presenter group (2), so the list isn't always contiguous.
+  teamNumbers: number[]
   onLogin: (name: string, teamId: string) => void
 }
 
-export function LoginForm({ teamCount, onLogin }: LoginFormProps) {
+export function LoginForm({ teamNumbers, onLogin }: LoginFormProps) {
   const [name, setName] = useState('')
   const [selectedTeam, setSelectedTeam] = useState<string>('')
   const [error, setError] = useState('')
@@ -26,9 +28,9 @@ export function LoginForm({ teamCount, onLogin }: LoginFormProps) {
     onLogin(name.trim(), selectedTeam)
   }
 
-  const teams = Array.from({ length: teamCount }, (_, i) => ({
-    id: `team-${i + 1}`,
-    name: `GROUP ${i + 1}`,
+  const teams = teamNumbers.map((n) => ({
+    id: `team-${n}`,
+    name: `GROUP ${n}`,
   }))
 
   return (

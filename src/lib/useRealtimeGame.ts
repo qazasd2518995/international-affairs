@@ -568,12 +568,14 @@ export function useRealtimeGame(initialSessionId?: string): RealtimeGameState & 
 
     if (error) throw error
 
-    // Create 6 teams — team ID is prefixed with session ID to avoid PK collisions
-    // across sessions (teams.id is a global PK in Postgres).
-    const teams = Array.from({ length: 6 }, (_, i) => ({
-      id: `${data.id}:team-${i + 1}`,
+    // Create 6 teams — team IDs use the real class-group numbers (1, 3, 4,
+    // 5, 6, 7). Group 2 is our own team (the presenter), so they don't
+    // compete. Prefix with session ID to avoid PK collisions across sessions.
+    const groupNumbers = [1, 3, 4, 5, 6, 7]
+    const teams = groupNumbers.map((n) => ({
+      id: `${data.id}:team-${n}`,
       session_id: data.id,
-      name: `Group ${i + 1}`,
+      name: `Group ${n}`,
     }))
 
     const { error: teamsError } = await supabase.from('teams').insert(teams)

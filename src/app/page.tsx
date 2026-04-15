@@ -156,7 +156,7 @@ function HomeContent() {
         </motion.div>
 
         {!isLoggedIn ? (
-          <LoginForm teamCount={6} onLogin={handleLogin} />
+          <LoginForm teamNumbers={[1, 3, 4, 5, 6, 7]} onLogin={handleLogin} />
         ) : (
           <div className="w-full max-w-md">
             {/* Lobby */}
